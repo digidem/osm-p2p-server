@@ -15,7 +15,7 @@
     "fd-chunk-store": "^1.1.0",
     "hyperlog": "^4.7.0",
     "level": "^1.4.0",
-    "osm-p2p-db": "^1.1.0"
+    "osm-p2p-db": "^2.0.0"
   },
   "dependencies": {
     "body": "^5.1.0",
