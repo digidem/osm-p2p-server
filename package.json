@@ -1,14 +1,16 @@
 {
-  "name": "osm-p2p-router",
+  "name": "osm-p2p-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "serve osm http endpoints over a p2p db",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "open street map",
+    "p2p",
+    "maps",
+    "geo"
+  ],
+  "author": "substack",
+  "license": "BSD",
   "devDependencies": {
     "fd-chunk-store": "^1.1.0",
     "hyperlog": "^4.7.0",
@@ -21,5 +23,19 @@
     "randombytes": "^2.0.1",
     "routes": "^2.1.0",
     "through2": "^2.0.0"
-  }
+  },
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/substack/osm-p2p-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/substack/osm-p2p-server/issues"
+  },
+  "homepage": "https://github.com/substack/osm-p2p-server#readme"
 }
