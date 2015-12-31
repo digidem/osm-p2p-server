@@ -58,22 +58,37 @@ Router.prototype._mapRoute = function (m, req, res) {
   res.write(h('?xml', { version: '1.0', encoding: 'UTF-8' }, [
     h('osm!', [
       h('bounds/', {
-        minlat: q[0][0],
-        maxlat: q[0][1],
-        minlon: q[1][0],
-        maxlon: q[1][1]
+        minlat: q[0][0], maxlat: q[0][1],
+        minlon: q[1][0], maxlon: q[1][1]
       })
     ])
   ]))
   r.pipe(through.obj(write, end)).pipe(res)
 
   function write (row, enc, next) {
-    var t = row.type, tags = row.tags || {}
-    delete row.type
+    var children = []
+    ;(row.refs || []).forEach(function (ref) {
+      children.push(h('nd/', { ref: ref }))
+    })
+    delete row.refs
+
+    Object.keys(row.members || []).forEach(function (ref) {
+      children.push(h('member/', {
+        type: 'relation',
+        ref: ref,
+        role: ''
+      }))
+    })
+    delete row.members
+
+    Object.keys(row.tags || {}).forEach(function (key) {
+      children.push(h('tag', { k: key, v: row.tags[key] }))
+    })
     delete row.tags
-    next(null, h(t, row, Object.keys(tags).map(function (key) {
-      return h('tag', { k: key, v: tags[key] })
-    })))
+
+    var tag = row.type
+    delete row.type
+    next(null, h(tag, row, children))
   }
   function end (next) {
     this.push('</osm>\n')
@@ -103,6 +118,7 @@ Router.prototype._chRoute = function (m, req, res) {
         delete ch.nodes
       }
       var id = ch.id
+      ch.timestamp = new Date().toISOString()
       console.log('CREATE', ch)
       delete ch.id
       pending++
