@@ -3,6 +3,7 @@ var inherits = require('inherits')
 var h = require('./lib/h.js')
 var through = require('through2')
 var body = require('body/any')
+var randombytes = require('randombytes')
 
 module.exports = Router
 
@@ -51,7 +52,7 @@ Router.prototype._capRoute = function (m, req, res) {
 
 Router.prototype._mapRoute = function (m, req, res) {
   var bbox = req.url.replace(/[^?]*\?bbox=/,'').split(',').map(Number)
-  var q = [[bbox[1],bbox[3]],[bbox[0],bbox[2]]]
+  var q = [[bbox[1],bbox[3]],[bbox[0],bbox[2]]] // left,bottom,right,top
   var r = this.osmdb.queryStream(q)
   r.once('error', function (err) { res.end(err + '\n') })
   res.write(h('?xml', { version: '1.0', encoding: 'UTF-8' }, [
@@ -85,12 +86,29 @@ Router.prototype._chRoute = function (m, req, res) {
   var pending = 1, errors = [], keys = []
   body(req, res, function (err, params) {
     if (err) return error(400, res, err)
+    var docs = {}
+    params.changes.created.map(function (ch) {
+      docs[ch.id] = randombytes(8).toString('hex')
+      ch.id = docs[ch.id]
+    })
     params.changes.created.forEach(function (ch) {
+      if (ch.loc) {
+        ch.lat = ch.loc[1]
+        ch.lon = ch.loc[0]
+        ch.type = 'node'
+        delete ch.loc
+      } else if (ch.nodes) {
+        ch.type = 'way'
+        ch.refs = ch.nodes.map(function (id) { return docs[id] })
+        delete ch.nodes
+      }
+      var id = ch.id
       console.log('CREATE', ch)
+      delete ch.id
       pending++
-      self.osmdb.create(ch, function (err, key) {
+      self.osmdb.put(id, ch, function (err) {
         if (err) errors.push(err)
-        else keys.push(key)
+        else keys.push(id)
         if (--pending === 0) done()
       })
     })
