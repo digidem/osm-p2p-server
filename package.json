@@ -17,8 +17,6 @@
   },
   "dependencies": {
     "body": "^5.1.0",
-    "ecstatic": "^1.4.0",
-    "hyperscript": "^1.4.7",
     "inherits": "^2.0.1",
     "randombytes": "^2.0.1",
     "routes": "^2.1.0",
