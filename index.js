@@ -2,6 +2,7 @@ var routes = require('routes')
 var inherits = require('inherits')
 var h = require('./lib/h.js')
 var through = require('through2')
+var body = require('body/any')
 
 module.exports = Router
 
@@ -15,6 +16,7 @@ function Router (osmdb) {
   this.routers.get.addRoute('/api/capabilities', this._capRoute.bind(this))
   this.routers.get.addRoute('/api/0.6/capabilities', this._capRoute.bind(this))
   this.routers.get.addRoute('/api/0.6/map?*', this._mapRoute.bind(this))
+  this.routers.post.addRoute('/api/changeset', this._chRoute.bind(this))
 }
 
 Router.prototype.match = function (method, url) {
@@ -76,4 +78,35 @@ Router.prototype._mapRoute = function (m, req, res) {
     this.push('</osm>\n')
     next()
   }
+}
+
+Router.prototype._chRoute = function (m, req, res) {
+  var self = this
+  var pending = 1, errors = [], keys = []
+  body(req, res, function (err, params) {
+    if (err) return error(400, res, err)
+    params.changes.created.forEach(function (ch) {
+      console.log('CREATE', ch)
+      pending++
+      self.osmdb.create(ch, function (err, key) {
+        if (err) errors.push(err)
+        else keys.push(key)
+        if (--pending === 0) done()
+      })
+    })
+    if (--pending === 0) done()
+  })
+  function done () {
+    if (errors.length) {
+      return error(500, res, errors.map(String).join('\n'))
+    } else {
+      res.setHeader('content-type', 'application/json')
+      res.end(JSON.stringify(keys) + '\n')
+    }
+  }
+}
+
+function error (code, res, err) {
+  res.statusCode = code
+  res.end(err + '\n')
 }
