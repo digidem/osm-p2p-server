@@ -19,8 +19,7 @@ var router = osmrouter(osm)
 
 var http = require('http')
 var server = http.createServer(function (req, res) {
-  var m = router.match(req.method, req.url)
-  if (m) m.fn(req, res)
+  if (router.handle(req, res)) {}
   else {
     res.statusCode = 404
     res.end('not found\n')
