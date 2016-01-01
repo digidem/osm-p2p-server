@@ -75,7 +75,6 @@ Router.prototype._chRoute = function (m, req, res) {
     })
     params.changes.created.forEach(function (ch) {
       var id = fix(docs, ch)
-      console.log('CREATE', id, ch)
       pending++
       self.osmdb.put(id, ch, function (err) {
         if (err) errors.push(err)
@@ -85,7 +84,6 @@ Router.prototype._chRoute = function (m, req, res) {
     })
     params.changes.modified.forEach(function (ch) {
       var id = fix(docs, ch)
-      console.log('MODIFIED', id, ch)
       pending++
       var opts = { links: ch.version ? [ch.version] : [] }
       self.osmdb.put(id, ch, opts, function (err) {
