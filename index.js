@@ -69,27 +69,26 @@ Router.prototype._chRoute = function (m, req, res) {
   body(req, res, function (err, params) {
     if (err) return error(400, res, err)
     var docs = {}
-    params.changes.created.map(function (ch) {
+    params.changes.created.forEach(function (ch) {
       docs[ch.id] = randombytes(8).toString('hex')
       ch.id = docs[ch.id]
     })
     params.changes.created.forEach(function (ch) {
-      if (ch.loc) {
-        ch.lat = ch.loc[1]
-        ch.lon = ch.loc[0]
-        ch.type = 'node'
-        delete ch.loc
-      } else if (ch.nodes) {
-        ch.type = 'way'
-        ch.refs = ch.nodes.map(function (id) { return docs[id] })
-        delete ch.nodes
-      }
-      var id = ch.id
-      ch.timestamp = new Date().toISOString()
-      console.log('CREATE', ch)
-      delete ch.id
+      var id = fix(docs, ch)
+      console.log('CREATE', id, ch)
       pending++
       self.osmdb.put(id, ch, function (err) {
+        if (err) errors.push(err)
+        else keys.push(id)
+        if (--pending === 0) done()
+      })
+    })
+    params.changes.modified.forEach(function (ch) {
+      var id = fix(docs, ch)
+      console.log('MODIFIED', id, ch)
+      pending++
+      var opts = { links: ch.version ? [ch.version] : [] }
+      self.osmdb.put(id, ch, opts, function (err) {
         if (err) errors.push(err)
         else keys.push(id)
         if (--pending === 0) done()
@@ -105,6 +104,26 @@ Router.prototype._chRoute = function (m, req, res) {
       res.end(JSON.stringify(keys) + '\n')
     }
   }
+}
+
+function fix (docs, ch) {
+  if (ch.loc) {
+    ch.lat = ch.loc[1]
+    ch.lon = ch.loc[0]
+    ch.type = 'node'
+    delete ch.loc
+  } else if (ch.nodes) {
+    ch.type = 'way'
+    ch.refs = ch.nodes
+      .map(function (id) { return docs.hasOwnProperty(id) ? docs[id] : id })
+      .map(function (id) { return id.replace(/^[nw]/,'') })
+    delete ch.nodes
+  }
+  ch.timestamp = new Date().toISOString()
+  var id = ch.id
+  if (docs.hasOwnProperty(id)) id = docs[id]
+  delete ch.id
+  return id.replace(/^[nw]/, '')
 }
 
 function error (code, res, err) {
