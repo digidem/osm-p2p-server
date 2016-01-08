@@ -92,6 +92,16 @@ Router.prototype._chRoute = function (m, req, res) {
         if (--pending === 0) done()
       })
     })
+    params.changes.deleted.forEach(function (ch) {
+      var id = ch.id.replace(/^[nw]/, '')
+      pending++
+      var opts = { links: ch.version ? [ch.version] : [] }
+      self.osmdb.del(id, opts, function (err) {
+        if (err) errors.push(err)
+        else keys.push(id)
+        if (--pending === 0) done()
+      })
+    })
     if (--pending === 0) done()
   })
   function done () {
