@@ -18,8 +18,7 @@ var osmdb = require('osm-p2p-db')
 var osm = osmdb({
   log: hyperlog(db.log, { valueEncoding: 'json' }),
   db: db.index,
-  store: fdstore(4096, '/tmp/osm-p2p/tree'),
-  size: 4096
+  store: fdstore(4096, '/tmp/osm-p2p/tree')
 })
 
 var osmrouter = require('osm-p2p-server')
