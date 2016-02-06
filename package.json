@@ -12,12 +12,11 @@
   "author": "substack",
   "license": "BSD",
   "devDependencies": {
-    "fd-chunk-store": "^1.1.0",
-    "hyperlog": "^4.7.0",
-    "level": "^1.4.0",
+    "concat-stream": "^1.5.1",
+    "hyperquest": "^1.2.0",
+    "nodexml": "^1.0.2",
     "osm-p2p": "^1.1.0",
-    "tape": "^4.4.0",
-    "xml2json": "^0.9.0"
+    "tape": "^4.4.0"
   },
   "dependencies": {
     "body": "^5.1.0",
