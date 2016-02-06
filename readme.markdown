@@ -6,20 +6,8 @@ api endpoints over a local p2p http server
 # example
 
 ``` js
-var level = require('level')
-var hyperlog = require('hyperlog')
-var fdstore = require('fd-chunk-store')
-var db = {
-  log: level('/tmp/osm-p2p/log'),
-  index: level('/tmp/osm-p2p/index')
-}
-
-var osmdb = require('osm-p2p-db')
-var osm = osmdb({
-  log: hyperlog(db.log, { valueEncoding: 'json' }),
-  db: db.index,
-  store: fdstore(4096, '/tmp/osm-p2p/tree')
-})
+var osmdb = require('osm-p2p')
+var osm = osmdb('/tmp/osm-p2p')
 
 var osmrouter = require('osm-p2p-server')
 var router = osmrouter(osm)
