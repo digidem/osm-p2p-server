@@ -5,7 +5,7 @@ var path = require('path')
 var osmrouter = require('../')
 var http = require('http')
 var osmdb = require('osm-p2p')
-var parsexml = require('nodexml').xml2obj
+var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
 
@@ -31,8 +31,8 @@ test('capabilities', function (t) {
   t.plan(1)
   hyperquest('http://localhost:' + port + '/api/capabilities')
     .pipe(concat(function (body) {
-      var data = parsexml(body)
-      t.equal(data.osm.version, '0.6')
+      var data = parsexml(body.toString())
+      t.equal(data.root.attributes.version, '0.6')
     }))
 })
 

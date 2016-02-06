@@ -14,7 +14,6 @@
   "devDependencies": {
     "concat-stream": "^1.5.1",
     "hyperquest": "^1.2.0",
-    "nodexml": "^1.0.2",
     "osm-p2p": "^1.1.0",
     "tape": "^4.4.0"
   },
@@ -24,7 +23,8 @@
     "osm-p2p-xml": "^1.0.0",
     "randombytes": "^2.0.1",
     "routes": "^2.1.0",
-    "through2": "^2.0.0"
+    "through2": "^2.0.0",
+    "xml-parser": "^1.2.1"
   },
   "directories": {
     "example": "example"
