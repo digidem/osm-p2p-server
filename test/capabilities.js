@@ -30,8 +30,8 @@ test('setup capabilities', function (t) {
 test('capabilities', function (t) {
   t.plan(1)
   hyperquest('http://localhost:' + port + '/api/capabilities')
-    .pipe(concat(function (body) {
-      var data = parsexml(body.toString())
+    .pipe(concat({ encoding: 'string' }, function (body) {
+      var data = parsexml(body)
       t.equal(data.root.attributes.version, '0.6')
     }))
 })

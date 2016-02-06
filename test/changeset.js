@@ -5,7 +5,7 @@ var path = require('path')
 var osmrouter = require('../')
 var http = require('http')
 var osmdb = require('osm-p2p')
-var parsexml = require('nodexml').xml2obj
+var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
 
@@ -32,7 +32,9 @@ test('setup changeset server', function (t) {
 test('create changeset', function (t) {
   t.plan(3)
   var href = base + 'changeset/create'
-  var hq = hyperquest.put(href)
+  var hq = hyperquest.put(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200)
     t.equal(res.headers['content-type'], 'text/plain')
@@ -56,7 +58,9 @@ test('add docs to changeset', function (t) {
   t.plan(docs.length * 3)
   docs.forEach(function (doc) {
     var href = base + doc.type + '/create'
-    var hq = hyperquest.put(href)
+    var hq = hyperquest.put(href, {
+      headers: { 'content-type': 'text/xml' }
+    })
     hq.once('response', function (res) {
       t.equal(res.statusCode, 200)
       t.equal(res['content-type'], 'text/plain')
