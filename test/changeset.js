@@ -36,12 +36,12 @@ test('create changeset', function (t) {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
-    t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/plain')
+    t.equal(res.statusCode, 200, 'create 200 ok')
+    t.equal(res.headers['content-type'], 'text/plain', 'create content type')
   })
-  hq.pipe(concat(function (body) {
-    changeId = body.toString().trim()
-    t.ok(/^[0-9A-Fa-f]+$/.test(changeId))
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    changeId = body.trim()
+    t.ok(/^[0-9A-Fa-f]+$/.test(changeId), 'expected changeset id response')
   }))
   hq.end(`<osm>
     <changeset>
@@ -63,7 +63,7 @@ test('add docs to changeset', function (t) {
     })
     hq.once('response', function (res) {
       t.equal(res.statusCode, 200)
-      t.equal(res['content-type'], 'text/plain')
+      t.equal(res.headers['content-type'], 'text/plain')
     })
     hq.pipe(concat(function (body) {
       t.ok(/^[0-9A-Fa-f]+$/.test(body.toString().trim()))
