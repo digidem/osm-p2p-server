@@ -29,7 +29,7 @@ Server.prototype.handle = function (req, res) {
     .toLowerCase()
   var m = this.match(method, req.url)
   if (m) {
-    m.fn(req, res, this.osmdb)
+    m.fn(req, res, this.osmdb, m)
     return m
   }
   return null

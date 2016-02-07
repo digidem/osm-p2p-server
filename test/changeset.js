@@ -8,6 +8,7 @@ var osmdb = require('osm-p2p')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
+var parsexml = require('xml-parser')
 
 var base, server, changeId
 
@@ -65,8 +66,8 @@ test('add docs to changeset', function (t) {
       t.equal(res.statusCode, 200)
       t.equal(res.headers['content-type'], 'text/plain')
     })
-    hq.pipe(concat(function (body) {
-      t.ok(/^[0-9A-Fa-f]+$/.test(body.toString().trim()))
+    hq.pipe(concat({ encoding: 'string' }, function (body) {
+      t.ok(/^[0-9A-Fa-f]+$/.test(body.trim()))
     }))
     hq.end(`<osm>
       <node changeset="${doc.changeset}"
@@ -74,6 +75,40 @@ test('add docs to changeset', function (t) {
       </node>
     </osm>`)
   })
+})
+
+test('get osmchange doc', function (t) {
+  t.plan(5)
+  var href = base + 'changeset/' + changeId + '/download'
+  var hq = hyperquest(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'osmChange')
+    t.equal(xml.root.children.length, 1)
+    t.equal(xml.root.children[0].name, 'create')
+    t.deepEqual(xml.root.children[0].children[0], {
+      name: 'node',
+      attributes: {
+        changeset: changeId,
+        lat: '64.5',
+        lon: '-121.5'
+      },
+      children: [],
+      content: ''
+    })
+    t.deepEqual(xml.root.children[0].children[1], {
+      name: 'node',
+      attributes: {
+        changeset: changeId,
+        lat: '63.9',
+        lon: '-120.9'
+      },
+      children: [],
+      content: ''
+    })
+  }))
 })
 
 test('teardown changeset server', function (t) {
