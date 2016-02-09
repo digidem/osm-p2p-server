@@ -78,7 +78,7 @@ test('add docs to changeset', function (t) {
 })
 
 test('get osmchange doc', function (t) {
-  t.plan(5)
+  t.plan(4)
   var href = base + 'changeset/' + changeId + '/download'
   var hq = hyperquest(href, {
     headers: { 'content-type': 'text/xml' }
@@ -88,26 +88,28 @@ test('get osmchange doc', function (t) {
     t.equal(xml.root.name, 'osmChange')
     t.equal(xml.root.children.length, 1)
     t.equal(xml.root.children[0].name, 'create')
-    t.deepEqual(xml.root.children[0].children[0], {
-      name: 'node',
-      attributes: {
-        changeset: changeId,
-        lat: '64.5',
-        lon: '-121.5'
+    t.deepEqual(xml.root.children[0].children.sort(cmpch), [
+      {
+        name: 'node',
+        attributes: {
+          changeset: changeId,
+          lat: '64.5',
+          lon: '-121.5'
+        },
+        children: [],
+        content: ''
       },
-      children: [],
-      content: ''
-    })
-    t.deepEqual(xml.root.children[0].children[1], {
-      name: 'node',
-      attributes: {
-        changeset: changeId,
-        lat: '63.9',
-        lon: '-120.9'
-      },
-      children: [],
-      content: ''
-    })
+      {
+        name: 'node',
+        attributes: {
+          changeset: changeId,
+          lat: '63.9',
+          lon: '-120.9'
+        },
+        children: [],
+        content: ''
+      }
+    ].sort(cmpch))
   }))
 })
 
@@ -115,3 +117,7 @@ test('teardown changeset server', function (t) {
   server.close()
   t.end()
 })
+
+function cmpch (a, b) {
+  return JSON.stringify(a) < JSON.stringify(b) ? -1 : 1
+}
