@@ -69,9 +69,9 @@ test('add docs to changeset upload', function (t) {
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <create>
-      <node id="-1" changeset="${changeId}" version="" lat="64.5" lon="-121.5"/>
-      <node id="-2" changeset="${changeId}" version="" lat="63.9" lon="-120.9"/>
-      <way id="-3" changeset="${changeId}" version="">
+      <node id="-1" changeset="${changeId}" lat="64.5" lon="-121.5"/>
+      <node id="-2" changeset="${changeId}" lat="63.9" lon="-120.9"/>
+      <way id="-3" changeset="${changeId}">
         <nd ref="-1"/>
         <nd ref="-2"/>
       </way>
