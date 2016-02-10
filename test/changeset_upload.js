@@ -51,8 +51,9 @@ test('create changeset upload', function (t) {
   </osm>`)
 })
 
+var ids = {}, versions = {}
 test('add docs to changeset upload', function (t) {
-  t.plan(3)
+  t.plan(4)
 
   var href = base + 'changeset/' + changeId + '/upload'
   var hq = hyperquest.put(href, {
@@ -65,7 +66,13 @@ test('add docs to changeset upload', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'diffResult')
-    console.log('TODO: check diffResult more')
+    t.deepEqual(xml.root.children.map(function (c) {
+      return c.attributes.old_id
+    }).sort(), ['-1','-2','-3'])
+    xml.root.children.forEach(function (c) {
+      ids[c.attributes.old_id] = c.attributes.new_id
+      versions[c.attributes.old_id] = c.attributes.new_version
+    })
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <create>
@@ -95,6 +102,8 @@ test('get osmchange doc from upload', function (t) {
         name: 'node',
         attributes: {
           changeset: changeId,
+          id: ids['-1'],
+          version: versions['-1'],
           lat: '64.5',
           lon: '-121.5'
         },
@@ -105,11 +114,35 @@ test('get osmchange doc from upload', function (t) {
         name: 'node',
         attributes: {
           changeset: changeId,
+          id: ids['-2'],
+          version: versions['-2'],
           lat: '63.9',
           lon: '-120.9'
         },
         children: [],
         content: ''
+      },
+      {
+        type: 'way',
+        attributes: {
+          changeset: changeId,
+          id: ids['-3'],
+          version: versions['-3']
+        },
+        children: [
+          {
+            name: 'nd',
+            attributes: { ref: ids['-2'] },
+            children: [],
+            content: ''
+          },
+          {
+            name: 'nd',
+            attributes: { ref: ids['-1'] },
+            children: [],
+            content: ''
+          }
+        ]
       }
     ].sort(cmpch))
   }))
@@ -121,5 +154,5 @@ test('teardown changeset upload server', function (t) {
 })
 
 function cmpch (a, b) {
-  return JSON.stringify(a) < JSON.stringify(b) ? -1 : 1
+  return a.attributes.id < b.attributes.id ? -1 : 1
 }
