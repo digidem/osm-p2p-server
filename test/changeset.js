@@ -51,6 +51,7 @@ test('create changeset', function (t) {
   </osm>`)
 })
 
+var uploaded = {}
 test('add docs to changeset', function (t) {
   var docs = [
     { type: 'node', lat: 64.5, lon: -121.5, changeset: changeId },
@@ -68,12 +69,34 @@ test('add docs to changeset', function (t) {
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       t.ok(/^[0-9A-Fa-f]+$/.test(body.trim()))
+      uploaded[doc.lon+','+doc.lat] = body.trim()
     }))
     hq.end(`<osm>
       <node changeset="${doc.changeset}"
         lat="${doc.lat}" lon="${doc.lon}">
       </node>
     </osm>`)
+  })
+})
+
+var versions = {}
+test('get doc versions', function (t) {
+  t.plan(6)
+  Object.keys(uploaded).forEach(function (key) {
+    var href = base + 'node/' + uploaded[key]
+    var hq = hyperquest(href)
+    hq.once('response', function (res) {
+      t.equal(res.statusCode, 200)
+      t.equal(res.headers['content-type'], 'text/xml')
+    })
+    hq.pipe(concat({ encoding: 'string' }, function (body) {
+      var xml = parsexml(body)
+      t.equal(xml.root.name, 'osm')
+
+      xml.root.children.forEach(function (c) {
+        versions[key] = c.attributes.version
+      })
+    }))
   })
 })
 
@@ -92,6 +115,8 @@ test('get osmchange doc', function (t) {
       {
         name: 'node',
         attributes: {
+          id: uploaded['-121.5,64.5'],
+          version: versions['-121.5,64.5'],
           changeset: changeId,
           lat: '64.5',
           lon: '-121.5'
@@ -102,6 +127,8 @@ test('get osmchange doc', function (t) {
       {
         name: 'node',
         attributes: {
+          id: uploaded['-120.9,63.9'],
+          version: versions['-120.9,63.9'],
           changeset: changeId,
           lat: '63.9',
           lon: '-120.9'
@@ -119,5 +146,5 @@ test('teardown changeset server', function (t) {
 })
 
 function cmpch (a, b) {
-  return JSON.stringify(a) < JSON.stringify(b) ? -1 : 1
+  return a.attributes.id < b.attributes.id ? -1 : 1
 }
