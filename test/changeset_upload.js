@@ -211,6 +211,72 @@ test('upload to closed changeset', function (t) {
   </osmChange>`)
 })
 
+var secondChangeId
+test('create second changeset', function (t) {
+  t.plan(3)
+  var href = base + 'changeset/create'
+  var hq = hyperquest.put(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 200, 'create 200 ok')
+    t.equal(res.headers['content-type'], 'text/plain', 'create content type')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    secondChangeId = body.trim()
+    t.ok(/^[0-9A-Fa-f]+$/.test(secondChangeId), 'expected changeset id response')
+  }))
+  hq.end(`<osm>
+    <changeset>
+      <tag k="comment" v="second"/>
+    </changeset>
+  </osm>`)
+})
+
+test('second changeset upload', function (t) {
+  t.plan(6)
+  var href = base + 'changeset/' + secondChangeId + '/upload'
+  var hq = hyperquest.put(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.on('response', function (res) {
+    t.equal(res.statusCode, 200)
+    t.equal(res.headers['content-type'], 'text/xml')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'diffResult')
+    t.deepEqual(xml.root.children.map(function (c) {
+      return c.attributes.old_id
+    }).sort(), [ids['-1']])
+
+    var oldv = versions[ids['-1']]
+    var newv = xml.root.children[0].attributes.new_version
+    hyperquest.get(base + '/node/' + ids['-1'] + '/' + newv)
+      .on('response', function (res) {
+        t.equal(res.statusCode, 200)
+      })
+      .pipe(concat({ encoding: 'string' }, onnew))
+    hyperquest.get(base + '/node/' + ids['-1'] + '/' + oldv)
+      .on('response', function (res) {
+        t.equal(res.statusCode, 200)
+      })
+      .pipe(concat({ encoding: 'string' }, onold))
+  }))
+  hq.end(`<osmChange version="1.0" generator="acme osm editor">
+    <modify>
+      <node id="${ids['-1']}" changeset="${secondChangeId}" lat="111" lon="222"/>
+    </modify>
+  </osmChange>`)
+
+  function onnew (body) {
+    console.log('NEW', body)
+  }
+  function onold (body) {
+    console.log('OLD', body)
+  }
+})
+
 test('teardown changeset upload server', function (t) {
   server.close()
   t.end()
