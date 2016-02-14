@@ -148,6 +148,66 @@ test('get osmchange doc from upload', function (t) {
   }))
 })
 
+test('close changeset', function (t) {
+  t.plan(2)
+  var href = base + 'changeset/' + changeId + '/close'
+  var hq = hyperquest.put(href)
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 200, 'create 200 ok')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    t.equal(body.trim(), '', 'empty response')
+  }))
+  hq.end()
+})
+
+test('close already closed changeset', function (t) {
+  t.plan(3)
+  var href = base + 'changeset/' + changeId + '/close'
+  var hq = hyperquest.put(href)
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 409, 'expected conflict code')
+    t.equal(res.headers['content-type'], 'text/plain')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    t.equal(
+      body.trim().replace(/closed at.*/, 'closed at'),
+      'The changeset ' + changeId + ' was closed at',
+      'already closed message'
+    )
+  }))
+  hq.end()
+})
+
+test('upload to closed changeset', function (t) {
+  t.plan(3)
+  var href = base + 'changeset/' + changeId + '/upload'
+  var hq = hyperquest.put(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.on('response', function (res) {
+    t.equal(res.statusCode, 409, 'expected conflict code')
+    t.equal(res.headers['content-type'], 'text/plain')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    t.equal(
+      body.trim().replace(/closed at.*/, 'closed at'),
+      'The changeset ' + changeId + ' was closed at',
+      'already closed message'
+    )
+  }))
+  hq.end(`<osmChange version="1.0" generator="acme osm editor">
+    <create>
+      <node id="-1" changeset="${changeId}" lat="64.5" lon="-121.5"/>
+      <node id="-2" changeset="${changeId}" lat="63.9" lon="-120.9"/>
+      <way id="-3" changeset="${changeId}">
+        <nd ref="-1"/>
+        <nd ref="-2"/>
+      </way>
+    </create>
+  </osmChange>`)
+})
+
 test('teardown changeset upload server', function (t) {
   server.close()
   t.end()
