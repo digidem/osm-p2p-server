@@ -97,7 +97,11 @@ test('get osmchange doc from upload', function (t) {
     t.equal(xml.root.name, 'osmChange')
     t.equal(xml.root.children.length, 1)
     t.equal(xml.root.children[0].name, 'create')
-    t.deepEqual(xml.root.children[0].children.sort(cmpch), [
+    xml.root.children[0].children.sort(cmpch)
+    xml.root.children[0].children.forEach(function (c) {
+      c.children.sort(cmpref)
+    })
+    t.deepEqual(xml.root.children[0].children, [
       {
         name: 'node',
         attributes: {
@@ -123,26 +127,25 @@ test('get osmchange doc from upload', function (t) {
         content: ''
       },
       {
-        type: 'way',
+        name: 'way',
         attributes: {
           changeset: changeId,
           id: ids['-3'],
           version: versions['-3']
         },
+        content: '',
         children: [
           {
             name: 'nd',
             attributes: { ref: ids['-2'] },
-            children: [],
-            content: ''
+            children: []
           },
           {
             name: 'nd',
             attributes: { ref: ids['-1'] },
-            children: [],
-            content: ''
+            children: []
           }
-        ]
+        ].sort(cmpref)
       }
     ].sort(cmpch))
   }))
@@ -215,4 +218,8 @@ test('teardown changeset upload server', function (t) {
 
 function cmpch (a, b) {
   return a.attributes.id < b.attributes.id ? -1 : 1
+}
+
+function cmpref (a, b) {
+  return a.attributes.ref < b.attributes.ref ? -1 : 1
 }
