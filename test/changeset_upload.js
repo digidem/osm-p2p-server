@@ -234,7 +234,7 @@ test('create second changeset', function (t) {
 })
 
 test('second changeset upload', function (t) {
-  t.plan(6)
+  t.plan(10)
   var href = base + 'changeset/' + secondChangeId + '/upload'
   var hq = hyperquest.put(href, {
     headers: { 'content-type': 'text/xml' }
@@ -243,6 +243,7 @@ test('second changeset upload', function (t) {
     t.equal(res.statusCode, 200)
     t.equal(res.headers['content-type'], 'text/xml')
   })
+  var oldv, newv
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'diffResult')
@@ -250,14 +251,14 @@ test('second changeset upload', function (t) {
       return c.attributes.old_id
     }).sort(), [ids['-1']])
 
-    var oldv = versions[ids['-1']]
-    var newv = xml.root.children[0].attributes.new_version
-    hyperquest.get(base + '/node/' + ids['-1'] + '/' + newv)
+    oldv = versions['-1']
+    newv = xml.root.children[0].attributes.new_version
+    hyperquest.get(base + 'node/' + ids['-1'] + '/' + newv)
       .on('response', function (res) {
         t.equal(res.statusCode, 200)
       })
       .pipe(concat({ encoding: 'string' }, onnew))
-    hyperquest.get(base + '/node/' + ids['-1'] + '/' + oldv)
+    hyperquest.get(base + 'node/' + ids['-1'] + '/' + oldv)
       .on('response', function (res) {
         t.equal(res.statusCode, 200)
       })
@@ -270,10 +271,40 @@ test('second changeset upload', function (t) {
   </osmChange>`)
 
   function onnew (body) {
-    console.log('NEW', body)
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'osm')
+    t.deepEqual(xml.root.children, [
+      {
+        name: 'node',
+        attributes: {
+          changeset: secondChangeId,
+          lat: '111',
+          lon: '222',
+          id: ids['-1'],
+          version: newv
+        },
+        content: '',
+        children: []
+      }
+    ])
   }
   function onold (body) {
-    console.log('OLD', body)
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'osm')
+    t.deepEqual(xml.root.children, [
+      {
+        name: 'node',
+        attributes: {
+          changeset: changeId,
+          lat: '64.5',
+          lon: '-121.5',
+          id: ids['-1'],
+          version: oldv
+        },
+        content: '',
+        children: []
+      }
+    ])
   }
 })
 
