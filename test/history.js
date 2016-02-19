@@ -30,7 +30,7 @@ test('setup history server', function (t) {
   })
 })
 
-var ids = {}
+var ids = {}, versions = {}, changesets = []
 test('create history', function (t) {
   var updates = [
     [
@@ -41,7 +41,7 @@ test('create history', function (t) {
       { type: 'node', lat: 64.3, lon: -121.4, id: 'A' }
     ],
     [
-      { type: 'node', lat: 64.3, lon: -121.4, id: 'A' }
+      { type: 'node', lat: 64.2, lon: -121.4, id: 'A' }
     ],
     [
       { type: 'node', lat: 63.9, lon: -120.8, id: 'B' }
@@ -62,6 +62,7 @@ test('create history', function (t) {
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       var changeId = body.trim()
       t.ok(/^[0-9A-Fa-f]+$/.test(changeId), 'expected changeset id response')
+      changesets.push(changeId)
       upload(changeId, update, next)
     }))
     hq.end('<osm><changeset></changeset></osm>')
@@ -83,6 +84,8 @@ test('create history', function (t) {
           var key = update[-1-Number(c.attributes.old_id)].id
           ids[key] = c.attributes.new_id
         }
+        if (!versions[key]) versions[key] = []
+        versions[key].push(c.attributes.new_version)
       })
       next()
     }))
@@ -121,7 +124,44 @@ test('history route', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osm')
-    console.log('xml=', xml)
+    t.deepEqual(xml.root.children, [
+      {
+        name: 'node',
+        attributes: {
+          changeset: changesets[0],
+          id: ids.A,
+          lat: '64.5',
+          lon: '-121.5',
+          version: versions.A[0]
+        },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'node',
+        attributes: {
+          changeset: changesets[0],
+          id: ids.A,
+          lat: '64.3',
+          lon: '-121.4',
+          version: versions.A[0]
+        },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'node',
+        attributes: {
+          changeset: changesets[0],
+          id: ids.A,
+          lat: '64.2',
+          lon: '-121.4',
+          version: versions.A[0]
+        },
+        children: [],
+        content: ''
+      }
+    ])
   }))
 })
 
