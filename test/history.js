@@ -30,6 +30,7 @@ test('setup history server', function (t) {
   })
 })
 
+var ids = {}
 test('create history', function (t) {
   var updates = [
     [
@@ -47,7 +48,7 @@ test('create history', function (t) {
     ]
   ]
   t.plan(6 * updates.length)
-  var exists = {}, ids = {}
+  var exists = {}
   ;(function next () {
     if (updates.length === 0) return
     var update = updates.shift()
@@ -111,6 +112,17 @@ test('create history', function (t) {
     function existFilter (doc) { return exists[doc.id] }
     function notExistFilter (doc) { return !exists[doc.id] }
   }
+})
+
+test('history route', function (t) {
+  var hq = hyperquest(base + 'node/' + ids.A + '/history', {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'osm')
+    console.log('xml=', xml)
+  }))
 })
 
 test('teardown changeset server', function (t) {
