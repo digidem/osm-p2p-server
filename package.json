@@ -13,8 +13,10 @@
   "license": "BSD",
   "dependencies": {
     "body": "^5.1.0",
+    "collect-stream": "^1.1.1",
     "concat-stream": "^1.5.1",
     "has": "^1.0.1",
+    "hyperkv": "^1.5.0",
     "inherits": "^2.0.1",
     "osm-p2p-xml": "^1.0.0",
     "randombytes": "^2.0.2",

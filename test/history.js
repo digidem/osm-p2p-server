@@ -48,7 +48,7 @@ test('create history', function (t) {
     ]
   ]
   t.plan(6 * updates.length)
-  var exists = {}
+  var exists = {}, versionId = {}
   ;(function next () {
     if (updates.length === 0) return
     var update = updates.shift()
@@ -80,9 +80,14 @@ test('create history', function (t) {
       var xml = parsexml(body)
       t.equal(xml.root.name, 'diffResult')
       xml.root.children.forEach(function (c) {
+        var key
         if (/^-\d+/.test(c.attributes.old_id)) {
-          var key = update[-1-Number(c.attributes.old_id)].id
+          key = update[-1-Number(c.attributes.old_id)].id
           ids[key] = c.attributes.new_id
+          versionId[c.attributes.new_id] = key
+        } else {
+          key = versionId[c.attributes.old_id]
+          versionId[c.attributes.new_id] = key
         }
         if (!versions[key]) versions[key] = []
         versions[key].push(c.attributes.new_version)
@@ -118,8 +123,13 @@ test('create history', function (t) {
 })
 
 test('history route', function (t) {
+  t.plan(4)
   var hq = hyperquest(base + 'node/' + ids.A + '/history', {
     headers: { 'content-type': 'text/xml' }
+  })
+  hq.on('response', function (res) {
+    t.equal(res.statusCode, 200)
+    t.equal(res.headers['content-type'], 'text/xml')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -128,34 +138,34 @@ test('history route', function (t) {
       {
         name: 'node',
         attributes: {
+          changeset: changesets[2],
+          id: ids.A,
+          lat: '64.2',
+          lon: '-121.4',
+          version: versions.A[2]
+        },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'node',
+        attributes: {
+          changeset: changesets[1],
+          id: ids.A,
+          lat: '64.3',
+          lon: '-121.4',
+          version: versions.A[1]
+        },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'node',
+        attributes: {
           changeset: changesets[0],
           id: ids.A,
           lat: '64.5',
           lon: '-121.5',
-          version: versions.A[0]
-        },
-        children: [],
-        content: ''
-      },
-      {
-        name: 'node',
-        attributes: {
-          changeset: changesets[0],
-          id: ids.A,
-          lat: '64.3',
-          lon: '-121.4',
-          version: versions.A[0]
-        },
-        children: [],
-        content: ''
-      },
-      {
-        name: 'node',
-        attributes: {
-          changeset: changesets[0],
-          id: ids.A,
-          lat: '64.2',
-          lon: '-121.4',
           version: versions.A[0]
         },
         children: [],
