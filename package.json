@@ -1,6 +1,6 @@
 {
   "name": "osm-p2p-server",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "serve osm http endpoints over a p2p db",
   "main": "index.js",
   "keywords": [
