@@ -56,7 +56,7 @@ test('add docs to changeset upload', function (t) {
   t.plan(4)
 
   var href = base + 'changeset/' + changeId + '/upload'
-  var hq = hyperquest.put(href, {
+  var hq = hyperquest.post(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.on('response', function (res) {
@@ -185,7 +185,7 @@ test('close already closed changeset', function (t) {
 test('upload to closed changeset', function (t) {
   t.plan(3)
   var href = base + 'changeset/' + changeId + '/upload'
-  var hq = hyperquest.put(href, {
+  var hq = hyperquest.post(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.on('response', function (res) {
@@ -236,7 +236,7 @@ test('create second changeset', function (t) {
 test('second changeset upload', function (t) {
   t.plan(10)
   var href = base + 'changeset/' + secondChangeId + '/upload'
-  var hq = hyperquest.put(href, {
+  var hq = hyperquest.post(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.on('response', function (res) {

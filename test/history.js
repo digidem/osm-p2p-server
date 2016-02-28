@@ -69,7 +69,7 @@ test('create history', function (t) {
   })()
 
   function upload (changeId, update, next) {
-    var hq = hyperquest.put(base + 'changeset/' + changeId + '/upload', {
+    var hq = hyperquest.post(base + 'changeset/' + changeId + '/upload', {
       headers: { 'content-type': 'text/xml' }
     })
     hq.once('response', function (res) {
