@@ -1,21 +1,21 @@
 var Router = require('routes')
-var routes = require('./lib/routes.js')
+var qs = require('query-string')
+var routes = require('./routes')
 
 module.exports = Server
 
 function Server (osmdb) {
   if (!(this instanceof Server)) return new Server(osmdb)
-  var self = this
-  self.osmdb = osmdb
-  self.routers = {
+  this.osmdb = osmdb
+  this.routers = {
     get: Router(),
     post: Router(),
     put: Router(),
     delete: Router()
   }
-  routes.forEach(function (r) {
-    self.routers[r[0]].addRoute(r[1], r[2])
-  })
+  routes.forEach(function (route) {
+    this.routers[route.method].addRoute(route.path, route.GetRoute(osmdb))
+  }, this)
 }
 
 Server.prototype.match = function (method, url) {
@@ -27,10 +27,16 @@ Server.prototype.match = function (method, url) {
 Server.prototype.handle = function (req, res) {
   var method = (req.headers.X_HTTP_METHOD_OVERRIDE || req.method)
     .toLowerCase()
-  var m = this.match(method, req.url)
-  if (m) {
-    m.fn(req, res, this.osmdb, m)
-    return m
-  }
-  return null
+  var match = this.match(method, req.url)
+  if (!match) return null
+
+  req.query = qs.parse(qs.extract(req.url))
+  req.params = match.params
+
+  match.fn(req, res, function (err) {
+    if (!err) return
+    res.statusCode = err.statusCode
+    res.end(err.message + '\n')
+    return match
+  })
 }
