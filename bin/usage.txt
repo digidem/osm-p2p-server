@@ -1,0 +1,6 @@
+usage: osm-p2p-server {OPTIONS}
+
+-h --help     Show this message
+-p --port     Listen on a port. Default: 5000
+-d --datadir  Store data in this directory. Default: ./osm-p2p.db
+

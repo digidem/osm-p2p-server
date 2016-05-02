@@ -3,7 +3,10 @@
 serve [open street map 0.6](http://wiki.openstreetmap.org/wiki/API_v0.6)
 api endpoints over a local p2p http server
 
-# example
+This package is available as a library you can use from node.js (or if you are
+creative, also the browser) or as a standalone command.
+
+# api example
 
 ``` js
 var osmdb = require('osm-p2p')
@@ -21,6 +24,17 @@ var server = http.createServer(function (req, res) {
   }
 })
 server.listen(5000)
+```
+
+# usage
+
+```
+usage: osm-p2p-server {OPTIONS}
+
+-h --help     Show this message
+-p --port     Listen on a port. Default: 5000
+-d --datadir  Store data in this directory. Default: ./osm-p2p.db
+
 ```
 
 # api
