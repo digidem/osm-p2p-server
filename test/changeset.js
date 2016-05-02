@@ -73,7 +73,8 @@ test('add docs to changeset', function (t) {
     }))
     hq.end(`<osm>
       <node changeset="${doc.changeset}"
-        lat="${doc.lat}" lon="${doc.lon}">
+        lat="${doc.lat}" lon="${doc.lon}"
+        id="IGNOREME">
       </node>
     </osm>`)
   })
