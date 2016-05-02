@@ -46,6 +46,10 @@ test('create changeset', function (t) {
   }))
   hq.end(`<osm>
     <changeset>
+      <tag k="comment" v="whatever"/>
+    </changeset>
+    <changeset>
+      <tag k="cool" v="beans"/>
       <tag k="comment" v="wow"/>
     </changeset>
   </osm>`)
