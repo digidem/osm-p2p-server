@@ -20,18 +20,16 @@
     "collect-stream": "^1.1.1",
     "concat-stream": "^1.5.1",
     "has": "^1.0.1",
-    "hyperkv": "^1.5.0",
-    "inherits": "^2.0.1",
     "minimist": "^1.2.0",
+    "osm-p2p": "^1.1.0",
     "osm-p2p-xml": "^1.0.0",
     "randombytes": "^2.0.2",
     "routes": "^2.1.0",
-    "through2": "^2.0.0",
-    "xml-parser": "^1.2.1"
+    "xml-parser": "^1.2.1",
+    "xtend": "^4.0.1"
   },
   "devDependencies": {
     "hyperquest": "^1.2.0",
-    "osm-p2p": "^1.1.0",
     "tape": "^4.4.0"
   },
   "directories": {
