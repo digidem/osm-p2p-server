@@ -68,21 +68,21 @@ test('add docs to changeset upload', function (t) {
     t.equal(xml.root.name, 'diffResult')
     t.deepEqual(xml.root.children.map(function (c) {
       return c.attributes.old_id
-    }).sort(), ['-1','-2','-3'])
+    }).sort(), ['1','2','3'])
     xml.root.children.forEach(function (c) {
       ids[c.attributes.old_id] = c.attributes.new_id
       t.notEqual(c.attributes.old_id, c.attributes.new_id,
-        'placeholder id should not equal new id')
+        'placeholder id should not equal old id')
       versions[c.attributes.old_id] = c.attributes.new_version
     })
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <create>
-      <node id="-1" changeset="${changeId}" lat="64.5" lon="-121.5"/>
-      <node id="-2" changeset="${changeId}" lat="63.9" lon="-120.9"/>
-      <way id="-3" changeset="${changeId}">
-        <nd ref="-1"/>
-        <nd ref="-2"/>
+      <node id="1" changeset="${changeId}" lat="64.5" lon="-121.5"/>
+      <node id="2" changeset="${changeId}" lat="63.9" lon="-120.9"/>
+      <way id="3" changeset="${changeId}">
+        <nd ref="1"/>
+        <nd ref="2"/>
       </way>
     </create>
   </osmChange>`)
@@ -108,8 +108,8 @@ test('get osmchange doc from upload', function (t) {
         name: 'node',
         attributes: {
           changeset: changeId,
-          id: ids['-1'],
-          version: versions['-1'],
+          id: ids['1'],
+          version: versions['1'],
           lat: '64.5',
           lon: '-121.5'
         },
@@ -120,8 +120,8 @@ test('get osmchange doc from upload', function (t) {
         name: 'node',
         attributes: {
           changeset: changeId,
-          id: ids['-2'],
-          version: versions['-2'],
+          id: ids['2'],
+          version: versions['2'],
           lat: '63.9',
           lon: '-120.9'
         },
@@ -132,19 +132,19 @@ test('get osmchange doc from upload', function (t) {
         name: 'way',
         attributes: {
           changeset: changeId,
-          id: ids['-3'],
-          version: versions['-3']
+          id: ids['3'],
+          version: versions['3']
         },
         content: '',
         children: [
           {
             name: 'nd',
-            attributes: { ref: ids['-2'] },
+            attributes: { ref: ids['2'] },
             children: []
           },
           {
             name: 'nd',
-            attributes: { ref: ids['-1'] },
+            attributes: { ref: ids['1'] },
             children: []
           }
         ].sort(cmpref)
@@ -203,11 +203,11 @@ test('upload to closed changeset', function (t) {
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <create>
-      <node id="-1" changeset="${changeId}" lat="64.5" lon="-121.5"/>
-      <node id="-2" changeset="${changeId}" lat="63.9" lon="-120.9"/>
-      <way id="-3" changeset="${changeId}">
-        <nd ref="-1"/>
-        <nd ref="-2"/>
+      <node id="1" changeset="${changeId}" lat="64.5" lon="-121.5"/>
+      <node id="2" changeset="${changeId}" lat="63.9" lon="-120.9"/>
+      <way id="3" changeset="${changeId}">
+        <nd ref="1"/>
+        <nd ref="2"/>
       </way>
     </create>
   </osmChange>`)
@@ -251,16 +251,16 @@ test('second changeset upload', function (t) {
     t.equal(xml.root.name, 'diffResult')
     t.deepEqual(xml.root.children.map(function (c) {
       return c.attributes.old_id
-    }).sort(), [ids['-1']])
+    }).sort(), [ids['1']])
 
-    oldv = versions['-1']
+    oldv = versions['1']
     newv = xml.root.children[0].attributes.new_version
-    hyperquest.get(base + 'node/' + ids['-1'] + '/' + newv)
+    hyperquest.get(base + 'node/' + ids['1'] + '/' + newv)
       .on('response', function (res) {
         t.equal(res.statusCode, 200)
       })
       .pipe(concat({ encoding: 'string' }, onnew))
-    hyperquest.get(base + 'node/' + ids['-1'] + '/' + oldv)
+    hyperquest.get(base + 'node/' + ids['1'] + '/' + oldv)
       .on('response', function (res) {
         t.equal(res.statusCode, 200)
       })
@@ -268,7 +268,7 @@ test('second changeset upload', function (t) {
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <modify>
-      <node id="${ids['-1']}" changeset="${secondChangeId}" lat="111" lon="222"/>
+      <node id="${ids['1']}" changeset="${secondChangeId}" lat="111" lon="222"/>
     </modify>
   </osmChange>`)
 
@@ -282,7 +282,7 @@ test('second changeset upload', function (t) {
           changeset: secondChangeId,
           lat: '111',
           lon: '222',
-          id: ids['-1'],
+          id: ids['1'],
           version: newv
         },
         content: '',
@@ -300,7 +300,7 @@ test('second changeset upload', function (t) {
           changeset: changeId,
           lat: '64.5',
           lon: '-121.5',
-          id: ids['-1'],
+          id: ids['1'],
           version: oldv
         },
         content: '',
