@@ -104,9 +104,8 @@ test('multi-fetch', function (t) {
     var xids = xml.root.children.map(function (x) {
       return x.attributes.id
     })
-    t.deepEqual(xids, ids)
+    t.deepEqual(xids, ids, 'id comparison')
   }))
-  hq.end()
 })
 
 test('teardown changeset server', function (t) {
