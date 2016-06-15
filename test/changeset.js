@@ -53,6 +53,19 @@ test('create changeset', function (t) {
   </osm>`)
 })
 
+test('get empty osmchange doc', function (t) {
+  t.plan(2)
+  var href = base + 'changeset/' + changeId + '/download'
+  var hq = hyperquest(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'osmChange')
+    t.equal(xml.root.children.length, 0)
+  }))
+})
+
 var uploaded = {}
 test('add docs to changeset', function (t) {
   var docs = [
