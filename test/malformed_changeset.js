@@ -40,7 +40,7 @@ test('send malformed changeset upload', function (t) {
     t.notEqual(res.statusCode, 200, 'malformed xml error code')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
-    t.notOk(/^[0-9A-Fa-f]+$/.test(body.toString()), 'not an id')
+    t.notOk(/^[0-9A-Fa-f]+$/.test(body.trim()), 'not an id')
   }))
   hq.end(`<osm>
     <changeset
