@@ -21,7 +21,6 @@
     "concat-stream": "^1.5.1",
     "has": "^1.0.1",
     "minimist": "^1.2.0",
-    "osm-p2p": "^1.1.0",
     "osm-p2p-xml": "^1.0.1",
     "randombytes": "^2.0.2",
     "routes": "^2.1.0",
@@ -29,6 +28,7 @@
     "xtend": "^4.0.1"
   },
   "devDependencies": {
+    "osm-p2p": "^1.1.0",
     "hyperquest": "^1.2.0",
     "tape": "^4.4.0"
   },
