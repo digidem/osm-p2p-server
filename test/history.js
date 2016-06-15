@@ -41,7 +41,8 @@ test('create history', function (t) {
       { type: 'node', lat: 64.3, lon: -121.4, id: 'A' }
     ],
     [
-      { type: 'node', lat: 64.2, lon: -121.4, id: 'A' }
+      { type: 'node', lat: 64.2, lon: -121.4, id: 'A',
+        tags: { beep: 'boop' } }
     ],
     [
       { type: 'node', lat: 63.9, lon: -120.8, id: 'B' }
@@ -109,13 +110,19 @@ test('create history', function (t) {
         lat="${doc.lat}"
         lon="${doc.lon}"
         changeset="${changeId}"
-      ></node>`
+      >${Object.keys(doc.tags || {}).map(function (key) {
+          return `<tag k="${key}" v="${doc.tags[key]}"/>`
+        }).join('')}
+      </node>`
     }
     function modifyMap (doc) {
       return `<node id="${ids[doc.id]}"
         lat="${doc.lat}" lon="${doc.lon}"
         changeset="${changeId}"
-      ></node>`
+      >${Object.keys(doc.tags || {}).map(function (key) {
+          return `<tag k="${key}" v="${doc.tags[key]}"/>`
+        }).join('')}
+      </node>`
     }
     function existFilter (doc) { return exists[doc.id] }
     function notExistFilter (doc) { return !exists[doc.id] }
@@ -144,7 +151,16 @@ test('history route', function (t) {
           lon: '-121.4',
           version: versions.A[2]
         },
-        children: [],
+        children: [
+          {
+            name: 'tag',
+            attributes: {
+              k: 'beep',
+              v: 'boop'
+            },
+            children: []
+          }
+        ],
         content: ''
       },
       {
