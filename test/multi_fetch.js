@@ -12,7 +12,7 @@ var parsexml = require('xml-parser')
 
 var base, server, changeId
 
-test('setup changeset server', function (t) {
+test('setup multi-fetch server', function (t) {
   var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
   var router = osmrouter(osm)
 
@@ -108,7 +108,7 @@ test('multi-fetch', function (t) {
   }))
 })
 
-test('teardown changeset server', function (t) {
+test('teardown multi-fetch server', function (t) {
   server.close()
   t.end()
 })
