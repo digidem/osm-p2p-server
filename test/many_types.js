@@ -122,7 +122,7 @@ test('add docs to changeset', function (t) {
       hq.end(`<osm><relation changeset="${doc.changeset}">
         ${doc.members.map(function (member) {
           return `<member type="${member.type}" ref="${member.ref}" />`
-        })}
+        }).join('')}
       </relation></osm>`)
     }
   })()
