@@ -1,5 +1,4 @@
 var test = require('tape')
-var request = require('http').request
 var tmpdir = require('os').tmpdir()
 var path = require('path')
 var osmrouter = require('../')
@@ -8,7 +7,6 @@ var osmdb = require('osm-p2p')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
-var parsexml = require('xml-parser')
 
 var base, server, changeId
 
@@ -53,6 +51,19 @@ test('create changeset', function (t) {
       <tag k="comment" v="wow"/>
     </changeset>
   </osm>`)
+})
+
+test('get empty osmchange doc', function (t) {
+  t.plan(2)
+  var href = base + 'changeset/' + changeId + '/download'
+  var hq = hyperquest(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'osmChange')
+    t.equal(xml.root.children.length, 0)
+  }))
 })
 
 var uploaded = {}

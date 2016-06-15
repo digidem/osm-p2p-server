@@ -1,3 +1,6 @@
+[![Build Status](https://img.shields.io/travis/digidem/osm-p2p-server.svg)](https://travis-ci.org/digidem/osm-p2p-server)
+[![npm](https://img.shields.io/npm/v/npm.svg?maxAge=2592000)](https://www.npmjs.com/package/osm-p2p-server)
+
 # osm-p2p-server
 
 serve [open street map 0.6](http://wiki.openstreetmap.org/wiki/API_v0.6)
