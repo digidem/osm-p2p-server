@@ -57,13 +57,13 @@ test('create changeset', function (t) {
 
 var uploaded = {}
 var keys = {}
+
 test('add docs to changeset', function (t) {
   var docs = [
     { id: 'A', type: 'node', lat: 64.5, lon: -121.5, changeset: changeId },
     { id: 'B', type: 'node', lat: 63.9, lon: -120.9, changeset: changeId },
     { id: 'C', type: 'node', lat: 64.3, lon: -122.1, changeset: changeId },
     { id: 'D', type: 'node', lat: 65.1, lon: -120.9, changeset: changeId },
-    { id: 'E', type: 'node', lat: 65.3, lon: -120.8, changeset: changeId },
     { id: 'E', type: 'node', lat: 65.3, lon: -120.8, changeset: changeId },
     { id: 'F', type: 'node', lat: 60.6, lon: -122.3, changeset: changeId },
     { id: 'G', type: 'way', refs: ['A','B','C'], changeset: changeId },
@@ -175,6 +175,86 @@ test('get relation', function (t) {
   }))
 })
 
+test('get osmchange doc', function (t) {
+  t.plan(4)
+  var href = base + 'changeset/' + changeId + '/download'
+  var hq = hyperquest(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'osmChange')
+    t.equal(xml.root.children.length, 1)
+    t.equal(xml.root.children[0].name, 'create')
+    t.deepEqual(chfilter(xml.root.children[0].children).sort(cmpch), [
+      { name: 'node',
+        attributes: { id: keys.A, changeset: changeId, lat: '64.5', lon: '-121.5' },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'node',
+        attributes: { id: keys.B, changeset: changeId, lat: '63.9', lon: '-120.9' },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'node',
+        attributes: { id: keys.C, changeset: changeId, lat: '64.3', lon: '-122.1' },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'node',
+        attributes: { id: keys.D, changeset: changeId, lat: '65.1', lon: '-120.9' },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'node',
+        attributes: { id: keys.E, changeset: changeId, lat: '65.3', lon: '-120.8' },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'node',
+        attributes: { id: keys.F, changeset: changeId, lat: '60.6', lon: '-122.3' },
+        children: [],
+        content: ''
+      },
+      {
+        name: 'way',
+        attributes: { id: keys.G, changeset: changeId },
+        children: [
+          { name: 'nd', attributes: { ref: keys.A }, children: [] },
+          { name: 'nd', attributes: { ref: keys.B }, children: [] },
+          { name: 'nd', attributes: { ref: keys.C }, children: [] }
+        ],
+        content: ''
+      },
+      {
+        name: 'way',
+        attributes: { id: keys.H, changeset: changeId },
+        children: [
+          { name: 'nd', attributes: { ref: keys.D }, children: [] },
+          { name: 'nd', attributes: { ref: keys.E }, children: [] }
+        ],
+        content: ''
+      },
+      {
+        name: 'relation',
+        attributes: { id: keys.I, changeset: changeId },
+        children: [
+          { name: 'member', attributes: { type: 'node', ref: keys.F }, children: [] },
+          { name: 'member', attributes: { type: 'way', ref: keys.G }, children: [] },
+          { name: 'member', attributes: { type: 'way', ref: keys.H }, children: [] }
+        ],
+        content: ''
+      },
+    ].sort(cmpch))
+  }))
+})
+
 test('teardown many-types server', function (t) {
   server.close()
   t.end()
@@ -182,4 +262,12 @@ test('teardown many-types server', function (t) {
 
 function cmpch (a, b) {
   return a.attributes.id < b.attributes.id ? -1 : 1
+}
+
+function chfilter (children) {
+  children.forEach(function (c) {
+    chfilter(c.children)
+    delete c.attributes.version
+  })
+  return children
 }
