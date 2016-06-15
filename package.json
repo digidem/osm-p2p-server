@@ -40,10 +40,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/substack/osm-p2p-server.git"
+    "url": "git+https://github.com/digidem/osm-p2p-server.git"
   },
   "bugs": {
-    "url": "https://github.com/substack/osm-p2p-server/issues"
+    "url": "https://github.com/digidem/osm-p2p-server/issues"
   },
-  "homepage": "https://github.com/substack/osm-p2p-server#readme"
+  "homepage": "https://github.com/digidem/osm-p2p-server#readme"
 }
