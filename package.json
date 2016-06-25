@@ -25,6 +25,7 @@
     "randombytes": "^2.0.2",
     "routes": "^2.1.0",
     "sax": "^1.2.1",
+    "through2": "^2.0.1",
     "xml-parser": "^1.2.1",
     "xtend": "^4.0.1"
   },
