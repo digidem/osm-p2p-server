@@ -45,13 +45,15 @@ test('create bbox', function (t) {
   hq.end(`<osm><changeset></changeset></osm>`)
 })
 
-var uploaded = []
-var SIZE = 500
+var uploaded = {}
+var SIZE = 1000
 test('add docs to changeset', function (t) {
+  t.plan(3)
   var docs = []
   for (var i = 0; i < SIZE; i++) {
     docs.push({
       type: 'node',
+      id: 0-i-1,
       lat: 64 + i/SIZE,
       lon: -121 - i/SIZE,
       changeset: changeId
@@ -59,42 +61,55 @@ test('add docs to changeset', function (t) {
   }
   docs.push({
     type: 'way',
+    id: '${0-i-1}',
     changeset: changeId,
     refs: docs.map(function (d, i) { return 0 - (i + 1) })
   })
-  t.plan(docs.length * 3)
-
-  docs.forEach(function (doc, index) {
-    var href = base + doc.type + '/create'
-    var hq = hyperquest.put(href, {
-      headers: { 'content-type': 'text/xml' }
-    })
-    hq.once('response', function (res) {
-      t.equal(res.statusCode, 200)
-      t.equal(res.headers['content-type'], 'text/plain')
-    })
-    hq.pipe(concat({ encoding: 'string' }, function (body) {
-      t.ok(/^[0-9A-Fa-f]+$/.test(body.trim()))
-      if (doc.type === 'node') {
-        doc.id = body.trim()
-        uploaded[index] = doc
-      }
-    }))
-    hq.end(`<osm>
-      <${doc.type} changeset="${doc.changeset}"
-        ${doc.lat ? `lat="${doc.lat}"` : ''}
-        ${doc.lon ? `lon="${doc.lon}"` : ''}>
-        ${(doc.refs || []).map(function (ref) {
-          return `<nd ref="${ref}"/>`
-        }).join('\n')}
-      </${doc.type}>
-    </osm>`)
+  var kdocs = {}
+  docs.forEach(function (doc,i) {
+    kdocs[0-i-1] = doc
   })
+
+  var href = base + 'changeset/' + changeId + '/upload'
+  var hq = hyperquest.post(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 200)
+    t.equal(res.headers['content-type'], 'text/xml')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'diffResult')
+    xml.root.children.forEach(function (node, i) {
+      var id = node.attributes.new_id
+      uploaded[id] = kdocs[0-i-1]
+      uploaded[id].id = id
+      if (node.name === 'way') {
+        uploaded[id].refs = uploaded[id].refs.map(function (ref) {
+          return kdocs[ref].id
+        })
+      }
+    })
+  }))
+  hq.end(`<osmChange version="1.0">
+    <create>
+      ${docs.map(function (doc) {
+        return `<${doc.type} changeset="${doc.changeset}"
+          id="${doc.id}"
+          ${doc.lat ? `lat="${doc.lat}"` : ''}
+          ${doc.lon ? `lon="${doc.lon}"` : ''}>
+          ${(doc.refs || []).map(function (ref) {
+            return `<nd ref="${ref}"/>`
+          }).join('\n')}
+        </${doc.type}>`
+      }).join('\n')}
+    </create>
+  </osmChange>`)
 })
 
 test('bbox', function (t) {
-  //t.plan(5 + SIZE*4)
-  t.plan(4 + SIZE*4)
+  t.plan(6 + SIZE*3)
   var href = base + 'map?bbox=-123,63,-120,66'
   var hq = hyperquest(href)
   hq.once('response', function (res) {
@@ -108,15 +123,16 @@ test('bbox', function (t) {
     var ui = 0
     for (var i = 1; i < xml.root.children.length; i++) {
       var c = xml.root.children[i]
+      var node = uploaded[c.attributes.id]
       if (c.name === 'node') {
-        var node = uploaded[ui++]
         t.equal(c.attributes.changeset, node.changeset)
-        t.equal(c.attributes.id, node.id)
         t.equal(c.attributes.lat, String(node.lat))
         t.equal(c.attributes.lon, String(node.lon))
       } else if (c.name === 'way') {
-        // there should be a way here...
-        t.equal(c.children.length, SIZE)
+        t.equal(c.children.length, SIZE, 'way')
+        t.deepEqual(c.children.map(function (nd) {
+          return nd.attributes.ref
+        }), node.refs, 'way refs')
       }
     }
   }))
