@@ -112,7 +112,3 @@ test('teardown multi-fetch server', function (t) {
   server.close()
   t.end()
 })
-
-function cmpch (a, b) {
-  return a.attributes.id < b.attributes.id ? -1 : 1
-}
