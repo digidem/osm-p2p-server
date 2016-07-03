@@ -86,7 +86,7 @@ test('add docs', function (t) {
         <nd ref="-2"/>
       </way>
       <way id="-5" changeset="${changeId}">
-
+        <nd ref="-2"/>
         <nd ref="-3"/>
       </way>
       <node id="-6" changeset="${changeId}" lat="4.0" lon="8.0"/>
@@ -97,8 +97,8 @@ test('add docs', function (t) {
 test('rejected delete', function (t) {
   t.plan(2)
 
-  var href = base + 'node/' + ids['-1']
-  var hq = hyperquest.delete(href, {
+  var href = base + 'changeset/' + changeId + '/upload'
+  var hq = hyperquest.post(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.on('response', function (res) {
@@ -108,7 +108,55 @@ test('rejected delete', function (t) {
     t.equal(body.trim(),
       'Node #'+ids['-1']+' is still used by way #'+ids['-4']+'.')
   }))
-  hq.end(`<osm><node id="${ids['-1']}"/></osm>`)
+  hq.end(`<osmChange version="1.0" generator="acme osm editor">
+    <delete>
+      <node id="${ids['-1']}"/>
+    </delete>
+  </osmChange>`)
+})
+
+test('accepted delete', function (t) {
+  t.plan(2)
+
+  var href = base + 'changeset/' + changeId + '/upload'
+  var hq = hyperquest.post(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.on('response', function (res) {
+    t.equal(res.statusCode, 200)
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'diffResult')
+  }))
+  hq.end(`<osmChange version="1.0" generator="acme osm editor">
+    <delete>
+      <node id="${ids['-1']}"/>
+      <way id="${ids['-4']}"></way>
+    </delete>
+  </osmChange>`)
+})
+
+test('conditional delete', function (t) {
+  t.plan(2)
+
+  var href = base + 'changeset/' + changeId + '/upload'
+  var hq = hyperquest.post(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.on('response', function (res) {
+    t.equal(res.statusCode, 200)
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'diffResult')
+  }))
+  hq.end(`<osmChange version="1.0" generator="acme osm editor">
+    <delete if-unused="1">
+      <node id="${ids['-3']}"/>
+      <node id="${ids['-6']}"/>
+    </delete>
+  </osmChange>`)
 })
 
 test('list documents', function (t) {
@@ -134,7 +182,7 @@ test('list documents', function (t) {
       return c.attributes.id
     }).sort()
     t.deepEqual(rids, [
-      ids['-1'], ids['-2'], ids['-3'], ids['-4'], ids['-5'], ids['-6']
+      ids['-2'], ids['-3'], ids['-5']
     ].sort(), 'undeleted documents')
   }))
 })
