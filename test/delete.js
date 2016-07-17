@@ -142,6 +142,88 @@ test('list documents', function (t) {
   }))
 })
 
+test('accepted delete way', function (t) {
+  t.plan(2)
+
+  var href = base + 'way/' + ids['-4']
+  var hq = hyperquest.post(href, {
+    headers: {
+      'content-type': 'text/xml',
+      X_HTTP_METHOD_OVERRIDE: 'DELETE'
+    }
+  })
+  hq.on('response', function (res) {
+    t.equal(res.statusCode, 200)
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    t.ok(/^[0-9A-Fa-f]{8,}$/.test(body.trim()), 'version response')
+  }))
+  hq.end(`<osm><way id="${ids['-4']}"/></osm>`)
+})
+
+test('accepted delete node', function (t) {
+  t.plan(2)
+
+  var href = base + 'node/' + ids['-1']
+  var hq = hyperquest.post(href, {
+    headers: {
+      'content-type': 'text/xml',
+      X_HTTP_METHOD_OVERRIDE: 'DELETE'
+    }
+  })
+  hq.on('response', function (res) {
+    t.equal(res.statusCode, 200)
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    t.ok(/^[0-9A-Fa-f]{8,}$/.test(body.trim()), 'version response')
+  }))
+  hq.end(`<osm><node id="${ids['-1']}"/></osm>`)
+})
+
+test('list documents', function (t) {
+  t.plan(5)
+
+  var href = base + 'map?bbox=0,0,10,10'
+  var hq = hyperquest(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.on('response', function (res) {
+    t.equal(res.statusCode, 200)
+    t.equal(res.headers['content-type'].split(/\s*;/)[0], 'text/xml')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'osm')
+    t.deepEqual(xml.root.children[0], {
+      name: 'bounds',
+      attributes: { minlat: '0', maxlat: '10', minlon: '0', maxlon: '10' },
+      children: []
+    }, 'bounds')
+    var rids = xml.root.children.slice(1).map(function (c) {
+      return c.attributes.id
+    }).sort()
+    t.deepEqual(rids, [
+      ids['-2'], ids['-3'], ids['-5'], ids['-6']
+    ].sort(), 'undeleted documents')
+  }))
+})
+
+test('rejected delete type mismatch', function (t) {
+  t.plan(1)
+
+  var href = base + 'way/' + ids['-2']
+  var hq = hyperquest.post(href, {
+    headers: {
+      'content-type': 'text/xml',
+      X_HTTP_METHOD_OVERRIDE: 'DELETE'
+    }
+  })
+  hq.on('response', function (res) {
+    t.equal(res.statusCode, 400)
+  })
+  hq.end(`<osm><node id="${ids['-2']}"/></osm>`)
+})
+
 test('teardown changeset upload server', function (t) {
   server.close()
   t.end()
