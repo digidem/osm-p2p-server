@@ -98,8 +98,11 @@ test('rejected delete', function (t) {
   t.plan(2)
 
   var href = base + 'node/' + ids['-1']
-  var hq = hyperquest.delete(href, {
-    headers: { 'content-type': 'text/xml' }
+  var hq = hyperquest.post(href, {
+    headers: {
+      'content-type': 'text/xml',
+      X_HTTP_METHOD_OVERRIDE: 'DELETE'
+    }
   })
   hq.on('response', function (res) {
     t.notEqual(res.statusCode, 200)

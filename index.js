@@ -14,7 +14,7 @@ Server.prototype.match = function (method, url) {
 }
 
 Server.prototype.handle = function (req, res) {
-  var method = (req.headers.X_HTTP_METHOD_OVERRIDE || req.method)
+  var method = req.headers.x_http_method_override || req.method
   var m = this.match(method, req.url)
   if (m) {
     m.fn(req, res, this.osmdb, m)
