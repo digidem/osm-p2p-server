@@ -107,7 +107,7 @@ module.exports = function () {
             onid[id](node)
           }
         })
-        res.setHeader('content-type', 'text/xml')
+        res.setHeader('content-type', 'text/xml; charset=utf-8')
         res.end(h('diffResult',
           { generator: 'osm-p2p-server', version: '0.6' },
           results.map(function (r) {

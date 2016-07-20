@@ -6,7 +6,7 @@ var h = require('../lib/h.js')
 
 module.exports = function () {
   return function (req, res, osm, m, next) {
-    res.setHeader('content-type', 'text/xml')
+    res.setHeader('content-type', 'text/xml; charset=utf-8')
     var rh = osm.kv.createHistoryStream(m.params.id)
     collect(rh, function (err, rows) {
       if (err) return next(err)

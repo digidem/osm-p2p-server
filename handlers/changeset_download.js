@@ -15,7 +15,7 @@ module.exports = function () {
       var errors = []
 
       if (!ids.length) {
-        res.setHeader('content-type', 'text/xml')
+        res.setHeader('content-type', 'text/xml; charset=utf-8')
         res.end(render([]))
         return
       }
@@ -25,7 +25,7 @@ module.exports = function () {
           else docs.push(doc)
           if (--pending === 0) {
             if (errors.length) return next(new Error(errors.join('\n')))
-            res.setHeader('content-type', 'text/xml')
+            res.setHeader('content-type', 'text/xml; charset=utf-8')
             res.end(render(docs))
           }
         })

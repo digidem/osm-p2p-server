@@ -11,7 +11,7 @@ module.exports = function () {
         return next(createError.NotFound())
       }
       if (err) return next(err)
-      res.setHeader('content-type', 'text/xml')
+      res.setHeader('content-type', 'text/xml; charset=utf-8')
       res.end(h('osm', [
         renderElem(xtend(doc.value.v, {
           id: m.params.id,

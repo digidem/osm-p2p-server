@@ -40,7 +40,7 @@ module.exports = function () {
           docs.push(g)
         })
       })
-      res.setHeader('content-type', 'text/xml')
+      res.setHeader('content-type', 'text/xml; charset=utf-8')
       res.end(h('osm', docs))
     }
   }
