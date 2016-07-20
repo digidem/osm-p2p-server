@@ -11,6 +11,6 @@ module.exports = function (getMap) {
     var r = getMap(bbox, osm)
     res.setHeader('content-type', 'text/xml; charset=utf-8')
     res.setHeader('content-disposition', 'attachment; filename="map.osm"')
-    pump(r, objToXml(), wrapResponse(bbox), res, next)
+    pump(r, objToXml(), wrapResponse({bbox: bbox}), res, next)
   }
 }

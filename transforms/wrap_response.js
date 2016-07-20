@@ -7,8 +7,11 @@ var startXml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<osm version="0.6" generator="osm-p2p v' + version + '">\n'
 var endXml = '</osm>\n'
 
-module.exports = function (bbox, response) {
+module.exports = function (opts, response) {
+  opts = opts || {}
+  var bbox = opts.bbox
   var boundsXml = ''
+
   if (bbox && bbox.length === 4) {
     boundsXml = builder.buildObject({
       bounds: {
