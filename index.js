@@ -20,6 +20,8 @@ Server.prototype.handle = function (req, res) {
   var method = req.headers.x_http_method_override || req.method
   var m = this.match(method, req.url)
   if (m) {
+    res.setHeader('content-encoding', 'identity')
+    res.setHeader('cache-control', 'no-cache')
     m.fn(req, res, this.osmdb, m, handleError)
     return m
   }

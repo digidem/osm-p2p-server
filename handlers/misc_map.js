@@ -11,8 +11,6 @@ module.exports = function (getMap) {
     var r = getMap(bbox, osm)
     res.setHeader('content-type', 'text/xml; charset=utf-8')
     res.setHeader('content-disposition', 'attachment; filename="map.osm"')
-    res.setHeader('content-encoding', 'identity')
-    res.setHeader('cache-control', 'no-cache')
     pump(r, objToXml(), wrapResponse(bbox), res, next)
   }
 }
