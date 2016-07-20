@@ -1,23 +1,12 @@
-var xtend = require('xtend')
-var createError = require('http-errors')
+var pump = require('pump')
 
-var renderElem = require('../lib/render_elem.js')
-var h = require('../lib/h.js')
+var wrapResponse = require('../transforms/wrap_response.js')
+var objToXml = require('../transforms/obj_to_xml.js')
 
-module.exports = function () {
+module.exports = function (getElementVersion) {
   return function (req, res, osm, m, next) {
-    osm.log.get(m.params.version, function (err, doc) {
-      if (err && (/^notfound/.test(err) || err.notFound)) {
-        return next(createError.NotFound())
-      }
-      if (err) return next(err)
-      res.setHeader('content-type', 'text/xml; charset=utf-8')
-      res.end(h('osm', [
-        renderElem(xtend(doc.value.v, {
-          id: m.params.id,
-          version: m.params.version
-        }))
-      ]))
-    })
+    var r = getElementVersion(m.params.id, m.params.version, osm)
+    res.setHeader('content-type', 'text/xml; charset=utf-8')
+    pump(r, objToXml(), wrapResponse(), res, next)
   }
 }
