@@ -9,7 +9,12 @@ module.exports = function (id, osm) {
   var stream = pumpify.obj()
   osm.get(id, function (err, docs) {
     if (err) return stream.emit('error', err)
-    var forks = Object.keys(docs)
+    // Sorting forks to try to maintain some consistency in the order they
+    // are sent to the client, since most clients will only read the first
+    // element returned by this end-point, and sort order is not guaranteed
+    // to stay the same on the `docs` object
+    // TODO: Sort by date?
+    var forks = Object.keys(docs).sort()
     if (forks.length === 0) {
       return stream.emit('error', createError.NotFound())
     }
