@@ -103,7 +103,7 @@ test('get doc versions', function (t) {
     var hq = hyperquest(href)
     hq.once('response', function (res) {
       t.equal(res.statusCode, 200)
-      t.equal(res.headers['content-type'], 'text/xml')
+      t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       var xml = parsexml(body)
