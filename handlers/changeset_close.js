@@ -7,7 +7,7 @@ module.exports = function (closeChangeset) {
   return function (req, res, osm, m, next) {
     var parts = m.params.id.split(':')
     var version = parts.length === 2 ? parts[1] : null
-    closeChangeset(m.params.id, version, osm, function (err) {
+    closeChangeset(parts[0], version, osm, function (err) {
       if (err) return next(err)
       res.end()
     })
