@@ -310,7 +310,6 @@ test('second changeset upload', function (t) {
           id: ids['-1'],
           version: newv
         },
-        content: '',
         children: []
       }
     ])
@@ -328,7 +327,6 @@ test('second changeset upload', function (t) {
           id: ids['-1'],
           version: oldv
         },
-        content: '',
         children: []
       }
     ])
