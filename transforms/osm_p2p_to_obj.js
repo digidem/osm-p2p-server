@@ -1,21 +1,25 @@
-var through = require('through2')
+var map = require('through2-map')
 
 /**
- * Converts objects returned by osm-p2p-db to objects compatible with the
- * [OSM JSON output format](http://overpass-api.de/output_formats.html#json)
- * @return {stream.Transform}
+ * Converts objects from osm-p2p to objects compatible with the OSM JSON format
+ * @param {object} doc object from osm-p2p
+ * @return {object} object compatible with the OSM JSON format
  */
-module.exports = function () {
-  return through.obj(function write (row, enc, next) {
-    var element = {}
-    for (var prop in row) {
-      if (!row.hasOwnProperty(prop)) continue
-      if (prop === 'refs') {
-        element.nodes = row.refs
-      } else {
-        element[prop] = row[prop]
-      }
+function p2p2Obj (doc) {
+  var element = {}
+  for (var prop in doc) {
+    if (!doc.hasOwnProperty(prop)) continue
+    if (prop === 'refs') {
+      element.nodes = doc.refs
+    } else {
+      element[prop] = doc[prop]
     }
-    next(null, element)
-  })
+  }
+  return element
 }
+
+module.exports = function () {
+  return map.obj(p2p2Obj)
+}
+
+module.exports.fn = p2p2Obj

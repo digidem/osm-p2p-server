@@ -16,6 +16,6 @@ var capabilities = builder.buildObject({
 
 module.exports = function () {
   return function (req, res, osm) {
-    res.end(wrapResponse(null, capabilities))
+    res.end(wrapResponse.fn(capabilities))
   }
 }

@@ -1,4 +1,4 @@
-var through = require('through2')
+var map = require('through2-map')
 var xml2js = require('xml2js')
 var builder = new xml2js.Builder({
   headless: true,
@@ -8,46 +8,44 @@ var builder = new xml2js.Builder({
 var attrWhitelist = ['id', 'lat', 'lon', 'user', 'uid', 'visible', 'version', 'changeset', 'timestamp']
 
 /**
- * Converts [OSM JSON](http://overpass-api.de/output_formats.html#json) objects to
- * [OSM XML](http://wiki.openstreetmap.org/wiki/OSM_XML)
- * @return {stream.Transform}
+ * Converts objects to OSM XML
+ * @param {object} obj Object compatible with OSM JSON format
+ * @return {string} OSM XML Element
  */
-module.exports = function () {
-  return through.obj(function write (row, enc, next) {
-    var element = {}
-    var children = element[row.type] = {}
-    var attrs = children.$attrs = {}
+function obj2Xml (obj) {
+  var element = {}
+  var children = element[obj.type] = {}
+  var attrs = children.$attrs = {}
 
-    for (var prop in row) {
-      if (!row.hasOwnProperty(prop)) continue
-      if (attrWhitelist.indexOf(prop) > -1) {
-        attrs[prop] = row[prop]
-      }
+  for (var prop in obj) {
+    if (!obj.hasOwnProperty(prop)) continue
+    if (attrWhitelist.indexOf(prop) > -1) {
+      attrs[prop] = obj[prop]
     }
+  }
 
-    if (Array.isArray(row.nodes)) {
-      children.nd = row.nodes.map(function (ref) {
-        return {$attrs: {ref: ref}}
-      })
-    } else if (Array.isArray(row.members)) {
-      children.member = row.members.map(function (member) {
-        return {$attrs: member}
-      })
-    } else if (typeof row.tags === 'object') {
-      children.tag = Object.keys(row.tags).map(function (key) {
-        return {$attrs: {
-          k: key,
-          v: row.tags[key]
-        }}
-      })
-    }
+  if (Array.isArray(obj.nodes)) {
+    children.nd = obj.nodes.map(function (ref) {
+      return {$attrs: {ref: ref}}
+    })
+  } else if (Array.isArray(obj.members)) {
+    children.member = obj.members.map(function (member) {
+      return {$attrs: member}
+    })
+  } else if (typeof obj.tags === 'object') {
+    children.tag = Object.keys(obj.tags).map(function (key) {
+      return {$attrs: {
+        k: key,
+        v: obj.tags[key]
+      }}
+    })
+  }
 
-    try {
-      var xml = builder.buildObject(element)
-    } catch (e) {
-      console.log('oops')
-      return next(e)
-    }
-    next(null, xml)
-  })
+  return builder.buildObject(element)
 }
+
+module.exports = function () {
+  return map.obj(obj2Xml)
+}
+
+module.exports.fn = obj2Xml
