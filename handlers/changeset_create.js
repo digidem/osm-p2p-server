@@ -25,11 +25,11 @@ module.exports = function (createChangeset) {
 
       // If more than one changeset element is included in the PUT request
       // tags are merged with later tags overwriting previous tags
-      var mergedOp = ops.reduce(function (p, v) {
+      var mergedChangeset = ops.reduce(function (p, v) {
         p.tags = xtend(p.tags, v.tags)
         return p
       })
-      createChangeset(mergedOp, osm, function (err, id, node) {
+      createChangeset(mergedChangeset, osm, function (err, id, node) {
         if (err) return next(err)
         res.setHeader('content-type', 'text/plain')
         res.end(id + '\n')
