@@ -11,6 +11,7 @@ module.exports = function createElement (element, osm, cb) {
     return cb(createError(400, 'missing changeset'))
   }
 
+  element.timestamp = element.timestamp || new Date().toISOString()
   osm.put(id, obj2P2p.fn(element), function (err, node) {
     if (err) return cb(err)
     cb(null, id, node)
