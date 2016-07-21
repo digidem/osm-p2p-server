@@ -14,6 +14,7 @@ module.exports = function (id, version, osm, cb) {
       return cb(createError(404, 'not found'))
     }
     if (!version && Object.keys(docs).length > 1) {
+      // TODO: give more meaningful error when api is used directly.
       return cb(createError(409, 'Cannot close a changeset with multiple forks.\n' +
         'Specify a version explicitly after the id using this syntax:\n' +
         '  PUT /api/0.6/changeset/$ID:$VERSION/close'))
