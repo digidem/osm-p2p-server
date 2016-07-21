@@ -186,6 +186,9 @@ test('get osmchange doc', function (t) {
     t.equal(xml.root.name, 'osmChange')
     t.equal(xml.root.children.length, 1)
     t.equal(xml.root.children[0].name, 'create')
+    xml.root.children[0].children.forEach(function (c) {
+      delete c.attributes.timestamp
+    })
     t.deepEqual(chfilter(xml.root.children[0].children).sort(cmpch), [
       { name: 'node',
         attributes: { id: keys.A, changeset: changeId, lat: '64.5', lon: '-121.5' },
