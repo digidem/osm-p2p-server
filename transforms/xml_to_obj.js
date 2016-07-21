@@ -5,7 +5,7 @@ var parser = new xml2js.Parser({
   attrkey: '$attrs'
 })
 
-var attrWhitelist = ['id', 'lat', 'lon', 'user', 'uid', 'visible', 'version', 'changeset', 'timestamp']
+var attrWhitelist = ['id', 'lat', 'lon', 'user', 'uid', 'visible', 'version', 'changeset', 'timestamp', 'created_at', 'closed_at']
 var supportedTypes = ['node', 'way', 'relation', 'changeset']
 
 /**
