@@ -6,9 +6,6 @@ module.exports = function (id, version, osm, cb) {
     osm = version
     version = null
   }
-  if (id === null) {
-    return cb(new Error('Missing ID: you must pass a changeset ID'))
-  }
 
   // TODO: lock this record
   osm.get(id, function (err, docs) {
