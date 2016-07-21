@@ -19,6 +19,7 @@
     "body": "^5.1.0",
     "collect-stream": "^1.1.1",
     "concat-stream": "^1.5.1",
+    "content-type": "^1.0.2",
     "debug": "^2.2.0",
     "from2": "^2.1.1",
     "has": "^1.0.1",
@@ -35,6 +36,7 @@
     "sax": "^1.2.1",
     "through2": "^2.0.1",
     "through2-map": "github:gmaclennan/through2-map",
+    "xml-nodes": "^0.1.5",
     "xml-parser": "^1.2.1",
     "xml2js": "^0.4.17",
     "xtend": "^4.0.1"
