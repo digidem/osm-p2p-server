@@ -23,11 +23,11 @@ module.exports = function (id, version, osm, cb) {
     }
     var doc = version ? docs[version] : docs[Object.keys(docs)[0]]
     if (!doc) return cb(createError(404, 'not found'))
-    if (doc.closedAt) {
+    if (doc.closedAt || doc.closed_at) {
       return cb(createError(409, 'The changeset ' + id +
-        ' was closed at ' + doc.closedAt + '.'))
+        ' was closed at ' + (doc.closedAt || doc.closed_at) + '.'))
     }
-    doc.closedAt = new Date().toISOString()
+    doc.closed_at = new Date().toISOString()
     osm.put(id, doc,
       { links: version ? [version] : undefined },
       function (err) {

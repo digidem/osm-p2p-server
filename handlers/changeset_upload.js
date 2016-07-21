@@ -22,9 +22,9 @@ module.exports = function () {
       }
       var doc = version ? docs[version] : docs[Object.keys(docs)[0]]
       if (!doc) return next(createError(404, 'not found'))
-      if (doc.closedAt) {
+      if (doc.closedAt || doc.closed_at) {
         return next(createError(409, 'The changeset ' + m.params.id +
-          ' was closed at ' + doc.closedAt + '.'))
+          ' was closed at ' + (doc.closedAt || doc.closed_at) + '.'))
       }
       req.pipe(concat({ encoding: 'string' }, onbody))
     })
