@@ -3,9 +3,15 @@ var builder = new xml2js.Builder({headless: true})
 var through = require('through2')
 var version = require('../package.json').version
 
-var startXml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-  '<osm version="0.6" generator="osm-p2p v' + version + '">\n'
-var endXml = '</osm>\n'
+function startXml (root) {
+  root = root || 'osm'
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<' + root + ' version="0.6" generator="osm-p2p v' + version + '">\n'
+}
+function endXml (root) {
+  root = root || 'osm'
+  return '</' + root + '>\n'
+}
 
 function buildBoundsXml (bbox) {
   if (!bbox || bbox.length !== 4) return ''
@@ -23,11 +29,10 @@ function buildBoundsXml (bbox) {
 
 module.exports = function (opts) {
   opts = opts || {}
-  var boundsXml = buildBoundsXml(opts.bbox)
 
   var stream = through(write, end)
-  stream.push(startXml)
-  stream.push(boundsXml)
+  stream.push(startXml())
+  stream.push(buildBoundsXml(opts.bbox))
   return stream
 
   // noop
@@ -36,12 +41,15 @@ module.exports = function (opts) {
   }
 
   function end (cb) {
-    this.push(endXml)
+    this.push(endXml())
     cb()
   }
 }
 
 module.exports.fn = function (response, opts) {
   opts = opts || {}
-  return startXml + buildBoundsXml(opts.bbox) + response + endXml
+  return startXml(opts.root) +
+    buildBoundsXml(opts.bbox) +
+    response +
+    endXml(opts.root)
 }
