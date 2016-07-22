@@ -341,5 +341,14 @@ function cmpch (a, b) {
 }
 
 function cmpref (a, b) {
+  if (a.name === 'tag' && b.name !== 'tag') {
+    return 1
+  }
+  if (a.name !== 'tag' && b.name === 'tag') {
+    return -1
+  }
+  if (a.name === 'tag' && b.name === 'tag') {
+    return a.attributes.k < b.attributes.tag ? -1 : 1
+  }
   return a.attributes.ref < b.attributes.ref ? -1 : 1
 }
