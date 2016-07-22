@@ -32,7 +32,8 @@ function obj2Xml (obj) {
     children.member = obj.members.map(function (member) {
       return {$attrs: member}
     })
-  } else if (typeof obj.tags === 'object') {
+  }
+  if (typeof obj.tags === 'object') {
     children.tag = Object.keys(obj.tags).map(function (key) {
       return {$attrs: {
         k: key,
