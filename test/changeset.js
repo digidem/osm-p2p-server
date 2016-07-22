@@ -140,8 +140,7 @@ test('get osmchange doc', function (t) {
           lat: '64.5',
           lon: '-121.5'
         },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
@@ -152,8 +151,7 @@ test('get osmchange doc', function (t) {
           lat: '63.9',
           lon: '-120.9'
         },
-        children: [],
-        content: ''
+        children: []
       }
     ].sort(cmpch))
   }))

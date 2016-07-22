@@ -114,7 +114,6 @@ test('get osmchange doc from upload', function (t) {
           lon: '-121.5'
         },
         children: [],
-        content: ''
       },
       {
         name: 'node',
@@ -126,7 +125,6 @@ test('get osmchange doc from upload', function (t) {
           lon: '-120.9'
         },
         children: [],
-        content: ''
       },
       {
         name: 'way',

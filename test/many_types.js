@@ -192,38 +192,32 @@ test('get osmchange doc', function (t) {
     t.deepEqual(chfilter(xml.root.children[0].children).sort(cmpch), [
       { name: 'node',
         attributes: { id: keys.A, changeset: changeId, lat: '64.5', lon: '-121.5' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.B, changeset: changeId, lat: '63.9', lon: '-120.9' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.C, changeset: changeId, lat: '64.3', lon: '-122.1' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.D, changeset: changeId, lat: '65.1', lon: '-120.9' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.E, changeset: changeId, lat: '65.3', lon: '-120.8' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.F, changeset: changeId, lat: '60.6', lon: '-122.3' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'way',
