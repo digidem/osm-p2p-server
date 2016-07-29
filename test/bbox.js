@@ -76,7 +76,7 @@ test('add docs to changeset', function (t) {
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/xml')
+    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
