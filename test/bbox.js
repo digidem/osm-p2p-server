@@ -109,7 +109,7 @@ test('add docs to changeset', function (t) {
 })
 
 test('bbox', function (t) {
-  t.plan(6 + SIZE*3)
+  t.plan(7 + SIZE*3)
   var href = base + 'map?bbox=-123,63,-120,66'
   var hq = hyperquest(href)
   hq.once('response', function (res) {
@@ -120,6 +120,10 @@ test('bbox', function (t) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osm')
     t.equal(xml.root.children[0].name, 'bounds')
+    t.ok(orderedTypes(xml.root.children.map(function (c) {
+      return c.name
+    })), 'ordered types')
+
     var ui = 0
     for (var i = 1; i < xml.root.children.length; i++) {
       var c = xml.root.children[i]
@@ -142,3 +146,11 @@ test('teardown bbox server', function (t) {
   server.close()
   t.end()
 })
+
+function orderedTypes (types) {
+  var order = { bounds: 0, node: 0, way: 1, relation: 2 }
+  for (var i = 1; i < types.length; i++) {
+    if (order[types[i-1]] > order[types[i]]) return false
+  }
+  return true
+}
