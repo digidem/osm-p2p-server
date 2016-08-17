@@ -43,6 +43,7 @@
     "xtend": "^4.0.1"
   },
   "devDependencies": {
+    "express": "^4.14.0",
     "fd-chunk-store": "^2.0.0",
     "hyperlog": "^4.10.0",
     "hyperquest": "^2.0.0",
