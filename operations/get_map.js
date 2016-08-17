@@ -5,7 +5,7 @@ var checkRefExist = require('../lib/check_ref_ex.js')
 
 module.exports = function getMap (bbox, osm, opts) {
   var query = [[bbox[1], bbox[3]], [bbox[0], bbox[2]]] // left,bottom,right,top
-  var queryStream = osm.queryStream(query)
+  var queryStream = osm.queryStream(query, { order: 'type' })
   var queryStreamJson = pumpify.obj(queryStream, checkRefExist(osm), toOsmObj())
   return queryStreamJson
 }
