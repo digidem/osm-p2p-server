@@ -6,14 +6,12 @@
 var obj2Xml = require('../transforms/obj_to_xml.js')
 var wrapResponse = require('../transforms/wrap_response.js')
 
-module.exports = function (getOsmChange) {
-  return function (req, res, osm, m, next) {
-    getOsmChange(m.params.id, osm, function (err, changes) {
-      if (err) return next(err)
-      res.setHeader('content-type', 'text/xml; charset=utf-8')
-      res.end(toOsmChange(changes))
-    })
-  }
+module.exports = function (req, res, api, params, next) {
+  api.getChanges(params.id, function (err, changes) {
+    if (err) return next(err)
+    res.setHeader('content-type', 'text/xml; charset=utf-8')
+    res.end(toOsmChange(changes))
+  })
 }
 
 function toOsmChange (changes) {

@@ -11,28 +11,30 @@ var toOsmObj = require('../transforms/osm_p2p_to_obj.js')
  *                        Elements have the property 'action' which is on of
  *                        create|modify|delete
  */
-module.exports = function getChanges (id, osm, cb) {
-  osm.getChanges(id, function (err, versionIds) {
-    if (err) return cb(err)
-    var docs = []
-    var pending = versionIds.length
-    var errors = []
+module.exports = function (osm) {
+  return function getChanges (id, cb) {
+    osm.getChanges(id, function (err, versionIds) {
+      if (err) return cb(err)
+      var docs = []
+      var pending = versionIds.length
+      var errors = []
 
-    if (!versionIds.length) return cb(null, [])
+      if (!versionIds.length) return cb(null, [])
 
-    versionIds.forEach(function (versionId) {
-      osm.log.get(versionId, function (err, doc) {
-        if (err) {
-          errors.push(err)
-          error(err)
-        } else docs.push(doc)
-        if (--pending === 0) {
-          if (errors.length) return cb(new Error(errors.join('\n')))
-          cb(null, docs.map(docmap))
-        }
+      versionIds.forEach(function (versionId) {
+        osm.log.get(versionId, function (err, doc) {
+          if (err) {
+            errors.push(err)
+            error(err)
+          } else docs.push(doc)
+          if (--pending === 0) {
+            if (errors.length) return cb(new Error(errors.join('\n')))
+            cb(null, docs.map(docmap))
+          }
+        })
       })
     })
-  })
+  }
 }
 
 function docmap (doc) {

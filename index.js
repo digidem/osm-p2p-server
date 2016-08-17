@@ -2,13 +2,14 @@ var createError = require('http-errors')
 var error = require('debug')('osm-p2p-server:error')
 
 var router = require('./lib/routes.js')
+var createApi = require('./api')
 
 module.exports = Server
 
 function Server (osmdb) {
   if (!(this instanceof Server)) return new Server(osmdb)
   var self = this
-  self.osmdb = osmdb
+  self.api = createApi(osmdb)
   self.router = router
 }
 
@@ -22,7 +23,7 @@ Server.prototype.handle = function (req, res) {
   if (m) {
     res.setHeader('content-encoding', 'identity')
     res.setHeader('cache-control', 'no-cache')
-    m.fn(req, res, this.osmdb, m, handleError)
+    m.fn(req, res, this.api, m.params, handleError)
     return m
   }
   return null
