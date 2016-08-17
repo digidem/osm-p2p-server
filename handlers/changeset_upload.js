@@ -57,12 +57,14 @@ module.exports = function () {
           })
         }
       })
+      var modified = {}
       ops.modify.forEach(function (op) {
         var id = op.id
         var oldId = op.oldId
 
         delete op.id
         delete op.oldId
+        modified[id] = op
         var links = op.version !== undefined
           ? (op.version || '').split(/\s*,\s*/).filter(Boolean)
           : undefined
@@ -84,7 +86,7 @@ module.exports = function () {
           })
         }
       })
-      del(osm, ops.delete, function (err, xbatch, xresults) {
+      del(osm, ops.delete, modified, function (err, xbatch, xresults) {
         if (err) {
           next(err)
         } else {

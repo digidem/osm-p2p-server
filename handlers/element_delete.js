@@ -18,7 +18,7 @@ module.exports = function () {
       if (ops[0].id !== m.params.id) {
         return next(createError(400, 'id mismatch between url parameter and xml.'))
       }
-      del(osm, ops, function (err, batch) {
+      del(osm, ops, {}, function (err, batch) {
         if (err) {
           next(err)
         } else {
