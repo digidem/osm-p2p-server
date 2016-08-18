@@ -1,7 +1,7 @@
 {
   "NotFound": {
     "code": 404,
-    "message": "Not Found %s"
+    "message": "Not Found"
   },
   "ClosedChangeset": {
     "code": 409,
@@ -21,7 +21,7 @@
   },
   "InUse": {
     "code": 412,
-    "message": "Cannot delete an element that is in use\n%s"
+    "message": "Cannot delete an element that is in use"
   },
   "MissingChangeset": {
     "code": 400,
@@ -37,7 +37,7 @@
   },
   "UnsupportedContentType": {
     "code": 400,
-    "message": "Unsupported content-type %s"
+    "message": "Unsupported content-type"
   },
   "XmlParseError": {
     "code": 400,
