@@ -1,6 +1,6 @@
-var createError = require('http-errors')
 var concat = require('concat-stream')
 
+var errors = require('../lib/errors')
 var del = require('../lib/del.js')
 var xmldiff = require('../lib/xml_diff.js')
 var h = require('../lib/h.js')
@@ -12,18 +12,15 @@ module.exports = function (req, res, api, params, next) {
   api.osm.get(params.id, function (err, docs) {
     if (err) return next(err)
     if (Object.keys(docs).length === 0) {
-      return next(createError(404, 'not found'))
+      return next(new errors.NotFound('changeset ' + params.id))
     }
     if (!version && Object.keys(docs).length > 1) {
-      return next(createError(409, 'Cannot upload to a changeset with multiple forks.\n' +
-        'Specify a version explicitly after the id using this syntax:\n' +
-        '  PUT /api/0.6/changeset/$ID:$VERSION/close'))
+      return next(new errors.ForkedChangeset())
     }
     var doc = version ? docs[version] : docs[Object.keys(docs)[0]]
-    if (!doc) return next(createError(404, 'not found'))
+    if (!doc) return next(new errors.NotFound('changeset id: ' + params.id + ' version: ' + version))
     if (doc.closedAt || doc.closed_at) {
-      return next(createError(409, 'The changeset ' + params.id +
-        ' was closed at ' + (doc.closedAt || doc.closed_at) + '.'))
+      return next(new errors.ClosedChangeset(params.id, doc.closedAt || doc.closed_at))
     }
     req.pipe(concat({ encoding: 'string' }, onbody))
   })

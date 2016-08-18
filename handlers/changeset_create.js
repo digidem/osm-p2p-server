@@ -5,22 +5,22 @@
 
 var pumpify = require('pumpify')
 var collect = require('collect-stream')
-var createError = require('http-errors')
 var xmlNodes = require('xml-nodes')
 var xtend = require('xtend')
 
+var errors = require('../lib/errors')
 var isValidContentType = require('../lib/valid_content_type.js')
 var xml2Obj = require('../transforms/xml_to_obj.js')
 
 module.exports = function (req, res, api, params, next) {
   if (!isValidContentType(req)) {
-    return next(createError(400, 'unsupported content-type'))
+    return next(new errors.UnsupportedContentType())
   }
 
   var r = pumpify.obj(req, xmlNodes('changeset'), xml2Obj())
   collect(r, function (err, ops) {
-    if (err) return next(createError(400, 'error parsing XML'))
-    if (!ops.length) return next(createError(400, 'no changeset elements found in XML'))
+    if (err) return next(new errors.XmlParseError())
+    if (!ops.length) return next(new errors.XmlMissingElement('changeset'))
 
     // If more than one changeset element is included in the PUT request
     // tags are merged with later tags overwriting previous tags

@@ -1,4 +1,4 @@
-var createError = require('http-errors')
+var errors = require('../lib/errors.js')
 
 module.exports = function (osm) {
   return function (id, version, cb) {
@@ -11,19 +11,16 @@ module.exports = function (osm) {
     osm.get(id, function (err, docs) {
       if (err) return cb(err)
       if (Object.keys(docs).length === 0) {
-        return cb(createError(404, 'not found'))
+        return cb(new errors.NotFound('changeset id: ' + id))
       }
       if (!version && Object.keys(docs).length > 1) {
         // TODO: give more meaningful error when api is used directly.
-        return cb(createError(409, 'Cannot close a changeset with multiple forks.\n' +
-          'Specify a version explicitly after the id using this syntax:\n' +
-          '  PUT /api/0.6/changeset/$ID:$VERSION/close'))
+        return cb(new errors.ForkedChangeset(id))
       }
       var doc = version ? docs[version] : docs[Object.keys(docs)[0]]
-      if (!doc) return cb(createError(404, 'not found'))
+      if (!doc) return cb(new errors.NotFound('bla bla changeset id: ' + id + ' version: ' + version))
       if (doc.closedAt || doc.closed_at) {
-        return cb(createError(409, 'The changeset ' + id +
-          ' was closed at ' + (doc.closedAt || doc.closed_at) + '.'))
+        return cb(new errors.ClosedChangeset(id, doc.closedAt || doc.closed_at))
       }
       doc.closed_at = new Date().toISOString()
       osm.put(id, doc,

@@ -1,6 +1,6 @@
-var createError = require('http-errors')
 var error = require('debug')('osm-p2p-server:error')
 
+var errors = require('../lib/errors')
 var router = require('./lib/routes.js')
 var createApi = require('./api')
 
@@ -31,7 +31,7 @@ Server.prototype.handle = function (req, res) {
   function handleError (err) {
     if (!err) return
     if (!err.status || !err.statusCode) {
-      err = createError(err)
+      err = errors(err)
     }
     if (err.expose && !res.headersSent) {
       res.statusCode = err.status

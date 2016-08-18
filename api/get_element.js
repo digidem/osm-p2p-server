@@ -1,6 +1,6 @@
-var createError = require('http-errors')
 var xtend = require('xtend')
 
+var errors = require('../lib/errors')
 var toOsmObj = require('../transforms/osm_p2p_to_obj.js')
 
 module.exports = function (osm) {
@@ -13,7 +13,7 @@ module.exports = function (osm) {
       // to stay the same on the `docs` object
       // TODO: Sort by date?
       var forks = Object.keys(docs).sort()
-      if (forks.length === 0) return cb(createError.NotFound())
+      if (forks.length === 0) return cb(new errors.NotFound('element id: ' + id))
       forks = forks.map(function (key) {
         return xtend(docs[key], {
           id: id,

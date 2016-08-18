@@ -24,7 +24,6 @@
     "from2": "^2.1.1",
     "from2-array": "0.0.4",
     "has": "^1.0.1",
-    "http-errors": "^1.5.0",
     "minimist": "^1.2.0",
     "once": "^1.3.3",
     "osm-p2p-xml": "^1.0.1",

@@ -1,6 +1,6 @@
-var createError = require('http-errors')
 var concat = require('concat-stream')
 
+var errors = require('../lib/errors')
 var del = require('../lib/del.js')
 var xmlcreate = require('../lib/xml_create.js')
 
@@ -9,13 +9,13 @@ module.exports = function (req, res, api, params, next) {
   function onbody (body) {
     var ops = xmlcreate(body)
     if (ops.length !== 1) {
-      return next(createError(400, 'Only one element can be deleted per request.'))
+      return next(new errors.DeleteMultiple())
     }
     if (ops[0].type !== params.type) {
-      return next(createError(400, 'Type mismatch between url parameter and xml.'))
+      return next(new errors.TypeMismatch(ops[0].type, params.type))
     }
     if (ops[0].id !== params.id) {
-      return next(createError(400, 'id mismatch between url parameter and xml.'))
+      return next(new errors.IdMismatch(ops[0].id, params.id))
     }
     del(api.osm, ops, {}, function (err, batch) {
       if (err) {

@@ -1,12 +1,12 @@
-var createError = require('http-errors')
 var xtend = require('xtend')
 
+var errors = require('../lib/errors')
 var renderElem = require('../lib/render_elem.js')
 var h = require('../lib/h.js')
 
 module.exports = function (req, res, api, params, next) {
   if (params.type !== params.ktype) {
-    return next(createError(400, 'query parameter must match url type'))
+    return next(new errors.TypeMismatch(params.type, params.ktype))
   }
   var ids = params.ids.split(',')
   var results = []
