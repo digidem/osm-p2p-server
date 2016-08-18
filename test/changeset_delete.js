@@ -105,8 +105,7 @@ test('rejected delete', function (t) {
     t.notEqual(res.statusCode, 200)
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
-    t.equal(body.trim(),
-      'Node #'+ids['-1']+' is still used by way #'+ids['-4']+'.')
+    t.true(body.includes('Node #' + ids['-1'] + ' is still used by way #' + ids['-4'] + '.'))
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <delete>
