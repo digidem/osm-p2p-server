@@ -1,0 +1,4 @@
+<changeset id="1" min_lat="2" min_lon="-3" max_lat="2.1" max_lon="-2.9" created_at="2010-01-01T00:00:00Z" version="4" open="true" user="somebody" uid="6">
+  <tag k="created_by" v="JOSM 1.61"/>
+  <tag k="comment" v="Just adding some streetnames"/>
+</changeset>

@@ -1,0 +1,13 @@
+<relation id="1" timestamp="2010-01-01T00:00:00Z" version="4" visible="true" changeset="5" user="somebody" uid="6">
+  <member type="relation" ref="1745069" role=""/>
+  <member type="relation" ref="172789" role=""/>
+  <tag k="from" v="Konrad-Adenauer-Platz"/>
+  <tag k="name" v="VRS 636"/>
+  <tag k="network" v="VRS"/>
+  <tag k="operator" v="SWB"/>
+  <tag k="ref" v="636"/>
+  <tag k="route" v="bus"/>
+  <tag k="to" v="Gielgen"/>
+  <tag k="type" v="route_master"/>
+  <tag k="via" v="Ramersdorf"/>
+</relation>

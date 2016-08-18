@@ -1,0 +1,33 @@
+{
+  "type": "relation",
+  "id": "1",
+  "timestamp": "2010-01-01T00:00:00Z",
+  "version": "4",
+  "visible": true,
+  "changeset": "5",
+  "user": "somebody",
+  "uid": "6",
+  "members": [
+    {
+      "type": "relation",
+      "ref": "1745069",
+      "role": ""
+    },
+    {
+      "type": "relation",
+      "ref": "172789",
+      "role": ""
+    }
+  ],
+  "tags": {
+    "from": "Konrad-Adenauer-Platz",
+    "name": "VRS 636",
+    "network": "VRS",
+    "operator": "SWB",
+    "ref": "636",
+    "route": "bus",
+    "to": "Gielgen",
+    "type": "route_master",
+    "via": "Ramersdorf"
+  }
+}
