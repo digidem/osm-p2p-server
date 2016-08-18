@@ -5,7 +5,7 @@ var builder = new xml2js.Builder({
   attrkey: '$attrs'
 })
 
-var attrWhitelist = ['id', 'lat', 'lon', 'user', 'uid', 'visible', 'version', 'changeset', 'timestamp', 'created_at', 'closed_at']
+var attrWhitelist = ['id', 'lat', 'lon', 'user', 'uid', 'visible', 'version', 'changeset', 'timestamp', 'created_at', 'closed_at', 'open', 'min_lat', 'min_lon', 'max_lat', 'max_lon', 'comments_count']
 
 /**
  * Converts objects to OSM XML

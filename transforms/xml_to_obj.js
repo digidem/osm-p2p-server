@@ -1,13 +1,12 @@
 var through = require('through2')
-var parsexml = require('xml-parser')
-xml2js = require('xml2js')
+var xml2js = require('xml2js')
 var parser = new xml2js.Parser({
   attrkey: '$attrs'
 })
 
-var attrWhitelist = ['id', 'lat', 'lon', 'user', 'uid', 'visible', 'version', 'changeset', 'timestamp', 'created_at', 'closed_at']
+var attrWhitelist = ['id', 'lat', 'lon', 'user', 'uid', 'visible', 'version', 'changeset', 'timestamp', 'created_at', 'closed_at', 'open', 'min_lat', 'min_lon', 'max_lat', 'max_lon', 'comments_count']
 var supportedTypes = ['node', 'way', 'relation', 'changeset']
-
+var numberProps = ['lat', 'lon', 'min_lat', 'min_lon', 'max_lat', 'max_lon', 'comments_count']
 /**
  * Converts OSM XML Elements to objects compatible with
  * [OSM JSON](http://overpass-api.de/output_formats.html#json)
@@ -29,7 +28,11 @@ function xml2Obj (str, cb) {
     for (var prop in attrs) {
       if (!attrs.hasOwnProperty(prop)) continue
       if (attrWhitelist.indexOf(prop) > -1) {
-        element[prop] = attrs[prop]
+        if (numberProps.indexOf(prop) > -1) {
+          element[prop] = parseNumber(attrs[prop])
+        } else {
+          element[prop] = parseBoolean(attrs[prop])
+        }
       }
     }
 
@@ -41,7 +44,8 @@ function xml2Obj (str, cb) {
       element.members = xml.member.map(function (c) {
         return c.$attrs
       })
-    } else if (Array.isArray(xml.tag)) {
+    }
+    if (Array.isArray(xml.tag)) {
       element.tags = xml.tag.reduce(function (p, v) {
         p[v.$attrs.k] = v.$attrs.v
         return p
@@ -59,3 +63,17 @@ module.exports = function () {
 }
 
 module.exports.fn = xml2Obj
+
+function parseNumber (str) {
+  if (!isNaN(str) && str.length) {
+    str = str % 1 === 0 ? parseInt(str, 10) : parseFloat(str)
+  }
+  return str
+};
+
+function parseBoolean (str) {
+  if (/^(?:true|false)$/i.test(str)) {
+    str = str.toLowerCase() === 'true'
+  }
+  return str
+}

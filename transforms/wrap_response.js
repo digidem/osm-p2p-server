@@ -10,7 +10,7 @@ function startXml (root) {
 }
 function endXml (root) {
   root = root || 'osm'
-  return '</' + root + '>\n'
+  return '\n</' + root + '>\n'
 }
 
 function buildBoundsXml (bbox) {
@@ -31,7 +31,7 @@ module.exports = function (opts) {
   opts = opts || {}
 
   var stream = through(write, end)
-  stream.push(startXml())
+  stream.push(startXml(opts.root))
   stream.push(buildBoundsXml(opts.bbox))
   return stream
 
@@ -41,7 +41,7 @@ module.exports = function (opts) {
   }
 
   function end (cb) {
-    this.push(endXml())
+    this.push(endXml(opts.root))
     cb()
   }
 }
