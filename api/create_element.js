@@ -6,6 +6,7 @@ var hex2dec = require('../lib/hex2dec.js')
 
 module.exports = function (osm) {
   return function createElement (element, cb) {
+    // TODO: check element schema and whitelist props
     var id = hex2dec(randombytes(8).toString('hex'))
     var changesetId = element.changeset
 
@@ -25,8 +26,10 @@ module.exports = function (osm) {
       if (closedAt) {
         return cb(new errors.ClosedChangeset(changesetId, closedAt))
       }
-      element.timestamp = element.timestamp || new Date().toISOString()
-      osm.put(id, obj2P2p.fn(element), function (err, node) {
+      var op = Object.assign(obj2P2p.fn(element), {
+        timestamp: element.timestamp || new Date().toISOString()
+      })
+      osm.put(id, op, function (err, node) {
         if (err) return cb(err)
         cb(null, id, node)
       })
