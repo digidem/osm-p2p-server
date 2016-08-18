@@ -1,6 +1,6 @@
 var error = require('debug')('osm-p2p-server:error')
 
-var errors = require('../lib/errors')
+var errors = require('./lib/errors')
 var router = require('./lib/routes.js')
 var createApi = require('./api')
 
