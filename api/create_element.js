@@ -27,7 +27,7 @@ module.exports = function (osm) {
         return cb(new errors.ClosedChangeset(changesetId, closedAt))
       }
       var op = Object.assign(obj2P2p.fn(element), {
-        timestamp: element.timestamp || new Date().toISOString()
+        timestamp: new Date().toISOString()
       })
       osm.put(id, op, function (err, node) {
         if (err) return cb(err)
