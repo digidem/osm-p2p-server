@@ -1,8 +1,6 @@
 var qs = require('query-string')
 var pump = require('pump')
-
-var wrapResponse = require('../transforms/wrap_response.js')
-var objToXml = require('../transforms/obj_to_xml.js')
+var toOsm = require('obj2osm')
 
 module.exports = function (req, res, api, params, next) {
   // TODO: Validate bbox
@@ -10,5 +8,8 @@ module.exports = function (req, res, api, params, next) {
   var r = api.getMap(bbox)
   res.setHeader('content-type', 'text/xml; charset=utf-8')
   res.setHeader('content-disposition', 'attachment; filename="map.osm"')
-  pump(r, objToXml(), wrapResponse({bbox: bbox}), res, next)
+  var toOsmOptions = {
+    bounds: {minlon: bbox[0], minlat: bbox[1], maxlon: bbox[2], maxlat: bbox[3]}
+  }
+  pump(r, toOsm(toOsmOptions), res, next)
 }

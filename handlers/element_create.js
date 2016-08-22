@@ -1,19 +1,17 @@
-var pumpify = require('pumpify')
 var collect = require('collect-stream')
-var xmlNodes = require('xml-nodes')
+var osm2Obj = require('osm2json')
 
 var errors = require('../lib/errors')
 var isValidContentType = require('../lib/valid_content_type.js')
-var xml2Obj = require('../transforms/xml_to_obj.js')
 
 module.exports = function (req, res, api, params, next) {
   if (!isValidContentType(req)) {
     return next(new errors.UnsupportedContentType())
   }
 
-  var r = pumpify.obj(req, xmlNodes(params.type), xml2Obj())
+  var r = req.pipe(osm2Obj({types: [params.type], coerceIds: false}))
   collect(r, function (err, ops) {
-    if (err) return next(new errors.XmlParseError())
+    if (err) return next(new errors.XmlParseError(err))
     if (!ops.length) return next(new errors.XmlMissingElement(params.type))
 
     // If multiple elements are provided only the first is created.

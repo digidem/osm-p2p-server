@@ -172,8 +172,7 @@ test('history route', function (t) {
           lon: '-121.4',
           version: versions.A[1]
         },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
@@ -184,8 +183,7 @@ test('history route', function (t) {
           lon: '-121.5',
           version: versions.A[0]
         },
-        children: [],
-        content: ''
+        children: []
       }
     ])
   }))

@@ -1,8 +1,6 @@
 var pump = require('pump')
 var Readable = require('readable-stream').Readable
-
-var wrapResponse = require('../transforms/wrap_response.js')
-var objToXml = require('../transforms/obj_to_xml.js')
+var toOsm = require('obj2osm')
 
 module.exports = function (req, res, api, params, next) {
   api.getElementVersion(params.id, params.version, function (err, element) {
@@ -11,6 +9,6 @@ module.exports = function (req, res, api, params, next) {
     r.push(element)
     r.push(null)
     res.setHeader('content-type', 'text/xml; charset=utf-8')
-    pump(r, objToXml(), wrapResponse(), res, next)
+    pump(r, toOsm({bounds: false}), res, next)
   })
 }

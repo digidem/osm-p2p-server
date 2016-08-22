@@ -1,14 +1,11 @@
 var test = require('tape')
-var request = require('http').request
 var tmpdir = require('os').tmpdir()
 var path = require('path')
 var osmrouter = require('../')
 var http = require('http')
 var osmdb = require('osm-p2p')
-var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
-var parsexml = require('xml-parser')
 
 var base, server
 

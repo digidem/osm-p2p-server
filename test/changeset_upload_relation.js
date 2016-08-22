@@ -86,7 +86,7 @@ test('add docs to changeset upload', function (t) {
       </way>
       <relation id="-4" changeset="${changeId}">
         <tag k="hello" v="world" />
-        <member type="way" ref="-3" />
+        <member type="way" ref="-3" role="" />
       </relation>
     </create>
   </osmChange>`)
@@ -162,7 +162,7 @@ test('get osmchange doc from upload', function (t) {
         children: [
           {
             name: 'member',
-            attributes: { type: 'way', ref: ids['-3'] },
+            attributes: { type: 'way', ref: ids['-3'], role: '' },
             children: []
           },
           {

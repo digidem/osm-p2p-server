@@ -1,5 +1,4 @@
 var test = require('tape')
-var request = require('http').request
 var tmpdir = require('os').tmpdir()
 var path = require('path')
 var osmrouter = require('../')
@@ -8,7 +7,6 @@ var osmdb = require('osm-p2p')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
-var parsexml = require('xml-parser')
 
 var base, server, changeId
 
@@ -17,8 +15,8 @@ test('setup many-types server', function (t) {
   var router = osmrouter(osm)
 
   server = http.createServer(function (req, res) {
-    if (router.handle(req, res)) {}
-    else {
+    if (router.handle(req, res)) {
+    } else {
       res.statusCode = 404
       res.end('not found\n')
     }
@@ -66,8 +64,8 @@ test('add docs to changeset', function (t) {
     { id: 'D', type: 'node', lat: 65.1, lon: -120.9, changeset: changeId },
     { id: 'E', type: 'node', lat: 65.3, lon: -120.8, changeset: changeId },
     { id: 'F', type: 'node', lat: 60.6, lon: -122.3, changeset: changeId },
-    { id: 'G', type: 'way', refs: ['A','B','C'], changeset: changeId },
-    { id: 'H', type: 'way', refs: ['D','E'], changeset: changeId },
+    { id: 'G', type: 'way', refs: ['A', 'B', 'C'], changeset: changeId },
+    { id: 'H', type: 'way', refs: ['D', 'E'], changeset: changeId },
     { id: 'I', type: 'relation',
       members: [
         { type: 'node', ref: 'F' },
@@ -101,7 +99,7 @@ test('add docs to changeset', function (t) {
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       t.ok(/^[0-9A-Fa-f]+$/.test(body.trim()))
-      uploaded[doc.lon+','+doc.lat] = body.trim()
+      uploaded[doc.lon + ',' + doc.lat] = body.trim()
       keys[key] = body.trim()
       next()
     }))
@@ -146,7 +144,7 @@ test('multi-fetch ways', function (t) {
     var xids = xml.root.children.map(function (x) {
       return x.attributes.id
     })
-    t.deepEqual(xids, [keys.G,keys.H], 'id comparison')
+    t.deepEqual(xids, [keys.G, keys.H], 'id comparison')
   }))
 })
 
@@ -168,9 +166,9 @@ test('get relation', function (t) {
       return { name: x.name, attributes: x.attributes }
     })
     t.deepEqual(members, [
-      { name: 'member', attributes: { type: 'node', ref: keys.F } },
-      { name: 'member', attributes: { type: 'way', ref: keys.G } } ,
-      { name: 'member', attributes: { type: 'way', ref: keys.H } }
+      { name: 'member', attributes: { type: 'node', ref: keys.F, role: '' } },
+      { name: 'member', attributes: { type: 'way', ref: keys.G, role: '' } },
+      { name: 'member', attributes: { type: 'way', ref: keys.H, role: '' } }
     ], 'relation members')
   }))
 })
@@ -242,12 +240,12 @@ test('get osmchange doc', function (t) {
         name: 'relation',
         attributes: { id: keys.I, changeset: changeId },
         children: [
-          { name: 'member', attributes: { type: 'node', ref: keys.F }, children: [] },
-          { name: 'member', attributes: { type: 'way', ref: keys.G }, children: [] },
-          { name: 'member', attributes: { type: 'way', ref: keys.H }, children: [] }
+          { name: 'member', attributes: { type: 'node', ref: keys.F, role: '' }, children: [] },
+          { name: 'member', attributes: { type: 'way', ref: keys.G, role: '' }, children: [] },
+          { name: 'member', attributes: { type: 'way', ref: keys.H, role: '' }, children: [] }
         ],
         content: ''
-      },
+      }
     ].sort(cmpch))
   }))
 })
