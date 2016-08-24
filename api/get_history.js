@@ -9,10 +9,10 @@ module.exports = function (osm) {
   return function getHistory (id, cb) {
     var r = osm.kv.createHistoryStream(id).on('error', function (err) {
       if (/^notfound/i.test(err) || err.notFound) {
-        stream.emit('error', new errors.NotFound('element id: ' + id))
-      } else {
-        stream.emit('error', err)
+        err = new errors.NotFound('element id: ' + id)
       }
+      if (cb) return cb(err)
+      if (stream) return stream.emit('error', err)
     })
     if (cb) {
       collect(r, function (err, rows) {

@@ -1,8 +1,12 @@
 var toOsm = require('obj2osm')
+var fromArray = require('from2-array')
 
 module.exports = function (req, res, api, params, next) {
-  res.setHeader('content-type', 'text/xml; charset=utf-8')
-  var r = api.getHistory(params.id).on('error', next)
-  var t = toOsm().on('error', next)
-  r.pipe(t).pipe(res)
+  api.getHistory(params.id, function (err, elements) {
+    if (err) return next(err)
+    var r = fromArray.obj(elements).on('error', next)
+    var t = toOsm().on('error', next)
+    res.setHeader('content-type', 'text/xml; charset=utf-8')
+    r.pipe(t).pipe(res)
+  })
 }
