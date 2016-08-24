@@ -105,11 +105,11 @@ test('rejected delete', function (t) {
     t.notEqual(res.statusCode, 200)
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
-    t.true(body.includes('Node #' + ids['-1'] + ' is still used by way #' + ids['-4'] + '.'))
+    t.true(body.includes('Element #' + ids['-1'] + ' is still used by element #' + ids['-4'] + '.'))
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <delete>
-      <node id="${ids['-1']}"/>
+      <node id="${ids['-1']}" changeset="${changeId}"/>
     </delete>
   </osmChange>`)
 })
@@ -130,8 +130,8 @@ test('accepted delete', function (t) {
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <delete>
-      <node id="${ids['-1']}"/>
-      <way id="${ids['-4']}"></way>
+      <node id="${ids['-1']}" changeset="${changeId}"/>
+      <way id="${ids['-4']}" changeset="${changeId}"></way>
     </delete>
   </osmChange>`)
 })
@@ -152,8 +152,8 @@ test('conditional delete', function (t) {
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <delete if-unused="1">
-      <node id="${ids['-3']}"/>
-      <node id="${ids['-6']}"/>
+      <node id="${ids['-3']}" changeset="${changeId}"/>
+      <node id="${ids['-6']}" changeset="${changeId}"/>
     </delete>
   </osmChange>`)
 })

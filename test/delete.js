@@ -108,9 +108,9 @@ test('rejected delete', function (t) {
     t.notEqual(res.statusCode, 200)
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
-    t.true(body.includes('Node #' + ids['-1'] + ' is still used by way #' + ids['-4'] + '.'))
+    t.true(body.includes('Element #' + ids['-1'] + ' is still used by element #' + ids['-4'] + '.'))
   }))
-  hq.end(`<osm><node id="${ids['-1']}"/></osm>`)
+  hq.end(`<osm><node id="${ids['-1']}" changeset="${changeId}"/></osm>`)
 })
 
 test('list documents', function (t) {
@@ -157,7 +157,7 @@ test('accepted delete way', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.ok(/^[0-9A-Fa-f]{8,}$/.test(body.trim()), 'version response')
   }))
-  hq.end(`<osm><way id="${ids['-4']}"/></osm>`)
+  hq.end(`<osm><way id="${ids['-4']}" changeset="${changeId}"/></osm>`)
 })
 
 test('accepted delete node', function (t) {
@@ -176,7 +176,7 @@ test('accepted delete node', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.ok(/^[0-9A-Fa-f]{8,}$/.test(body.trim()), 'version response')
   }))
-  hq.end(`<osm><node id="${ids['-1']}"/></osm>`)
+  hq.end(`<osm><node id="${ids['-1']}" changeset="${changeId}"/></osm>`)
 })
 
 test('list documents', function (t) {
@@ -220,7 +220,7 @@ test('rejected delete type mismatch', function (t) {
   hq.on('response', function (res) {
     t.equal(res.statusCode, 400)
   })
-  hq.end(`<osm><node id="${ids['-2']}"/></osm>`)
+  hq.end(`<osm><node id="${ids['-2']} changeset="${changeId}""/></osm>`)
 })
 
 test('teardown changeset upload server', function (t) {
