@@ -23,19 +23,24 @@ module.exports = function (osm) {
       opts = {}
     }
     var stream = through.obj(getDoc)
+    // Check whether doc with id exists
     osm.get(id, function (err, docs) {
       if (err) return onError(err)
+      // Ensure that doc with id is of type changset
       if (!isChangeset(docs)) {
         return onError(new errors.NotFound('changeset id: ' + id))
       }
+      // An object stream {key: versionId, value: 0}
       var r = osm.changeset.list(id, opts)
       r.on('error', onError)
       r.pipe(stream)
     })
     if (cb) {
+      // If a callback is defined, collect the stream into an array
       cb = once(cb)
       collect(stream, cb)
     } else {
+      // Otherwise return a readable stream
       return readonly(stream)
     }
 
