@@ -1,13 +1,17 @@
-var concat = require('concat-stream')
+var collect = require('collect-stream')
+var osm2Obj = require('osm2json')
 
+var isValidContentType = require('../lib/valid_content_type.js')
 var errors = require('../lib/errors')
-var del = require('../lib/del.js')
-var xmlcreate = require('../lib/xml_create.js')
 
 module.exports = function (req, res, api, params, next) {
-  req.pipe(concat({ encoding: 'string' }, onbody))
-  function onbody (body) {
-    var ops = xmlcreate(body)
+  if (!isValidContentType(req)) {
+    return next(new errors.UnsupportedContentType())
+  }
+
+  var r = req.pipe(osm2Obj({coerceIds: false}))
+  collect(r, function (err, ops) {
+    if (err || !ops.length) return next(new errors.XmlParseError(err))
     if (ops.length !== 1) {
       return next(new errors.DeleteMultiple())
     }
@@ -17,17 +21,14 @@ module.exports = function (req, res, api, params, next) {
     if (ops[0].id !== params.id) {
       return next(new errors.IdMismatch(ops[0].id, params.id))
     }
-    del(api.osm, ops, {}, function (err, batch) {
-      if (err) {
-        next(err)
-      } else {
-        api.osm.batch(batch, onbatch)
-      }
+    if (!ops[0].changeset) {
+      return next(new errors.MissingChangesetId())
+    }
+    ops[0].action = 'delete'
+    api.putChanges(ops, ops[0].changeset, function (err, diffResult) {
+      if (err) return next(err)
+      res.setHeader('content-type', 'text/plain')
+      res.end(diffResult.map(function (el) { return el.old_id }).join('\n'))
     })
-  }
-  function onbatch (err, nodes) {
-    if (err) return next(err)
-    res.setHeader('content-type', 'text/plain')
-    res.end(nodes.map(function (node) { return node.key }).join('\n'))
-  }
+  })
 }
