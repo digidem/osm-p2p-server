@@ -37,7 +37,7 @@ test('setup', t => {
   })
 })
 
-test('getChanges', t => {
+test.skip('getChanges', t => {
   var expected = batch0.slice(0, 4).map(row => Object.assign({},
     row.value, {action: 'create', id: row.key, version: versions0[row.key]})).map(toOsmObj.fn)
   expected.push(Object.assign({}, batch1[0].value,
