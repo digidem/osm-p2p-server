@@ -8,5 +8,5 @@ var toOsm = require('obj2osm')
 module.exports = function (req, res, api, params, next) {
   var r = api.getChanges(params.id)
   res.setHeader('content-type', 'text/xml; charset=utf-8')
-  pump(r, toOsm({root: 'osmChange'}), res, next)
+  pump(r, toOsm({root: 'osmChange', coerceIds: false}), res, next)
 }

@@ -15,7 +15,7 @@ module.exports = function (req, res, api, params, next) {
     return next(new errors.UnsupportedContentType())
   }
 
-  var r = req.pipe(osm2Obj({types: ['changeset'], strict: true}))
+  var r = req.pipe(osm2Obj({types: ['changeset'], strict: true, coerceIds: false}))
   collect(r, function (err, ops) {
     if (err) return next(new errors.XmlParseError(err))
     if (!ops.length) return next(new errors.XmlMissingElement('changeset'))
