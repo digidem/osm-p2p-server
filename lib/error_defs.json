@@ -3,6 +3,10 @@
     "code": 404,
     "message": "Not Found"
   },
+  "ChangesetIdMismatch": {
+    "code": 409,
+    "message": "diff contains elements with changeset IDs %s\nwhich don't match the changeset ID %s that the diff was uploaded to"
+  },
   "ClosedChangeset": {
     "code": 409,
     "message": "The changeset %s was closed at %s."
@@ -30,6 +34,10 @@
   "MissingChangesetId": {
     "code": 400,
     "message": "Missing changeset ID: the element must have a changeset attribute with the id of an open changset"
+  },
+  "PlaceholderIdError": {
+    "code": 400,
+    "message": "Placeholder id is missing or non-unique"
   },
   "TypeMismatch": {
     "code": 400,
