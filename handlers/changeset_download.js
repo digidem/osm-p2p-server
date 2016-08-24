@@ -6,7 +6,7 @@ var toOsm = require('obj2osm')
 
 module.exports = function (req, res, api, params, next) {
   var r = api.getChanges(params.id).on('error', next)
-  var t = toOsm({root: 'osmChange', coerceIds: false}).on('error', next)
+  var t = toOsm({root: 'osmChange'}).on('error', next)
   res.setHeader('content-type', 'text/xml; charset=utf-8')
   r.pipe(t).pipe(res).on('error', next)
 }
