@@ -2,7 +2,7 @@ var xtend = require('xtend')
 var through = require('through2')
 var readonly = require('read-only-stream')
 var once = require('once')
-var to = require('to2')
+var collect = require('collect-stream')
 
 var errors = require('../lib/errors')
 var toOsmObj = require('../transforms/osm_p2p_to_obj.js')
@@ -34,7 +34,7 @@ module.exports = function (osm) {
     })
     if (cb) {
       cb = once(cb)
-      collectObj(stream, cb)
+      collect(stream, cb)
     } else {
       return readonly(stream)
     }
@@ -73,15 +73,4 @@ function getAction (doc) {
   if (doc.links.length === 0 && doc.value.d === undefined) return 'create'
   if (doc.links.length > 0 && doc.value.d === undefined) return 'modify'
   if (doc.value.d !== undefined) return 'delete'
-}
-
-function collectObj (stream, cb) {
-  var rows = []
-  stream.on('error', cb)
-  stream.pipe(to.obj(write, end))
-  function write (x, enc, next) {
-    rows.push(x)
-    next()
-  }
-  function end () { cb(null, rows) }
 }
