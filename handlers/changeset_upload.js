@@ -18,11 +18,10 @@ module.exports = function (req, res, api, params, next) {
     if (err || !changes.length) return next(new errors.XmlParseError(err))
     api.putChanges(changes, params.id, version, function (err, diffResult) {
       if (err) return next(err)
+      var r = fromArray.obj(diffResult).on('error', next)
+      var t = toOsm({root: 'diffResult'}).on('error', next)
       res.setHeader('content-type', 'text/xml; charset=utf-8')
-      fromArray.obj(diffResult)
-        .pipe(toOsm({root: 'diffResult'}))
-        .pipe(res)
-        .on('error', next)
+      r.pipe(t).pipe(res)
     })
   })
 }

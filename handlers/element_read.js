@@ -1,5 +1,4 @@
 var qs = require('query-string')
-var pump = require('pump')
 var fromArray = require('from2-array')
 var toOsm = require('obj2osm')
 
@@ -11,7 +10,9 @@ module.exports = function (req, res, api, params, next) {
       forks = forks.sort(recentFirst)[0]
     }
     res.setHeader('content-type', 'text/xml; charset=utf-8')
-    pump(fromArray.obj(forks), toOsm({bounds: false}), res, next)
+    var r = fromArray.obj(forks).on('error', next)
+    var t = toOsm({bounds: false}).on('error', next)
+    r.pipe(t).pipe(res)
   })
 }
 

@@ -1,5 +1,4 @@
 var qs = require('query-string')
-var pump = require('pump')
 var toOsm = require('obj2osm')
 
 module.exports = function (req, res, api, params, next) {
@@ -11,5 +10,6 @@ module.exports = function (req, res, api, params, next) {
   var toOsmOptions = {
     bounds: {minlon: bbox[0], minlat: bbox[1], maxlon: bbox[2], maxlat: bbox[3]}
   }
-  pump(r, toOsm(toOsmOptions), res, next)
+  var t = toOsm(toOsmOptions).on('error', next)
+  r.pipe(t).pipe(res)
 }
