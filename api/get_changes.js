@@ -54,7 +54,7 @@ module.exports = function (osm) {
     }
 
     function onError (err) {
-      if (cb) cb(err)
+      if (cb) return cb(err)
       stream.emit('error', err)
     }
   }
