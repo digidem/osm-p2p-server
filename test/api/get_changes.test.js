@@ -31,7 +31,7 @@ test('setup', t => {
     nodes.forEach(n => (versions0[n.value.k] = n.key))
     osm.batch(batch1, function (err, nodes) {
       t.error(err)
-      nodes.forEach(n => (versions1[n.value.k] = n.key))
+      nodes.forEach(n => (versions1[n.value.k || n.value.d] = n.key))
       t.end()
     })
   })
