@@ -15,7 +15,7 @@
 
 var statuses = require('statuses')
 var inherits = require('inherits')
-var customErrors = require('./error_defs.json')
+var customErrors = require('./errors.json')
 
 /**
  * Module exports.

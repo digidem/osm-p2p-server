@@ -4,7 +4,7 @@ var readonly = require('read-only-stream')
 var once = require('once')
 var collect = require('collect-stream')
 
-var errors = require('../lib/errors')
+var errors = require('../errors')
 var refs2nodes = require('../lib/util').refs2nodes
 
 /**

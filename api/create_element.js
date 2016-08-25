@@ -1,4 +1,4 @@
-var errors = require('../lib/errors')
+var errors = require('../errors')
 var util = require('../lib/util')
 
 module.exports = function (osm) {

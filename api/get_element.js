@@ -2,7 +2,7 @@ var collect = require('collect-stream')
 var xtend = require('xtend')
 var mapStream = require('through2-map')
 
-var errors = require('../lib/errors')
+var errors = require('../errors')
 var refs2nodes = require('../lib/util').refs2nodes
 
 module.exports = function (osm) {

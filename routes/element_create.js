@@ -1,7 +1,7 @@
 var collect = require('collect-stream')
 var osm2Obj = require('osm2json')
 
-var errors = require('../lib/errors')
+var errors = require('../errors')
 var isValidContentType = require('../lib/util').isValidContentType
 
 module.exports = function (req, res, api, params, next) {

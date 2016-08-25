@@ -1,4 +1,4 @@
-var errors = require('../lib/errors')
+var errors = require('../errors')
 var filterSafeDeletes = require('../lib/filter_deletes')
 var validateChangeset = require('../lib/validate_changeset')
 var replacePlaceholderIds = require('../lib/replace_ids')
