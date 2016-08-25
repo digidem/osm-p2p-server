@@ -32,7 +32,3 @@ function rowMap (row) {
     version: row.link
   })
 }
-
-function notFound (err) {
-  return err && (/^notfound/i.test(err) || err.notFound)
-}
