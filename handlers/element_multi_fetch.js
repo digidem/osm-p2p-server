@@ -3,6 +3,7 @@ var toOsm = require('obj2osm')
 var fromArray = require('from2-array')
 
 var errors = require('../lib/errors')
+var cmpFork = require('../lib/util').cmpFork
 
 module.exports = function (req, res, api, params, next) {
   if (params.type !== params.ktype) {
@@ -22,7 +23,7 @@ module.exports = function (req, res, api, params, next) {
         return next(err)
       }
       if (!query.forks) {
-        forks = forks.sort(recentFirst).slice(0, 1)
+        forks = forks.sort(cmpFork).slice(0, 1)
       }
       results[i] = forks
       if (--pending === 0) done()
@@ -44,10 +45,3 @@ module.exports = function (req, res, api, params, next) {
   }
 }
 
-function recentFirst (a, b) {
-  if (a.timestamp && b.timestamp) {
-    return b.timestamp - a.timestamp
-  }
-  // Ensure sorting is stable between requests
-  return a.version < b.version ? -1 : 1
-}
