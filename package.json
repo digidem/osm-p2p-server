@@ -13,7 +13,7 @@
     "geo"
   ],
   "author": "substack",
-  "license": "BSD",
+  "license": "BSD-2-Clause",
   "dependencies": {
     "base-convertor": "^1.1.0",
     "collect-stream": "^1.1.1",

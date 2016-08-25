@@ -169,4 +169,4 @@ If something does not work as it should, please open an [Issue](/issues). [Pull 
 
 ## License
 
-BSD
+[BSD (c) 2016 Digital Democracy](/LICENSE)
