@@ -1,18 +1,27 @@
 {
   "name": "osm-p2p-server",
   "version": "2.0.0-beta",
-  "description": "serve osm http endpoints over a p2p db",
+  "description": "Peer-to-peer OpenStreetMap API v0.6 Server",
   "main": "index.js",
   "bin": {
     "osm-p2p-server": "bin/cmd.js"
   },
   "keywords": [
     "open street map",
+    "OpenStreetMap",
+    "OSM",
+    "peer-to-peer",
+    "osm-p2p",
+    "server",
     "p2p",
     "maps",
     "geo"
   ],
   "author": "substack",
+  "contributors": [{
+    "name": "Gregor MacLennan",
+    "email": "gmaclennan@digital-democracy.org"
+  }],
   "license": "BSD-2-Clause",
   "dependencies": {
     "base-convertor": "^1.1.0",
