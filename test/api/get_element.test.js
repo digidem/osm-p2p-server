@@ -1,4 +1,7 @@
 var test = require('tape')
+var path = require('path')
+var tmpdir = require('os').tmpdir()
+var osmdb = require('osm-p2p')
 
 var createGetElement = require('../../api/get_element')
 
@@ -40,6 +43,39 @@ test('getElement missing error', t => {
     t.true(err instanceof Error, 'returns error')
     t.equal(err.name, 'NotFoundError', 'error type is NotFoundError')
     t.ok(err.message.includes(testId), 'error includes id')
+    t.equal(err.status, 404, 'error status code is 404')
+  })
+})
+
+test('getElement - specific version', t => {
+  t.plan(5)
+  var testId = '12345'
+  var testVersion = 'A'
+  var testDoc = {
+    value: {v: {refs: [1, 2]}}
+  }
+  var mockedOsm = { log: {
+    get: function (version, cb) {
+      t.equal(version, testVersion)
+      t.equal(typeof cb, 'function')
+      cb(null, testDoc)
+    }
+  }}
+  var getElement = createGetElement(mockedOsm)
+  getElement(testId, testVersion, (e, element) => {
+    t.equal(element.id, testId)
+    t.equal(element.version, testVersion)
+    t.deepEqual(element.nodes, testDoc.value.v.refs, 'maps refs to nodes')
+  })
+})
+
+test('getElement missing error', t => {
+  t.plan(3)
+  var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
+  var getElement = createGetElement(osm)
+  getElement(12345, 'A', (err, elements) => {
+    t.true(err instanceof Error, 'returns error')
+    t.equal(err.name, 'NotFoundError', 'error type is NotFoundError')
     t.equal(err.status, 404, 'error status code is 404')
   })
 })
