@@ -39,7 +39,6 @@
   "devDependencies": {
     "express": "^4.14.0",
     "fd-chunk-store": "^2.0.0",
-    "from2-string": "^1.1.0",
     "hyperlog": "^4.10.0",
     "hyperquest": "^2.0.0",
     "isostring": "0.0.1",
