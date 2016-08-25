@@ -1,25 +1,12 @@
 var osmdb = require('osm-p2p')
-var osm = osmdb('/tmp/osm-p2p')
 var express = require('express')
 
-var routes = require('../lib/routes').routes
-var api = require('../api')(osm)
+var osmRouter = require('../')
 
 var app = express()
+var osm = osmdb('/tmp/osm-p2p')
 
-// routes are exported as objects with props:
-// `src`: method in uppercase, followed by a space, followed by the route path
-// `fn`: the route handler function, must be called with (req, res, api, params, next)
-// Alternatively if you want to use your own route paths you can require
-// route handlers directly from `../handlers/`
-
-routes.forEach(function (route) {
-  var method = route.src.split(' ')[0].toLowerCase()
-  var path = route.src.split(' ').slice(1).join(' ')
-  app[method](path, function (req, res, next) {
-    route.fn(req, res, api, req.params, next)
-  })
-})
+app.use('/api/0.6', osmRouter(osm))
 
 app.use(function handleError (err, req, res, next) {
   if (!err) return

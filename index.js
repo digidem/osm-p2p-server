@@ -17,7 +17,7 @@ Server.prototype.match = function (method, url) {
   return this.router.match(method.toUpperCase() + ' ' + url)
 }
 
-Server.prototype.handle = function (req, res) {
+Server.prototype.handle = function (req, res, next) {
   var method = req.headers.x_http_method_override || req.method
   var m = this.match(method, req.url)
   if (m) {
@@ -26,9 +26,12 @@ Server.prototype.handle = function (req, res) {
     m.fn(req, res, this.api, m.params, handleError)
     return m
   }
+  if (typeof next === 'function') next()
   return null
 
   function handleError (err) {
+    // If used as middleware, fallthrough
+    if (typeof next === 'function') return next(err)
     if (!err) return
     if (!err.status || !err.statusCode) {
       err = errors(err)
