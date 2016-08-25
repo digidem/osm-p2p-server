@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - **BREAKING**: Only most recent fork is returned on `GET /:type(node|way|relation)/:id`, unless `?forks=true` query param is set.
 - **BREAKING**: Only most recent forks are returned on `GET /:type(nodes|ways|relations)\\?:ktype=:ids`, unless `?forks=true` query param is set.
 - **BREAKING**: Only most recent forks are returned of elements in `GET /map`, unless `?forks=true` query param is set.
+- **BREAKING**: Routes no longer start with `/api/0.6/`, routes are now mounted on `/`
 - Error messages should be more consistent
 - More robust XML parsing
 

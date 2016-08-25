@@ -62,7 +62,7 @@ the match object if there is a match.
 
 # differences
 
-In changeset uploads (`/api/0.6/changeset/:id/upload`), the `version` property
+In changeset uploads (`/changeset/:id/upload`), the `version` property
 refers to a comma-separated list of version hashes of the documents that the
 update will replace.
 

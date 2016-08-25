@@ -17,7 +17,7 @@ test('capabilities.js: setup server', function (t) {
 
 test('capabilities', function (t) {
   t.plan(1)
-  hyperquest('http://localhost:' + port + '/api/capabilities')
+  hyperquest('http://localhost:' + port + '/capabilities')
     .pipe(concat({ encoding: 'string' }, function (body) {
       var data = parsexml(body)
       t.equal(data.root.attributes.version, '0.6')
