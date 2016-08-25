@@ -1,62 +1,16 @@
 var test = require('tape')
-var tmpdir = require('os').tmpdir()
-var path = require('path')
-var osmrouter = require('../')
-var http = require('http')
-var osmdb = require('osm-p2p-db')
 var parsexml = require('xml-parser')
-var memdb = require('memdb')
-var hyperlog = require('hyperlog')
-var fdstore = require('fd-chunk-store')
 var hyperquest = require('hyperquest')
-var mkdirp = require('mkdirp')
 var concat = require('concat-stream')
-var EventEmitter = require('events').EventEmitter
 
 var base, server, changeId
 
-test('setup bbox server', function (t) {
-  var dir = path.join(tmpdir, 'osm-p2p-server-test-' + Math.random())
-  mkdirp.sync(dir)
+var createServer = require('./test_server.js')
 
-  var db = memdb()
-  var slowdb = new EventEmitter
-  slowdb.setMaxListeners(Infinity)
-  slowdb.db = {}
-  slowdb.db.get = function (key, opts, cb) {
-    setTimeout(function () {
-      db.db.get(key, opts, cb)
-    }, Math.random() * 100)
-  }
-  slowdb.db.put = db.db.put.bind(db.db)
-  slowdb.db.del = db.db.del.bind(db.db)
-  slowdb.db.batch = db.db.batch.bind(db.db)
-  slowdb.db.iterator = db.db.iterator.bind(db.db)
-  slowdb.get = db.get.bind(db)
-  slowdb.put = db.put.bind(db)
-  slowdb.del = db.del.bind(db)
-  slowdb.batch = db.batch.bind(db)
-  slowdb.createReadStream = db.createReadStream.bind(db)
-  slowdb.isOpen = db.isOpen.bind(db)
-  db.on('open', slowdb.emit.bind(slowdb, 'open'))
-
-  var osm = osmdb({
-    db: slowdb,
-    log: hyperlog(memdb(), { valueEncoding: 'json' }),
-    store: fdstore(4096, path.join(dir, 'kdb'))
-  })
-  var router = osmrouter(osm)
-
-  server = http.createServer(function (req, res) {
-    if (router.handle(req, res)) {}
-    else {
-      res.statusCode = 404
-      res.end('not found\n')
-    }
-  })
-  server.listen(0, function () {
-    var port = server.address().port
-    base = 'http://localhost:' + port + '/api/0.6/'
+test('bbox_order.js: setup server', function (t) {
+  createServer(function (d) {
+    base = d.base
+    server = d.server
     t.end()
   })
 })
@@ -171,7 +125,7 @@ test('bbox', function (t) {
   }))
 })
 
-test('teardown bbox server', function (t) {
-  server.close()
+test('bbox_order.js: teardown server', function (t) {
+  server.cleanup()
   t.end()
 })
