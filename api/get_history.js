@@ -3,7 +3,7 @@ var xtend = require('xtend')
 var mapStream = require('through2-map')
 
 var errors = require('../lib/errors')
-var toOsmObj = require('../transforms/osm_p2p_to_obj.js')
+var refs2nodes = require('../lib/util').refs2nodes
 
 module.exports = function (osm) {
   return function getHistory (id, cb) {
@@ -27,7 +27,7 @@ module.exports = function (osm) {
 }
 
 function rowMap (row) {
-  return xtend(toOsmObj.fn(row.value), {
+  return xtend(refs2nodes(row.value), {
     id: row.key,
     version: row.link
   })

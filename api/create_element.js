@@ -1,13 +1,10 @@
-var randombytes = require('randombytes')
-
 var errors = require('../lib/errors')
-var obj2P2p = require('../transforms/obj_to_osm_p2p')
-var hex2dec = require('../lib/hex2dec.js')
+var util = require('../lib/util')
 
 module.exports = function (osm) {
   return function createElement (element, cb) {
     // TODO: check element schema and whitelist props
-    var id = hex2dec(randombytes(8).toString('hex'))
+    var id = util.generateId()
     var changesetId = element.changeset
 
     if (!changesetId) {
@@ -26,7 +23,7 @@ module.exports = function (osm) {
       if (closedAt) {
         return cb(new errors.ClosedChangeset(changesetId, closedAt))
       }
-      var op = Object.assign(obj2P2p.fn(element), {
+      var op = Object.assign(util.nodes2refs(element), {
         timestamp: new Date().toISOString()
       })
       osm.put(id, op, function (err, node) {

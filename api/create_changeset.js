@@ -1,11 +1,9 @@
-var randombytes = require('randombytes')
-
-var hex2dec = require('../lib/hex2dec.js')
+var util = require('../lib/util')
 
 module.exports = function (osm) {
   return function createChangeset (changeset, cb) {
     // TODO: check changeset schema and ignore illegal props
-    var id = hex2dec(randombytes(8).toString('hex'))
+    var id = util.generateId()
 
     var op = Object.assign({}, changeset, {
       created_at: new Date().toISOString()

@@ -5,7 +5,7 @@ var once = require('once')
 var collect = require('collect-stream')
 
 var errors = require('../lib/errors')
-var toOsmObj = require('../transforms/osm_p2p_to_obj.js')
+var refs2nodes = require('../lib/util').refs2nodes
 
 /**
  * Get the changes in a changeset, as `cb(err, changes)` or as a stream
@@ -53,7 +53,7 @@ module.exports = function (osm) {
           version: doc.key,
           action: getAction(doc)
         })
-        self.push(toOsmObj.fn(element))
+        self.push(refs2nodes(element))
         next()
       })
     }

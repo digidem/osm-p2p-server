@@ -4,7 +4,7 @@ var tmpdir = require('os').tmpdir()
 var osmdb = require('osm-p2p')
 
 var createGetChanges = require('../../api/get_changes')
-var toOsmObj = require('../../transforms/osm_p2p_to_obj.js')
+var refs2nodes = require('../../lib/util').refs2nodes
 
 var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
 var getChanges = createGetChanges(osm)
@@ -39,7 +39,7 @@ test('setup', t => {
 
 test.skip('getChanges', t => {
   var expected = batch0.slice(0, 4).map(row => Object.assign({},
-    row.value, {action: 'create', id: row.key, version: versions0[row.key]})).map(toOsmObj.fn)
+    row.value, {action: 'create', id: row.key, version: versions0[row.key]})).map(refs2nodes)
   expected.push(Object.assign({}, batch1[0].value,
     {action: 'modify', id: batch1[0].key, version: versions1[batch1[0].key]}))
   expected.push(Object.assign({}, batch0[1].value,

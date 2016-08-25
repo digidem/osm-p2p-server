@@ -1,7 +1,7 @@
 var xtend = require('xtend')
 
 var errors = require('../lib/errors')
-var toOsmObj = require('../transforms/osm_p2p_to_obj.js')
+var refs2nodes = require('../lib/util').refs2nodes
 
 module.exports = function (osm) {
   return function getElement (id, version, cb) {
@@ -26,7 +26,7 @@ module.exports = function (osm) {
           id: id,
           version: key
         })
-      }).map(toOsmObj.fn)
+      }).map(refs2nodes)
       cb(null, forks)
     })
   }
@@ -41,7 +41,7 @@ module.exports = function (osm) {
         id: id,
         version: version
       })
-      cb(null, toOsmObj.fn(element))
+      cb(null, refs2nodes(element))
     })
   }
 }

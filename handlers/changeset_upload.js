@@ -4,7 +4,7 @@ var toOsm = require('obj2osm')
 var fromArray = require('from2-array')
 
 var errors = require('../lib/errors')
-var isValidContentType = require('../lib/valid_content_type.js')
+var isValidContentType = require('../lib/util').isValidContentType
 
 module.exports = function (req, res, api, params, next) {
   if (!isValidContentType(req)) {
