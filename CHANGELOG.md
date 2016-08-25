@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [2.0.0-beta]
 ### Added
 - Add `timestamp` to newly created elements.
 - Add `created_at` timestamp to new changesets.
@@ -25,6 +25,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `members` and `nodes` are returned before `tags` in Xml.
 - Delete operations must have changeset attribute set.
 
-### Removed
-
-[Unreleased]: https://github.com/digidem/osm-p2p-server/compare/1.12.2...HEAD
+[2.0.0-beta]: https://github.com/digidem/osm-p2p-server/compare/1.12.2...2.0.0-beta
