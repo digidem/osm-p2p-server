@@ -12,7 +12,7 @@ module.exports = function (osm) {
       opts = {}
     }
     var query = [[bbox[1], bbox[3]], [bbox[0], bbox[2]]] // left,bottom,right,top
-    var queryStream = osm.queryStream(query, { order: 'type' })
+    var queryStream = osm.queryStream(query, opts)
     var queryStreamJson = pumpify.obj(queryStream, checkRefExist(osm), mapStream.obj(refs2nodes))
     if (cb) {
       collect(queryStreamJson, function (err, elements) {

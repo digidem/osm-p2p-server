@@ -23,6 +23,6 @@ test('getMap', t => {
   var bbox = [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat]
   var getMap = createGetMap(mockedOsm)
   t.equal(typeof getMap, 'function')
-  var s = getMap(bbox)
+  var s = getMap(bbox, {order: 'type'})
   t.true(s instanceof Duplex, 'instance of Duplex stream')
 })
