@@ -1,0 +1,58 @@
+{
+  "NotFound": {
+    "code": 404,
+    "message": "Not Found"
+  },
+  "ChangesetIdMismatch": {
+    "code": 409,
+    "message": "diff contains elements with changeset IDs %s\nwhich don't match the changeset ID %s that the diff was uploaded to"
+  },
+  "ClosedChangeset": {
+    "code": 409,
+    "message": "The changeset %s was closed at %s."
+  },
+  "DeleteMultiple": {
+    "code": 400,
+    "message": "Only one element can be deleted per request."
+  },
+  "ForkedChangeset": {
+    "code": 409,
+    "message": "Changeset %s has multiple forks, you must specify a version"
+  },
+  "IdMismatch": {
+    "code": 400,
+    "message": "Id mismatch between url parameter and xml.\n%s !== %s"
+  },
+  "InUse": {
+    "code": 412,
+    "message": "Cannot delete an element that is in use"
+  },
+  "MissingChangeset": {
+    "code": 400,
+    "message": "Changeset %s not found.\n The element must reference an existing changeset."
+  },
+  "MissingChangesetId": {
+    "code": 400,
+    "message": "Missing changeset ID: the element must have a changeset attribute with the id of an open changset"
+  },
+  "PlaceholderIdError": {
+    "code": 400,
+    "message": "Placeholder id is missing or non-unique"
+  },
+  "TypeMismatch": {
+    "code": 400,
+    "message": "Type mismatch between url parameter and xml."
+  },
+  "UnsupportedContentType": {
+    "code": 400,
+    "message": "Unsupported content-type"
+  },
+  "XmlParseError": {
+    "code": 400,
+    "message": "Error parsing XML"
+  },
+  "XmlMissingElement": {
+    "code": 400,
+    "message": "missing %s elements in XML"
+  }
+}

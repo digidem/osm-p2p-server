@@ -1,6 +1,6 @@
 {
   "name": "osm-p2p-server",
-  "version": "1.12.3",
+  "version": "2.0.0-beta",
   "description": "serve osm http endpoints over a p2p db",
   "main": "index.js",
   "bin": {
@@ -13,37 +13,48 @@
     "geo"
   ],
   "author": "substack",
-  "license": "BSD",
+  "license": "BSD-2-Clause",
   "dependencies": {
     "base-convertor": "^1.1.0",
-    "body": "^5.1.0",
     "collect-stream": "^1.1.1",
-    "concat-stream": "^1.5.1",
-    "has": "^1.0.1",
+    "content-type": "^1.0.2",
+    "debug": "^2.2.0",
+    "from2-array": "0.0.4",
+    "inherits": "^2.0.1",
     "minimist": "^1.2.0",
+    "obj2osm": "^2.0.0",
     "once": "^1.3.3",
-    "osm-p2p-xml": "^1.0.1",
+    "osm2json": "^2.1.0",
+    "pumpify": "^1.3.5",
+    "query-string": "^4.2.2",
     "randombytes": "^2.0.2",
+    "read-only-stream": "^2.0.0",
+    "readable-stream": "^2.1.4",
     "routes": "^2.1.0",
-    "sax": "^1.2.1",
+    "statuses": "^1.3.0",
     "through2": "^2.0.1",
-    "xml-parser": "^1.2.1",
+    "through2-map": "github:gmaclennan/through2-map",
     "xtend": "^4.0.1"
   },
   "devDependencies": {
+    "express": "^4.14.0",
     "fd-chunk-store": "^2.0.0",
     "hyperlog": "^4.10.0",
     "hyperquest": "^2.0.0",
+    "isostring": "0.0.1",
     "memdb": "^1.3.1",
     "osm-p2p": "^1.4.0",
     "osm-p2p-db": "^3.9.1",
-    "tape": "^4.4.0"
+    "standard": "^8.0.0",
+    "tape": "^4.4.0",
+    "xml-parser": "^1.2.1"
   },
   "directories": {
     "example": "example"
   },
   "scripts": {
-    "test": "tape test/*.js"
+    "test": "tape 'test/**/*.js'",
+    "lint": "standard"
   },
   "repository": {
     "type": "git",

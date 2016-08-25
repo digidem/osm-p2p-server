@@ -1,31 +1,17 @@
 var test = require('tape')
-var request = require('http').request
-var tmpdir = require('os').tmpdir()
-var path = require('path')
-var osmrouter = require('../')
-var http = require('http')
-var osmdb = require('osm-p2p')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
-var parsexml = require('xml-parser')
 
-var base, server, changeId
+var base
+var server
+var changeId
+var createServer = require('./test_server.js')
 
-test('setup many-types server', function (t) {
-  var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
-  var router = osmrouter(osm)
-
-  server = http.createServer(function (req, res) {
-    if (router.handle(req, res)) {}
-    else {
-      res.statusCode = 404
-      res.end('not found\n')
-    }
-  })
-  server.listen(0, function () {
-    var port = server.address().port
-    base = 'http://localhost:' + port + '/api/0.6/'
+test('many_types.js: setup server', function (t) {
+  createServer(function (d) {
+    base = d.base
+    server = d.server
     t.end()
   })
 })
@@ -66,15 +52,16 @@ test('add docs to changeset', function (t) {
     { id: 'D', type: 'node', lat: 65.1, lon: -120.9, changeset: changeId },
     { id: 'E', type: 'node', lat: 65.3, lon: -120.8, changeset: changeId },
     { id: 'F', type: 'node', lat: 60.6, lon: -122.3, changeset: changeId },
-    { id: 'G', type: 'way', refs: ['A','B','C'], changeset: changeId },
-    { id: 'H', type: 'way', refs: ['D','E'], changeset: changeId },
-    { id: 'I', type: 'relation',
+    { id: 'G', type: 'way', refs: ['A', 'B', 'C'], changeset: changeId },
+    { id: 'H', type: 'way', refs: ['D', 'E'], changeset: changeId },
+    { id: 'I',
+      type: 'relation',
+      changeset: changeId,
       members: [
         { type: 'node', ref: 'F' },
         { type: 'way', ref: 'G' },
         { type: 'way', ref: 'H' }
-      ],
-      changeset: changeId
+      ]
     }
   ]
   t.plan(docs.length * 3)
@@ -101,7 +88,7 @@ test('add docs to changeset', function (t) {
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       t.ok(/^[0-9A-Fa-f]+$/.test(body.trim()))
-      uploaded[doc.lon+','+doc.lat] = body.trim()
+      uploaded[doc.lon + ',' + doc.lat] = body.trim()
       keys[key] = body.trim()
       next()
     }))
@@ -136,7 +123,7 @@ test('multi-fetch ways', function (t) {
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml')
+    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -146,7 +133,7 @@ test('multi-fetch ways', function (t) {
     var xids = xml.root.children.map(function (x) {
       return x.attributes.id
     })
-    t.deepEqual(xids, [keys.G,keys.H], 'id comparison')
+    t.deepEqual(xids, [keys.G, keys.H], 'id comparison')
   }))
 })
 
@@ -158,7 +145,7 @@ test('get relation', function (t) {
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml')
+    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -168,9 +155,9 @@ test('get relation', function (t) {
       return { name: x.name, attributes: x.attributes }
     })
     t.deepEqual(members, [
-      { name: 'member', attributes: { type: 'node', ref: keys.F } },
-      { name: 'member', attributes: { type: 'way', ref: keys.G } } ,
-      { name: 'member', attributes: { type: 'way', ref: keys.H } }
+      { name: 'member', attributes: { type: 'node', ref: keys.F, role: '' } },
+      { name: 'member', attributes: { type: 'way', ref: keys.G, role: '' } },
+      { name: 'member', attributes: { type: 'way', ref: keys.H, role: '' } }
     ], 'relation members')
   }))
 })
@@ -186,41 +173,38 @@ test('get osmchange doc', function (t) {
     t.equal(xml.root.name, 'osmChange')
     t.equal(xml.root.children.length, 1)
     t.equal(xml.root.children[0].name, 'create')
+    xml.root.children[0].children.forEach(function (c) {
+      delete c.attributes.timestamp
+    })
     t.deepEqual(chfilter(xml.root.children[0].children).sort(cmpch), [
       { name: 'node',
         attributes: { id: keys.A, changeset: changeId, lat: '64.5', lon: '-121.5' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.B, changeset: changeId, lat: '63.9', lon: '-120.9' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.C, changeset: changeId, lat: '64.3', lon: '-122.1' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.D, changeset: changeId, lat: '65.1', lon: '-120.9' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.E, changeset: changeId, lat: '65.3', lon: '-120.8' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
         attributes: { id: keys.F, changeset: changeId, lat: '60.6', lon: '-122.3' },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'way',
@@ -245,18 +229,18 @@ test('get osmchange doc', function (t) {
         name: 'relation',
         attributes: { id: keys.I, changeset: changeId },
         children: [
-          { name: 'member', attributes: { type: 'node', ref: keys.F }, children: [] },
-          { name: 'member', attributes: { type: 'way', ref: keys.G }, children: [] },
-          { name: 'member', attributes: { type: 'way', ref: keys.H }, children: [] }
+          { name: 'member', attributes: { type: 'node', ref: keys.F, role: '' }, children: [] },
+          { name: 'member', attributes: { type: 'way', ref: keys.G, role: '' }, children: [] },
+          { name: 'member', attributes: { type: 'way', ref: keys.H, role: '' }, children: [] }
         ],
         content: ''
-      },
+      }
     ].sort(cmpch))
   }))
 })
 
-test('teardown many-types server', function (t) {
-  server.close()
+test('many_types.js: teardown server', function (t) {
+  server.cleanup()
   t.end()
 })
 

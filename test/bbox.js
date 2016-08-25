@@ -1,29 +1,16 @@
 var test = require('tape')
-var tmpdir = require('os').tmpdir()
-var path = require('path')
-var osmrouter = require('../')
-var http = require('http')
-var osmdb = require('osm-p2p')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
 
+var createServer = require('./test_server.js')
+
 var base, server, changeId
 
-test('setup bbox server', function (t) {
-  var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
-  var router = osmrouter(osm)
-
-  server = http.createServer(function (req, res) {
-    if (router.handle(req, res)) {}
-    else {
-      res.statusCode = 404
-      res.end('not found\n')
-    }
-  })
-  server.listen(0, function () {
-    var port = server.address().port
-    base = 'http://localhost:' + port + '/api/0.6/'
+test('bbox.js: setup changeset server', function (t) {
+  createServer(function (d) {
+    base = d.base
+    server = d.server
     t.end()
   })
 })
@@ -42,7 +29,7 @@ test('create bbox', function (t) {
     changeId = body.trim()
     t.ok(/^[0-9A-Fa-f]+$/.test(changeId), 'expected changeset id response')
   }))
-  hq.end(`<osm><changeset></changeset></osm>`)
+  hq.end('<osm><changeset></changeset></osm>')
 })
 
 var uploaded = {}
@@ -53,21 +40,21 @@ test('add docs to changeset', function (t) {
   for (var i = 0; i < SIZE; i++) {
     docs.push({
       type: 'node',
-      id: 0-i-1,
-      lat: 64 + i/SIZE,
-      lon: -121 - i/SIZE,
+      id: 0 - i - 1,
+      lat: 64 + i / SIZE,
+      lon: -121 - i / SIZE,
       changeset: changeId
     })
   }
   docs.push({
     type: 'way',
-    id: '${0-i-1}',
+    id: 0 - i - 1,
     changeset: changeId,
     refs: docs.map(function (d, i) { return 0 - (i + 1) })
   })
   var kdocs = {}
-  docs.forEach(function (doc,i) {
-    kdocs[0-i-1] = doc
+  docs.forEach(function (doc, i) {
+    kdocs[0 - i - 1] = doc
   })
 
   var href = base + 'changeset/' + changeId + '/upload'
@@ -76,14 +63,14 @@ test('add docs to changeset', function (t) {
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml')
+    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'diffResult')
     xml.root.children.forEach(function (node, i) {
       var id = node.attributes.new_id
-      uploaded[id] = kdocs[0-i-1]
+      uploaded[id] = kdocs[0 - i - 1]
       uploaded[id].id = id
       if (node.name === 'way') {
         uploaded[id].refs = uploaded[id].refs.map(function (ref) {
@@ -109,7 +96,7 @@ test('add docs to changeset', function (t) {
 })
 
 test('bbox', function (t) {
-  t.plan(7 + SIZE*3)
+  t.plan(7 + SIZE * 3)
   var href = base + 'map?bbox=-123,63,-120,66'
   var hq = hyperquest(href)
   hq.once('response', function (res) {
@@ -124,7 +111,6 @@ test('bbox', function (t) {
       return c.name
     })), 'ordered types')
 
-    var ui = 0
     for (var i = 1; i < xml.root.children.length; i++) {
       var c = xml.root.children[i]
       var node = uploaded[c.attributes.id]
@@ -142,15 +128,15 @@ test('bbox', function (t) {
   }))
 })
 
-test('teardown bbox server', function (t) {
-  server.close()
+test('bbox.js: teardown server', function (t) {
+  server.cleanup()
   t.end()
 })
 
 function orderedTypes (types) {
   var order = { bounds: 0, node: 0, way: 1, relation: 2 }
   for (var i = 1; i < types.length; i++) {
-    if (order[types[i-1]] > order[types[i]]) return false
+    if (order[types[i - 1]] > order[types[i]]) return false
   }
   return true
 }

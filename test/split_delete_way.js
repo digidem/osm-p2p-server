@@ -1,29 +1,17 @@
 var test = require('tape')
-var tmpdir = require('os').tmpdir()
-var path = require('path')
-var osmrouter = require('../')
-var http = require('http')
-var osmdb = require('osm-p2p')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
 
+var createServer = require('./test_server.js')
+
 var base, server, changeId, changeId2, osm
 
-test('setup changeset server', function (t) {
-  osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
-  var router = osmrouter(osm)
-
-  server = http.createServer(function (req, res) {
-    if (router.handle(req, res)) {
-    } else {
-      res.statusCode = 404
-      res.end('not found\n')
-    }
-  })
-  server.listen(0, function () {
-    var port = server.address().port
-    base = 'http://localhost:' + port + '/api/0.6/'
+test('split_way_delete.js: setup server', function (t) {
+  createServer(function (d) {
+    base = d.base
+    server = d.server
+    osm = d.osm
     t.end()
   })
 })
@@ -182,7 +170,7 @@ test('split way and delete half changeset upload', function (t) {
 
 test('Check modified way', function (t) {
   osm.get(ids['-6'], function (err, docs) {
-    t.error(err, 'doesn\'t throw error')
+    t.error(err, "doesn't throw error")
     t.equal(Object.keys(docs).length, 1, 'no forks created')
     var way = docs[Object.keys(docs)[0]]
     t.equal(way.changeset, changeId2)
@@ -215,7 +203,7 @@ test('check bbox with modified way', function (t) {
   }))
 })
 
-test('teardown changeset server', function (t) {
-  server.close()
+test('split_way_delete.js: teardown server', function (t) {
+  server.cleanup()
   t.end()
 })

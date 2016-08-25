@@ -1,31 +1,16 @@
 var test = require('tape')
-var request = require('http').request
-var tmpdir = require('os').tmpdir()
-var path = require('path')
-var osmrouter = require('../')
-var http = require('http')
-var osmdb = require('osm-p2p')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
-var parsexml = require('xml-parser')
 
 var base, server, changeId
 
-test('setup changeset upload server', function (t) {
-  var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
-  var router = osmrouter(osm)
+var createServer = require('./test_server.js')
 
-  server = http.createServer(function (req, res) {
-    if (router.handle(req, res)) {}
-    else {
-      res.statusCode = 404
-      res.end('not found\n')
-    }
-  })
-  server.listen(0, function () {
-    var port = server.address().port
-    base = 'http://localhost:' + port + '/api/0.6/'
+test('changeset_upload_relation.js: setup server', function (t) {
+  createServer(function (d) {
+    base = d.base
+    server = d.server
     t.end()
   })
 })
@@ -51,7 +36,8 @@ test('create changeset upload', function (t) {
   </osm>`)
 })
 
-var ids = {}, versions = {}
+var ids = {}
+var versions = {}
 test('add docs to changeset upload', function (t) {
   t.plan(8)
 
@@ -61,14 +47,14 @@ test('add docs to changeset upload', function (t) {
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml')
+    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'diffResult')
     t.deepEqual(xml.root.children.map(function (c) {
       return c.attributes.old_id
-    }).sort(), ['-1','-2','-3','-4'])
+    }).sort(), ['-1', '-2', '-3', '-4'])
     xml.root.children.forEach(function (c) {
       ids[c.attributes.old_id] = c.attributes.new_id
       t.notEqual(c.attributes.old_id, c.attributes.new_id,
@@ -86,7 +72,7 @@ test('add docs to changeset upload', function (t) {
       </way>
       <relation id="-4" changeset="${changeId}">
         <tag k="hello" v="world" />
-        <member type="way" ref="-3" />
+        <member type="way" ref="-3" role="" />
       </relation>
     </create>
   </osmChange>`)
@@ -117,8 +103,7 @@ test('get osmchange doc from upload', function (t) {
           lat: '64.5',
           lon: '-121.5'
         },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
@@ -129,8 +114,7 @@ test('get osmchange doc from upload', function (t) {
           lat: '63.9',
           lon: '-120.9'
         },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'way',
@@ -164,7 +148,7 @@ test('get osmchange doc from upload', function (t) {
         children: [
           {
             name: 'member',
-            attributes: { type: 'way', ref: ids['-3'] },
+            attributes: { type: 'way', ref: ids['-3'], role: '' },
             children: []
           },
           {
@@ -268,7 +252,7 @@ test('second changeset upload', function (t) {
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml')
+    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
   })
   var oldv, newv
   hq.pipe(concat({ encoding: 'string' }, function (body) {
@@ -310,7 +294,6 @@ test('second changeset upload', function (t) {
           id: ids['-1'],
           version: newv
         },
-        content: '',
         children: []
       }
     ])
@@ -328,15 +311,14 @@ test('second changeset upload', function (t) {
           id: ids['-1'],
           version: oldv
         },
-        content: '',
         children: []
       }
     ])
   }
 })
 
-test('teardown changeset upload server', function (t) {
-  server.close()
+test('changeset_upload_relation.js: teardown server', function (t) {
+  server.cleanup()
   t.end()
 })
 
@@ -345,5 +327,14 @@ function cmpch (a, b) {
 }
 
 function cmpref (a, b) {
+  if (a.name === 'tag' && b.name !== 'tag') {
+    return 1
+  }
+  if (a.name !== 'tag' && b.name === 'tag') {
+    return -1
+  }
+  if (a.name === 'tag' && b.name === 'tag') {
+    return a.attributes.k < b.attributes.tag ? -1 : 1
+  }
   return a.attributes.ref < b.attributes.ref ? -1 : 1
 }

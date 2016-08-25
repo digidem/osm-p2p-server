@@ -1,0 +1,19 @@
+{
+  "type": "way",
+  "id": "1",
+  "nodes": [
+    "10",
+    "11",
+    "12"
+  ],
+  "timestamp": "2010-01-01T00:00:00Z",
+  "version": "4",
+  "visible": true,
+  "changeset": "5",
+  "user": "somebody",
+  "uid": "6",
+  "tags": {
+    "highway": "tertiary",
+    "name": "Main Street"
+  }
+}

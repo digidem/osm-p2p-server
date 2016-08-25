@@ -1,31 +1,16 @@
 var test = require('tape')
-var request = require('http').request
-var tmpdir = require('os').tmpdir()
-var path = require('path')
-var osmrouter = require('../')
-var http = require('http')
-var osmdb = require('osm-p2p')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
-var parsexml = require('xml-parser')
 
 var base, server, changeId
 
-test('setup', function (t) {
-  var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
-  var router = osmrouter(osm)
+var createServer = require('./test_server.js')
 
-  server = http.createServer(function (req, res) {
-    if (router.handle(req, res)) {}
-    else {
-      res.statusCode = 404
-      res.end('not found\n')
-    }
-  })
-  server.listen(0, function () {
-    var port = server.address().port
-    base = 'http://localhost:' + port + '/api/0.6/'
+test('delete.js: setup server', function (t) {
+  createServer(function (d) {
+    base = d.base
+    server = d.server
     t.end()
   })
 })
@@ -51,9 +36,10 @@ test('create changeset', function (t) {
   </osm>`)
 })
 
-var ids = {}, versions = {}
+var ids = {}
+var versions = {}
 test('add docs', function (t) {
-  t.plan(4+6)
+  t.plan(4 + 6)
 
   var href = base + 'changeset/' + changeId + '/upload'
   var hq = hyperquest.post(href, {
@@ -61,14 +47,14 @@ test('add docs', function (t) {
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml')
+    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'diffResult')
     t.deepEqual(xml.root.children.map(function (c) {
       return c.attributes.old_id
-    }).sort(), ['-1','-2','-3','-4','-5','-6'])
+    }).sort(), ['-1', '-2', '-3', '-4', '-5', '-6'])
     xml.root.children.forEach(function (c) {
       ids[c.attributes.old_id] = c.attributes.new_id
       t.notEqual(c.attributes.old_id, c.attributes.new_id,
@@ -108,10 +94,9 @@ test('rejected delete', function (t) {
     t.notEqual(res.statusCode, 200)
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
-    t.equal(body.trim(),
-      'Node #'+ids['-1']+' is still used by way #'+ids['-4']+'.')
+    t.true(body.includes('Element #' + ids['-1'] + ' is still used by element #' + ids['-4'] + '.'))
   }))
-  hq.end(`<osm><node id="${ids['-1']}"/></osm>`)
+  hq.end(`<osm><node id="${ids['-1']}" changeset="${changeId}"/></osm>`)
 })
 
 test('list documents', function (t) {
@@ -158,7 +143,7 @@ test('accepted delete way', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.ok(/^[0-9A-Fa-f]{8,}$/.test(body.trim()), 'version response')
   }))
-  hq.end(`<osm><way id="${ids['-4']}"/></osm>`)
+  hq.end(`<osm><way id="${ids['-4']}" changeset="${changeId}"/></osm>`)
 })
 
 test('accepted delete node', function (t) {
@@ -177,7 +162,7 @@ test('accepted delete node', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.ok(/^[0-9A-Fa-f]{8,}$/.test(body.trim()), 'version response')
   }))
-  hq.end(`<osm><node id="${ids['-1']}"/></osm>`)
+  hq.end(`<osm><node id="${ids['-1']}" changeset="${changeId}"/></osm>`)
 })
 
 test('list documents', function (t) {
@@ -221,10 +206,10 @@ test('rejected delete type mismatch', function (t) {
   hq.on('response', function (res) {
     t.equal(res.statusCode, 400)
   })
-  hq.end(`<osm><node id="${ids['-2']}"/></osm>`)
+  hq.end(`<osm><node id="${ids['-2']} changeset="${changeId}""/></osm>`)
 })
 
-test('teardown changeset upload server', function (t) {
-  server.close()
+test('delete.js: teardown server', function (t) {
+  server.cleanup()
   t.end()
 })

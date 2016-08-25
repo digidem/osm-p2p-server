@@ -1,36 +1,24 @@
 var test = require('tape')
-var request = require('http').request
-var tmpdir = require('os').tmpdir()
-var path = require('path')
-var osmrouter = require('../')
-var http = require('http')
-var osmdb = require('osm-p2p')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
-var parsexml = require('xml-parser')
 
-var base, server, changeId
+var base
+var server
 
-test('setup history server', function (t) {
-  var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
-  var router = osmrouter(osm)
+var createServer = require('./test_server.js')
 
-  server = http.createServer(function (req, res) {
-    if (router.handle(req, res)) {}
-    else {
-      res.statusCode = 404
-      res.end('not found\n')
-    }
-  })
-  server.listen(0, function () {
-    var port = server.address().port
-    base = 'http://localhost:' + port + '/api/0.6/'
+test('history.js: setup server', function (t) {
+  createServer(function (d) {
+    base = d.base
+    server = d.server
     t.end()
   })
 })
 
-var ids = {}, versions = {}, changesets = []
+var ids = {}
+var versions = {}
+var changesets = []
 test('create history', function (t) {
   var updates = [
     [
@@ -41,15 +29,15 @@ test('create history', function (t) {
       { type: 'node', lat: 64.3, lon: -121.4, id: 'A' }
     ],
     [
-      { type: 'node', lat: 64.2, lon: -121.4, id: 'A',
-        tags: { beep: 'boop' } }
+      { type: 'node', lat: 64.2, lon: -121.4, id: 'A', tags: { beep: 'boop' } }
     ],
     [
       { type: 'node', lat: 63.9, lon: -120.8, id: 'B' }
     ]
   ]
   t.plan(6 * updates.length)
-  var exists = {}, versionId = {}
+  var exists = {}
+  var versionId = {}
   ;(function next () {
     if (updates.length === 0) return
     var update = updates.shift()
@@ -58,8 +46,7 @@ test('create history', function (t) {
     })
     hq.once('response', function (res) {
       t.equal(res.statusCode, 200, 'create 200 ok')
-      t.equal(res.headers['content-type'].split(/\s*;\s*/)[0],
-        'text/plain', 'create content type')
+      t.equal(res.headers['content-type'], 'text/plain', 'create content type')
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       var changeId = body.trim()
@@ -76,8 +63,7 @@ test('create history', function (t) {
     })
     hq.once('response', function (res) {
       t.equal(res.statusCode, 200, 'create 200 ok')
-      t.equal(res.headers['content-type'].split(/\s*;\s*/)[0],
-        'text/xml', 'upload content type')
+      t.equal(res.headers['content-type'], 'text/xml; charset=utf-8', 'upload content type')
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       var xml = parsexml(body)
@@ -85,7 +71,7 @@ test('create history', function (t) {
       xml.root.children.forEach(function (c) {
         var key
         if (/^-\d+/.test(c.attributes.old_id)) {
-          key = update[-1-Number(c.attributes.old_id)].id
+          key = update[-1 - Number(c.attributes.old_id)].id
           ids[key] = c.attributes.new_id
           versionId[c.attributes.new_id] = key
         } else {
@@ -108,13 +94,13 @@ test('create history', function (t) {
     update.forEach(function (doc) { exists[doc.id] = true })
 
     function createMap (doc, i) {
-      return `<node id="-${i+1}"
+      return `<node id="-${i + 1}"
         lat="${doc.lat}"
         lon="${doc.lon}"
         changeset="${changeId}"
       >${Object.keys(doc.tags || {}).map(function (key) {
-          return `<tag k="${key}" v="${doc.tags[key]}"/>`
-        }).join('')}
+        return `<tag k="${key}" v="${doc.tags[key]}"/>`
+      }).join('')}
       </node>`
     }
     function modifyMap (doc) {
@@ -122,8 +108,8 @@ test('create history', function (t) {
         lat="${doc.lat}" lon="${doc.lon}"
         changeset="${changeId}"
       >${Object.keys(doc.tags || {}).map(function (key) {
-          return `<tag k="${key}" v="${doc.tags[key]}"/>`
-        }).join('')}
+        return `<tag k="${key}" v="${doc.tags[key]}"/>`
+      }).join('')}
       </node>`
     }
     function existFilter (doc) { return exists[doc.id] }
@@ -138,7 +124,7 @@ test('history route', function (t) {
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml')
+    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -174,8 +160,7 @@ test('history route', function (t) {
           lon: '-121.4',
           version: versions.A[1]
         },
-        children: [],
-        content: ''
+        children: []
       },
       {
         name: 'node',
@@ -186,14 +171,13 @@ test('history route', function (t) {
           lon: '-121.5',
           version: versions.A[0]
         },
-        children: [],
-        content: ''
+        children: []
       }
     ])
   }))
 })
 
-test('teardown changeset server', function (t) {
-  server.close()
+test('history.js: teardown server', function (t) {
+  server.cleanup()
   t.end()
 })

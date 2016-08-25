@@ -3,3 +3,5 @@ node_js:
 - '6'
 notifications:
   email: false
+env:
+  - OSM_P2P_DB_DELAY=200
