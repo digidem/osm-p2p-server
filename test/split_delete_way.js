@@ -170,7 +170,7 @@ test('split way and delete half changeset upload', function (t) {
 
 test('Check modified way', function (t) {
   osm.get(ids['-6'], function (err, docs) {
-    t.error(err, 'doesn\'t throw error')
+    t.error(err, "doesn't throw error")
     t.equal(Object.keys(docs).length, 1, 'no forks created')
     var way = docs[Object.keys(docs)[0]]
     t.equal(way.changeset, changeId2)

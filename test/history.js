@@ -3,7 +3,8 @@ var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
 
-var base, server, changeId
+var base
+var server
 
 var createServer = require('./test_server.js')
 
@@ -15,8 +16,9 @@ test('history.js: setup server', function (t) {
   })
 })
 
-
-var ids = {}, versions = {}, changesets = []
+var ids = {}
+var versions = {}
+var changesets = []
 test('create history', function (t) {
   var updates = [
     [
@@ -27,15 +29,15 @@ test('create history', function (t) {
       { type: 'node', lat: 64.3, lon: -121.4, id: 'A' }
     ],
     [
-      { type: 'node', lat: 64.2, lon: -121.4, id: 'A',
-        tags: { beep: 'boop' } }
+      { type: 'node', lat: 64.2, lon: -121.4, id: 'A', tags: { beep: 'boop' } }
     ],
     [
       { type: 'node', lat: 63.9, lon: -120.8, id: 'B' }
     ]
   ]
   t.plan(6 * updates.length)
-  var exists = {}, versionId = {}
+  var exists = {}
+  var versionId = {}
   ;(function next () {
     if (updates.length === 0) return
     var update = updates.shift()
@@ -69,7 +71,7 @@ test('create history', function (t) {
       xml.root.children.forEach(function (c) {
         var key
         if (/^-\d+/.test(c.attributes.old_id)) {
-          key = update[-1-Number(c.attributes.old_id)].id
+          key = update[-1 - Number(c.attributes.old_id)].id
           ids[key] = c.attributes.new_id
           versionId[c.attributes.new_id] = key
         } else {
@@ -92,13 +94,13 @@ test('create history', function (t) {
     update.forEach(function (doc) { exists[doc.id] = true })
 
     function createMap (doc, i) {
-      return `<node id="-${i+1}"
+      return `<node id="-${i + 1}"
         lat="${doc.lat}"
         lon="${doc.lon}"
         changeset="${changeId}"
       >${Object.keys(doc.tags || {}).map(function (key) {
-          return `<tag k="${key}" v="${doc.tags[key]}"/>`
-        }).join('')}
+        return `<tag k="${key}" v="${doc.tags[key]}"/>`
+      }).join('')}
       </node>`
     }
     function modifyMap (doc) {
@@ -106,8 +108,8 @@ test('create history', function (t) {
         lat="${doc.lat}" lon="${doc.lon}"
         changeset="${changeId}"
       >${Object.keys(doc.tags || {}).map(function (key) {
-          return `<tag k="${key}" v="${doc.tags[key]}"/>`
-        }).join('')}
+        return `<tag k="${key}" v="${doc.tags[key]}"/>`
+      }).join('')}
       </node>`
     }
     function existFilter (doc) { return exists[doc.id] }

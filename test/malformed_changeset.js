@@ -2,7 +2,8 @@ var test = require('tape')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
 
-var base, server
+var base
+var server
 
 var createServer = require('./test_server.js')
 

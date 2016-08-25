@@ -36,7 +36,8 @@ test('create changeset upload', function (t) {
   </osm>`)
 })
 
-var ids = {}, versions = {}
+var ids = {}
+var versions = {}
 test('add docs to changeset upload', function (t) {
   t.plan(8)
 
@@ -53,7 +54,7 @@ test('add docs to changeset upload', function (t) {
     t.equal(xml.root.name, 'diffResult')
     t.deepEqual(xml.root.children.map(function (c) {
       return c.attributes.old_id
-    }).sort(), ['-1','-2','-3','-4'])
+    }).sort(), ['-1', '-2', '-3', '-4'])
     xml.root.children.forEach(function (c) {
       ids[c.attributes.old_id] = c.attributes.new_id
       t.notEqual(c.attributes.old_id, c.attributes.new_id,

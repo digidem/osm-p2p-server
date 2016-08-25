@@ -58,7 +58,7 @@ test('add docs to changeset', function (t) {
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       t.ok(/^[0-9A-Fa-f]+$/.test(body.trim()))
-      uploaded[doc.lon+','+doc.lat] = body.trim()
+      uploaded[doc.lon + ',' + doc.lat] = body.trim()
     }))
     hq.end(`<osm>
       <node changeset="${doc.changeset}"

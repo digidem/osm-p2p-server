@@ -3,7 +3,9 @@ var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
 
-var base, server, changeId
+var base
+var server
+var changeId
 var createServer = require('./test_server.js')
 
 test('many_types.js: setup server', function (t) {
@@ -13,7 +15,6 @@ test('many_types.js: setup server', function (t) {
     t.end()
   })
 })
-
 
 test('create changeset', function (t) {
   t.plan(3)
@@ -53,13 +54,14 @@ test('add docs to changeset', function (t) {
     { id: 'F', type: 'node', lat: 60.6, lon: -122.3, changeset: changeId },
     { id: 'G', type: 'way', refs: ['A', 'B', 'C'], changeset: changeId },
     { id: 'H', type: 'way', refs: ['D', 'E'], changeset: changeId },
-    { id: 'I', type: 'relation',
+    { id: 'I',
+      type: 'relation',
+      changeset: changeId,
       members: [
         { type: 'node', ref: 'F' },
         { type: 'way', ref: 'G' },
         { type: 'way', ref: 'H' }
-      ],
-      changeset: changeId
+      ]
     }
   ]
   t.plan(docs.length * 3)

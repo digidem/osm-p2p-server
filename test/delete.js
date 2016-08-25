@@ -36,9 +36,10 @@ test('create changeset', function (t) {
   </osm>`)
 })
 
-var ids = {}, versions = {}
+var ids = {}
+var versions = {}
 test('add docs', function (t) {
-  t.plan(4+6)
+  t.plan(4 + 6)
 
   var href = base + 'changeset/' + changeId + '/upload'
   var hq = hyperquest.post(href, {
@@ -53,7 +54,7 @@ test('add docs', function (t) {
     t.equal(xml.root.name, 'diffResult')
     t.deepEqual(xml.root.children.map(function (c) {
       return c.attributes.old_id
-    }).sort(), ['-1','-2','-3','-4','-5','-6'])
+    }).sort(), ['-1', '-2', '-3', '-4', '-5', '-6'])
     xml.root.children.forEach(function (c) {
       ids[c.attributes.old_id] = c.attributes.new_id
       t.notEqual(c.attributes.old_id, c.attributes.new_id,

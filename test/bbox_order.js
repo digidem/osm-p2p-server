@@ -29,7 +29,7 @@ test('create bbox', function (t) {
     changeId = body.trim()
     t.ok(/^[0-9A-Fa-f]+$/.test(changeId), 'expected changeset id response')
   }))
-  hq.end(`<osm><changeset></changeset></osm>`)
+  hq.end('<osm><changeset></changeset></osm>')
 })
 
 var uploaded = {}
@@ -40,21 +40,21 @@ test('add docs to changeset', function (t) {
   for (var i = 0; i < SIZE; i++) {
     docs.push({
       type: 'node',
-      id: 0-i-1,
-      lat: 64 + i/SIZE,
-      lon: -121 - i/SIZE,
+      id: 0 - i - 1,
+      lat: 64 + i / SIZE,
+      lon: -121 - i / SIZE,
       changeset: changeId
     })
   }
   docs.push({
     type: 'way',
-    id: '${0-i-1}',
+    id: 0 - i - 1,
     changeset: changeId,
     refs: docs.map(function (d, i) { return 0 - (i + 1) })
   })
   var kdocs = {}
-  docs.forEach(function (doc,i) {
-    kdocs[0-i-1] = doc
+  docs.forEach(function (doc, i) {
+    kdocs[0 - i - 1] = doc
   })
 
   var href = base + 'changeset/' + changeId + '/upload'
@@ -70,7 +70,7 @@ test('add docs to changeset', function (t) {
     t.equal(xml.root.name, 'diffResult')
     xml.root.children.forEach(function (node, i) {
       var id = node.attributes.new_id
-      uploaded[id] = kdocs[0-i-1]
+      uploaded[id] = kdocs[0 - i - 1]
       uploaded[id].id = id
       if (node.name === 'way') {
         uploaded[id].refs = uploaded[id].refs.map(function (ref) {
@@ -96,7 +96,7 @@ test('add docs to changeset', function (t) {
 })
 
 test('bbox', function (t) {
-  t.plan(6 + SIZE*3)
+  t.plan(6 + SIZE * 3)
   var href = base + 'map?bbox=-123,63,-120,66'
   var hq = hyperquest(href)
   hq.once('response', function (res) {
@@ -107,7 +107,6 @@ test('bbox', function (t) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osm')
     t.equal(xml.root.children[0].name, 'bounds')
-    var ui = 0
     for (var i = 1; i < xml.root.children.length; i++) {
       var c = xml.root.children[i]
       var node = uploaded[c.attributes.id]
