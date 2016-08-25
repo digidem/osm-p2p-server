@@ -7,7 +7,7 @@ module.exports = function (req, res, api, params, next) {
   api.getElement(params.id, function (err, forks) {
     if (err) return next(err)
     if (!query.forks) {
-      forks = forks.sort(recentFirst)[0]
+      forks = forks.sort(recentFirst).slice(0, 1)
     }
     res.setHeader('content-type', 'text/xml; charset=utf-8')
     var r = fromArray.obj(forks).on('error', next)
