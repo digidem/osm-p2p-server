@@ -7,7 +7,6 @@ module.exports = function createApi (osm) {
     closeChangeset: require('./close_changeset.js')(osm),
     getChanges: require('./get_changes.js')(osm),
     putChanges: require('./put_changes.js')(osm),
-    getHistory: require('./get_history.js')(osm),
     osm: osm
   }
 }

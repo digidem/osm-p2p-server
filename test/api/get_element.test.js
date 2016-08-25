@@ -62,7 +62,7 @@ test('getElement - specific version', t => {
     }
   }}
   var getElement = createGetElement(mockedOsm)
-  getElement(testId, testVersion, (e, element) => {
+  getElement(testId, {version: testVersion}, (e, element) => {
     t.equal(element.id, testId)
     t.equal(element.version, testVersion)
     t.deepEqual(element.nodes, testDoc.value.v.refs, 'maps refs to nodes')

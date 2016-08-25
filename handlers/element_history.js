@@ -2,7 +2,7 @@ var toOsm = require('obj2osm')
 var fromArray = require('from2-array')
 
 module.exports = function (req, res, api, params, next) {
-  api.getHistory(params.id, function (err, elements) {
+  api.getElement(params.id, {history: true}, function (err, elements) {
     if (err) return next(err)
     var r = fromArray.obj(elements).on('error', next)
     var t = toOsm().on('error', next)
