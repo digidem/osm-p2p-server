@@ -106,7 +106,7 @@ test('check way was correctly created', function (t) {
     t.equal(xml.root.name, 'osm')
     t.equal(xml.root.children[0].name, 'bounds')
     var nodes = xml.root.children.filter(c => c.name === 'node')
-      .sort((a, b) => Number(b.lat) - Number(a.lat))
+      .sort((a, b) => Number(a.attributes.lat) - Number(b.attributes.lat))
     var ways = xml.root.children.filter(c => c.name === 'way')
     t.equal(nodes.length, 5, 'correct number of nodes')
     t.equal(ways.length, 1, 'correct number of ways')
@@ -201,7 +201,7 @@ test('check bbox with modified way', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     var nodes = xml.root.children.filter(c => c.name === 'node')
-      .sort((a, b) => Number(b.lat) - Number(a.lat))
+      .sort((a, b) => Number(a.attributes.lat) - Number(b.attributes.lat))
     var ways = xml.root.children.filter(c => c.name === 'way')
     t.equal(nodes.length, 3, 'correct number of nodes')
     t.equal(ways.filter(w => w.attributes.id === ids['-6']).length, 1, 'only one version of way in response')
