@@ -35,6 +35,12 @@ You will need to first [install node.js](https://nodejs.org/en/)
 npm install osm-p2p-server
 ```
 
+For the latest beta:
+
+```
+npm install osm-p2p-server@beta
+```
+
 ## Usage
 
 ```
