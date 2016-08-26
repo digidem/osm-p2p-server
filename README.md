@@ -18,14 +18,23 @@ This module is for developers who want to build their own OSM tools. For users w
 
 ## Table of Contents
 
+<!-- MarkdownTOC depth=3 -->
+
 - [Install](#install)
 - [Usage](#usage)
 - [Routes](#routes)
 - [API](#api)
+  - [var router = osmrouter\(osm\)](#var-router--osmrouterosm)
+  - [var m = router.handle\(req, res\)](#var-m--routerhandlereq-res)
+  - [var m = router.match\(method, url\)](#var-m--routermatchmethod-url)
+  - [API Example](#api-example)
+  - [Use as Express middleware](#use-as-express-middleware)
 - [REST API](#rest-api)
 - [Differences to OSM API v0.6](#differences-to-osm-api-v06)
-- [Contribute](#contribute)
+- [Contributing](#contributing)
 - [License](#license)
+
+<!-- /MarkdownTOC -->
 
 ## Install
 
