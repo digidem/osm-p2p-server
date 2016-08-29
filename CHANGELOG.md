@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.0-beta2]
+### Changed
+- **BREAKING**: Roll back change to URL prefix, keep `/api/0.6/` since it is hard-coded in several clients (e.g. iD)
+
 ## [2.0.0-beta]
 ### Added
 - Add `timestamp` to newly created elements.

@@ -10,7 +10,7 @@ module.exports = function (req, res, api, params, next) {
     if (err) {
       if (err.name === 'ForkedChangesetError') {
         err.message += '\n specify the version after the id using this syntax:\n' +
-          'PUT /changeset/$ID:$VERSION/close'
+          'PUT /api/0.6/changeset/$ID:$VERSION/close'
       }
       return next(err)
     }

@@ -36,7 +36,7 @@ function testServer (cb) {
   }
   server.listen(0, function () {
     var port = server.address().port
-    var base = 'http://localhost:' + port + '/'
+    var base = 'http://localhost:' + port + '/api/0.6/'
     cb({
       server: server,
       osm: osm,

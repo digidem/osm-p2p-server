@@ -65,18 +65,18 @@ usage: osm-p2p-server {OPTIONS}
 
 `osm-p2p-server` currently implements the following routes from the [OSM API v0.6][1]:
 
-- [x] `GET /capabilities`
-- [x] `GET /map`
-- [x] `PUT /changeset/create`
-- [x] `POST /changeset/:id/upload`
-- [x] `PUT /changeset/:id/close`
-- [x] `GET /map`
-- [x] `GET /:type(nodes|ways|relations)?:ktype(nodes|ways|relations)=:ids`
-- [x] `GET /:type(node|way|relation)/:id`
-- [x] `GET /:type(node|way|relation)/:id/:version`
-- [x] `GET /:type(node|way|relation)/:id`
-- [x] `GET /:type(node|way|relation)/:id/history`
-- [ ] `GET /:type(way|relation)/:id/full`
+- [x] `GET /api(/0.6)?/capabilities`
+- [x] `GET /api/0.6/map`
+- [x] `PUT /api/0.6/changeset/create`
+- [x] `POST /api/0.6/changeset/:id/upload`
+- [x] `PUT /api/0.6/changeset/:id/close`
+- [x] `GET /api/0.6/map`
+- [x] `GET /api/0.6/:type(nodes|ways|relations)?:ktype(nodes|ways|relations)=:ids`
+- [x] `GET /api/0.6/:type(node|way|relation)/:id`
+- [x] `GET /api/0.6/:type(node|way|relation)/:id/:version`
+- [x] `GET /api/0.6/:type(node|way|relation)/:id`
+- [x] `GET /api/0.6/:type(node|way|relation)/:id/history`
+- [ ] `GET /api/0.6/:type(way|relation)/:id/full`
 
 ## API
 
@@ -98,7 +98,7 @@ the match object if there is a match, or else `null`.
 
 Return a match object `m` if `method` and `url` can be handled by the server.
 Used internally by `router.handle()`.
-The match object for `router.match('GET', '/node/1234')` would be:
+The match object for `router.match('GET', '/api/0.6/node/1234')` would be:
 
 ```js
 {
