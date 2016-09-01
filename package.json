@@ -18,12 +18,16 @@
     "geo"
   ],
   "author": "substack",
-  "contributors": [{
-    "name": "Gregor MacLennan",
-    "email": "gmaclennan@digital-democracy.org"
-  }],
+  "contributors": [
+    {
+      "name": "Gregor MacLennan",
+      "email": "gmaclennan@digital-democracy.org"
+    }
+  ],
   "license": "BSD-2-Clause",
   "dependencies": {
+    "JSONStream": "^1.1.4",
+    "accepts": "^1.3.3",
     "base-convertor": "^1.1.0",
     "collect-stream": "^1.1.1",
     "content-type": "^1.0.2",

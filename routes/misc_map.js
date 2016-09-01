@@ -1,11 +1,14 @@
 var qs = require('query-string')
 var toOsm = require('obj2osm')
 var fromArray = require('from2-array')
+var accepts = require('accepts')
 
 var cmpFork = require('../lib/util').cmpFork
+var OsmJSONStream = require('../lib/util').OsmJSONStream
 
 module.exports = function (req, res, api, params, next) {
   // TODO: Validate bbox
+  var accept = accepts(req)
   var query = qs.parse(qs.extract(req.url))
   var bbox = query.bbox.split(',').map(Number)
   res.setHeader('content-type', 'text/xml; charset=utf-8')
@@ -29,8 +32,19 @@ module.exports = function (req, res, api, params, next) {
     })
     var byType = noForks.sort(cmpType)
     var r = fromArray.obj(byType).on('error', next)
-    var t = toOsm(toOsmOptions).on('error', next)
-    res.setHeader('content-type', 'text/xml; charset=utf-8')
+    var t
+    switch (accept.types(['xml', 'json'])) {
+      case 'json':
+        t = OsmJSONStream(toOsmOptions)
+        res.setHeader('content-type', 'application/json; charset=utf-8')
+        break
+      case 'xml':
+      default:
+        t = toOsm(toOsmOptions)
+        res.setHeader('content-type', 'text/xml; charset=utf-8')
+        break
+    }
+    t.on('error', next)
     r.pipe(t).pipe(res)
   })
 }
