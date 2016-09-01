@@ -29,7 +29,7 @@ module.exports = function (req, res, api, params, next) {
     api.createChangeset(mergedChangeset, function (err, id, node) {
       if (err) return next(err)
       res.setHeader('content-type', 'text/plain')
-      res.end(id + '\n')
+      res.end(id)
     })
   })
 }
