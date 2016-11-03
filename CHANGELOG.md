@@ -2,6 +2,20 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.0]
+- Release.
+
+## [2.0.0-beta4]
+### Fixed
+- For changeset uploads, only check placeholder uniqueness within types. Previously we expected all placeholder ids to be unique within a changeset upload, but the OSM API v0.6 does not expect this, and clients (e.g. iD) can send the same placeholder id for both a node and a way in an upload. See https://github.com/openstreetmap/openstreetmap-website/blob/fc0aebc1a8ccad4ae9a3ac6435df00328e5a98e5/test/controllers/changeset_controller_test.rb#L398-L424
+
+## [2.0.0-beta3]
+### Added
+- Return OsmJSON from `/map` endpoint if request `Accept` is `application/json`
+
+### Fixed
+- Value returned by changeset creation should not terminate in a newline
+
 ## [2.0.0-beta2]
 ### Changed
 - **BREAKING**: Roll back change to URL prefix, keep `/api/0.6/` since it is hard-coded in several clients (e.g. iD)
@@ -29,4 +43,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `members` and `nodes` are returned before `tags` in Xml.
 - Delete operations must have changeset attribute set.
 
+[2.0.0]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta3...2.0.0
+[2.0.0-beta4]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta3...2.0.0-beta4
+[2.0.0-beta3]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta2...2.0.0-beta3
+[2.0.0-beta2]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta...2.0.0-beta2
 [2.0.0-beta]: https://github.com/digidem/osm-p2p-server/compare/1.12.2...2.0.0-beta
