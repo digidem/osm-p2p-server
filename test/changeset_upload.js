@@ -26,7 +26,7 @@ test('create changeset upload', function (t) {
     t.equal(res.headers['content-type'], 'text/plain', 'create content type')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
-    changeId = body.trim()
+    changeId = body
     t.ok(/^[0-9A-Fa-f]+$/.test(changeId), 'expected changeset id response')
   }))
   hq.end(`<osm>
@@ -145,7 +145,7 @@ test('close changeset', function (t) {
     t.equal(res.statusCode, 200, 'create 200 ok')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
-    t.equal(body.trim(), '', 'empty response')
+    t.equal(body, '', 'empty response')
   }))
   hq.end()
 })
@@ -209,7 +209,7 @@ test('create second changeset', function (t) {
     t.equal(res.headers['content-type'], 'text/plain', 'create content type')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
-    secondChangeId = body.trim()
+    secondChangeId = body
     t.ok(/^[0-9A-Fa-f]+$/.test(secondChangeId), 'expected changeset id response')
   }))
   hq.end(`<osm>
