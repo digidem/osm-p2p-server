@@ -129,6 +129,45 @@ test('bbox', function (t) {
   }))
 })
 
+test('missing bbox', function (t) {
+  t.plan(3)
+  var href = base + 'map'
+  var hq = hyperquest(href)
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 400)
+    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/plain')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    t.equal(body, 'Missing bbox query string parameter')
+  }))
+})
+
+test('invalid bbox', function (t) {
+  t.plan(3)
+  var href = base + 'map?bbox=invalid'
+  var hq = hyperquest(href)
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 400)
+    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/plain')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    t.equal(body, 'Invalid bbox query string parameter')
+  }))
+})
+
+test('out of range bbox', function (t) {
+  t.plan(3)
+  var href = base + 'map?bbox=-181,1,2,2'
+  var hq = hyperquest(href)
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 400)
+    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/plain')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    t.equal(body, 'Invalid bbox query string parameter')
+  }))
+})
+
 test('bbox json', function (t) {
   t.plan(7 + SIZE * 3)
   var href = base + 'map?bbox=-123,63,-120,66'

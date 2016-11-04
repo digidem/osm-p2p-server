@@ -5,12 +5,18 @@ var accepts = require('accepts')
 
 var cmpFork = require('../lib/util').cmpFork
 var OsmJSONStream = require('../lib/util').OsmJSONStream
+var errors = require('../errors')
 
 module.exports = function (req, res, api, params, next) {
-  // TODO: Validate bbox
   var accept = accepts(req)
   var query = qs.parse(qs.extract(req.url))
+  if (!query.bbox) {
+    return next(new errors.MissingBbox())
+  }
   var bbox = query.bbox.split(',').map(Number)
+  if (!isValidBbox(bbox)) {
+    return next(new errors.InvalidBbox())
+  }
   res.setHeader('content-type', 'text/xml; charset=utf-8')
   res.setHeader('content-disposition', 'attachment; filename="map.osm"')
   var toOsmOptions = {
@@ -52,4 +58,13 @@ module.exports = function (req, res, api, params, next) {
 var typeOrder = { node: 0, way: 1, relation: 2 }
 function cmpType (a, b) {
   return typeOrder[a.type] - typeOrder[b.type]
+}
+
+function isValidBbox (bbox) {
+  console.log(bbox)
+  return bbox.length === 4 &&
+    bbox[0] >= -180 && bbox[0] <= 180 &&
+    bbox[2] >= -180 && bbox[2] <= 180 &&
+    bbox[1] >= -90 && bbox[1] <= 90 &&
+    bbox[3] >= -90 && bbox[3] <= 90
 }

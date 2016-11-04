@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.1]
+### Fixed
+- Validate bbox on `map` requests, avoid uncaught error on invalid bbox.
+
 ## [2.0.0]
 - Release.
 
@@ -43,6 +47,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `members` and `nodes` are returned before `tags` in Xml.
 - Delete operations must have changeset attribute set.
 
+[2.0.1]: https://github.com/digidem/osm-p2p-server/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta3...2.0.0
 [2.0.0-beta4]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta3...2.0.0-beta4
 [2.0.0-beta3]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta2...2.0.0-beta3

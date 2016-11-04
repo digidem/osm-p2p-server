@@ -27,6 +27,14 @@
     "code": 412,
     "message": "Cannot delete an element that is in use"
   },
+  "InvalidBbox": {
+    "code": 400,
+    "message": "Invalid bbox query string parameter"
+  },
+  "MissingBbox": {
+    "code": 400,
+    "message": "Missing bbox query string parameter"
+  },
   "MissingChangeset": {
     "code": 400,
     "message": "Changeset %s not found.\n The element must reference an existing changeset."
