@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.2]
+### Fixed
+- Additional query string parameters do not break route matching (previously route matching was dependent on the order of query string parameters and including any query string parameter would cause route matching to 404)
+- All routes should return the correct charset (utf-8) on content-type, including error responses. This avoids strange bugs that might have resulted from the assumed charset of ISO-8859-1.
+
+### Changed
+- Update `split_delete_way.js` test so that it will run in the browser for osm-p2p-server-sw.
+
 ## [2.0.1]
 ### Fixed
 - Validate bbox on `map` requests, avoid uncaught error on invalid bbox.
@@ -47,6 +55,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `members` and `nodes` are returned before `tags` in Xml.
 - Delete operations must have changeset attribute set.
 
+[2.0.2]: https://github.com/digidem/osm-p2p-server/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/digidem/osm-p2p-server/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta3...2.0.0
 [2.0.0-beta4]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta3...2.0.0-beta4
