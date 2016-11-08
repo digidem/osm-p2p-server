@@ -6,13 +6,12 @@ var concat = require('concat-stream')
 
 var createServer = require('./test_server.js')
 
-var base, server, changeId, changeId2, osm
+var base, server, changeId, changeId2
 
 test('split_way_delete.js: setup server', function (t) {
   createServer(function (d) {
     base = d.base
     server = d.server
-    osm = d.osm
     t.end()
   })
 })
@@ -180,14 +179,22 @@ test('split way and delete half changeset upload', function (t) {
 })
 
 test('Check modified way', function (t) {
-  osm.get(ids['-6'], function (err, docs) {
-    t.error(err, "doesn't throw error")
-    t.equal(Object.keys(docs).length, 1, 'no forks created')
-    var way = docs[Object.keys(docs)[0]]
-    t.equal(way.changeset, changeId2)
-    t.deepEqual(way.refs.sort(), [ids['-1'], ids['-2'], ids['-3']].sort())
-    t.end()
+  var href = base + 'way/' + ids['-6'] + '?forks=true'
+  var hq = hyperquest(href)
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 200, 'response code correct')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var elements = parsexml(body).root.children
+    t.equal(elements.length, 1, 'no forks created')
+    t.equal(elements[0].attributes.changeset, changeId2)
+    var nodeIds = elements[0].children.map(function (c) { return c.attributes.ref })
+    t.deepEqual(nodeIds.sort(), [ids['-1'], ids['-2'], ids['-3']].sort())
+    t.end()
+  }))
 })
 
 test('check bbox with modified way', function (t) {
