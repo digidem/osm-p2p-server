@@ -1,4 +1,5 @@
 var test = require('tape')
+var contentType = require('content-type')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
 
@@ -16,13 +17,16 @@ test('malformed_changeset.js: setup server', function (t) {
 })
 
 test('send malformed changeset upload', function (t) {
-  t.plan(2)
+  t.plan(4)
   var href = base + 'changeset/create'
   var hq = hyperquest.put(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.notEqual(res.statusCode, 200, 'malformed xml error code')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.notOk(/^[0-9A-Fa-f]+$/.test(body.trim()), 'not an id')

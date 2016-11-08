@@ -27,7 +27,7 @@ module.exports = function (req, res, api, params, next) {
     ops[0].action = 'delete'
     api.putChanges(ops, ops[0].changeset, function (err, diffResult) {
       if (err) return next(err)
-      res.setHeader('content-type', 'text/plain')
+      res.setHeader('content-type', 'text/plain; charset=utf-8')
       res.end(diffResult.map(function (el) { return el.old_id }).join('\n'))
     })
   })

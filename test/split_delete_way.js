@@ -1,4 +1,5 @@
 var test = require('tape')
+var contentType = require('content-type')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
@@ -17,14 +18,16 @@ test('split_way_delete.js: setup server', function (t) {
 })
 
 test('create changeset (1)', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/create'
   var hq = hyperquest.put(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200, 'create 200 ok')
-    t.equal(res.headers['content-type'], 'text/plain', 'create content type')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     changeId = body.trim()
@@ -41,7 +44,7 @@ var ids = {}
 var versions = {}
 
 test('create way with changeset upload', function (t) {
-  t.plan(10)
+  t.plan(11)
 
   var href = base + 'changeset/' + changeId + '/upload'
   var hq = hyperquest.post(href, {
@@ -49,7 +52,9 @@ test('create way with changeset upload', function (t) {
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -87,7 +92,9 @@ test('check way was correctly created', function (t) {
   var hq = hyperquest(href)
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200, 'response code correct')
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml', 'content-type good')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -109,14 +116,16 @@ test('check way was correctly created', function (t) {
 })
 
 test('create changeset (2)', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/create'
   var hq = hyperquest.put(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200, 'create 200 ok')
-    t.equal(res.headers['content-type'], 'text/plain', 'create content type')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     changeId2 = body.trim()
@@ -130,7 +139,7 @@ test('create changeset (2)', function (t) {
 })
 
 test('split way and delete half changeset upload', function (t) {
-  t.plan(6)
+  t.plan(7)
 
   var href = base + 'changeset/' + changeId2 + '/upload'
   var hq = hyperquest.post(href, {
@@ -138,7 +147,9 @@ test('split way and delete half changeset upload', function (t) {
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -184,7 +195,9 @@ test('check bbox with modified way', function (t) {
   var hq = hyperquest(href)
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200, 'response code correct')
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/xml', 'content-type good')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)

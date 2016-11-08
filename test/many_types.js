@@ -1,4 +1,5 @@
 var test = require('tape')
+var contentType = require('content-type')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
@@ -17,14 +18,16 @@ test('many_types.js: setup server', function (t) {
 })
 
 test('create changeset', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/create'
   var hq = hyperquest.put(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200, 'create 200 ok')
-    t.equal(res.headers['content-type'], 'text/plain', 'create content type')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     changeId = body.trim()
@@ -64,7 +67,7 @@ test('add docs to changeset', function (t) {
       ]
     }
   ]
-  t.plan(docs.length * 3)
+  t.plan(docs.length * 4)
   ;(function next () {
     if (docs.length === 0) return
     var doc = docs.shift()
@@ -84,7 +87,9 @@ test('add docs to changeset', function (t) {
     })
     hq.once('response', function (res) {
       t.equal(res.statusCode, 200)
-      t.equal(res.headers['content-type'], 'text/plain')
+      var contentObj = contentType.parse(res)
+      t.equal(contentObj.type, 'text/plain', 'media type correct')
+      t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       t.ok(/^[0-9A-Fa-f]+$/.test(body.trim()))
@@ -116,14 +121,16 @@ test('add docs to changeset', function (t) {
 })
 
 test('multi-fetch ways', function (t) {
-  t.plan(6)
+  t.plan(7)
   var href = base + 'ways?ways=' + keys.G + ',' + keys.H
   var hq = hyperquest(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -138,14 +145,16 @@ test('multi-fetch ways', function (t) {
 })
 
 test('get relation', function (t) {
-  t.plan(5)
+  t.plan(6)
   var href = base + 'relation/' + keys.I
   var hq = hyperquest(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)

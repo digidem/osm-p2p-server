@@ -15,5 +15,6 @@ var capabilities = h('?xml', { version: '1.0', encoding: 'UTF-8' }, [
 ])
 
 module.exports = function (req, res) {
+  res.setHeader('content-type', 'text/xml; charset=utf-8')
   res.end(capabilities)
 }

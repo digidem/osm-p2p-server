@@ -1,4 +1,5 @@
 var test = require('tape')
+var contentType = require('content-type')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
@@ -16,14 +17,16 @@ test('changeset.js: setup server', function (t) {
 })
 
 test('create changeset', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/create'
   var hq = hyperquest.put(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200, 'create 200 ok')
-    t.equal(res.headers['content-type'], 'text/plain', 'create content type')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     changeId = body.trim()
@@ -41,10 +44,16 @@ test('create changeset', function (t) {
 })
 
 test('get empty osmchange doc', function (t) {
-  t.plan(2)
+  t.plan(5)
   var href = base + 'changeset/' + changeId + '/download'
   var hq = hyperquest(href, {
     headers: { 'content-type': 'text/xml' }
+  })
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 200, 'create 200 ok')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -59,7 +68,7 @@ test('add docs to changeset', function (t) {
     { type: 'node', lat: 64.5, lon: -121.5, changeset: changeId },
     { type: 'node', lat: 63.9, lon: -120.9, changeset: changeId }
   ]
-  t.plan(docs.length * 3)
+  t.plan(docs.length * 4)
   docs.forEach(function (doc) {
     var href = base + doc.type + '/create'
     var hq = hyperquest.put(href, {
@@ -67,7 +76,9 @@ test('add docs to changeset', function (t) {
     })
     hq.once('response', function (res) {
       t.equal(res.statusCode, 200)
-      t.equal(res.headers['content-type'], 'text/plain')
+      var contentObj = contentType.parse(res)
+      t.equal(contentObj.type, 'text/plain', 'media type correct')
+      t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       t.ok(/^[0-9A-Fa-f]+$/.test(body.trim()))
@@ -84,13 +95,15 @@ test('add docs to changeset', function (t) {
 
 var versions = {}
 test('get doc versions', function (t) {
-  t.plan(6)
+  t.plan(8)
   Object.keys(uploaded).forEach(function (key) {
     var href = base + 'node/' + uploaded[key]
     var hq = hyperquest(href)
     hq.once('response', function (res) {
       t.equal(res.statusCode, 200)
-      t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
+      var contentObj = contentType.parse(res)
+      t.equal(contentObj.type, 'text/xml', 'media type correct')
+      t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       var xml = parsexml(body)

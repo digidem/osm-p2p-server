@@ -18,7 +18,7 @@ module.exports = function (req, res, api, params, next) {
     // The rest is discarded (this behaviour differs from changeset creation).
     api.createElement(ops[0], function (err, id, node) {
       if (err) return next(err)
-      res.setHeader('content-type', 'text/plain')
+      res.setHeader('content-type', 'text/plain; charset=utf-8')
       res.end(id + '\n')
     })
   })

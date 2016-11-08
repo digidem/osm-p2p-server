@@ -38,7 +38,7 @@ Server.prototype.handle = function (req, res, next) {
     }
     if (err.expose && !res.headersSent) {
       res.statusCode = err.status
-      res.setHeader('content-type', 'text/plain')
+      res.setHeader('content-type', 'text/plain; charset=utf-8')
       res.end(err.message)
     } else {
       res.end()

@@ -1,4 +1,5 @@
 var test = require('tape')
+var contentType = require('content-type')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
@@ -35,7 +36,7 @@ test('create history', function (t) {
       { type: 'node', lat: 63.9, lon: -120.8, id: 'B' }
     ]
   ]
-  t.plan(6 * updates.length)
+  t.plan(7 * updates.length)
   var exists = {}
   var versionId = {}
   ;(function next () {
@@ -46,7 +47,9 @@ test('create history', function (t) {
     })
     hq.once('response', function (res) {
       t.equal(res.statusCode, 200, 'create 200 ok')
-      t.equal(res.headers['content-type'], 'text/plain', 'create content type')
+      var contentObj = contentType.parse(res)
+      t.equal(contentObj.type, 'text/plain', 'media type correct')
+      t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
     })
     hq.pipe(concat({ encoding: 'string' }, function (body) {
       var changeId = body.trim()
@@ -118,13 +121,15 @@ test('create history', function (t) {
 })
 
 test('history route', function (t) {
-  t.plan(4)
+  t.plan(5)
   var hq = hyperquest(base + 'node/' + ids.A + '/history', {
     headers: { 'content-type': 'text/xml' }
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)

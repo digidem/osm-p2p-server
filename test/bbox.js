@@ -1,4 +1,5 @@
 var test = require('tape')
+var contentType = require('content-type')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
@@ -16,14 +17,16 @@ test('bbox.js: setup changeset server', function (t) {
 })
 
 test('create bbox', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/create'
   var hq = hyperquest.put(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200, 'create 200 ok')
-    t.equal(res.headers['content-type'], 'text/plain', 'create content type')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     changeId = body.trim()
@@ -35,7 +38,7 @@ test('create bbox', function (t) {
 var uploaded = {}
 var SIZE = 100
 test('add docs to changeset', function (t) {
-  t.plan(3)
+  t.plan(4)
   var docs = []
   for (var i = 0; i < SIZE; i++) {
     docs.push({
@@ -63,7 +66,9 @@ test('add docs to changeset', function (t) {
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -130,12 +135,14 @@ test('bbox', function (t) {
 })
 
 test('missing bbox', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'map'
   var hq = hyperquest(href)
   hq.once('response', function (res) {
     t.equal(res.statusCode, 400)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/plain')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.equal(body, 'Missing bbox query string parameter')
@@ -143,12 +150,14 @@ test('missing bbox', function (t) {
 })
 
 test('invalid bbox', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'map?bbox=invalid'
   var hq = hyperquest(href)
   hq.once('response', function (res) {
     t.equal(res.statusCode, 400)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/plain')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.equal(body, 'Invalid bbox query string parameter')
@@ -156,12 +165,14 @@ test('invalid bbox', function (t) {
 })
 
 test('out of range bbox', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'map?bbox=-181,1,2,2'
   var hq = hyperquest(href)
   hq.once('response', function (res) {
     t.equal(res.statusCode, 400)
-    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'text/plain')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.equal(body, 'Invalid bbox query string parameter')

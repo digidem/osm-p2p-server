@@ -1,4 +1,5 @@
 var test = require('tape')
+var contentType = require('content-type')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
@@ -16,14 +17,16 @@ test('changeset_upload_relation.js: setup server', function (t) {
 })
 
 test('create changeset upload', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/create'
   var hq = hyperquest.put(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200, 'create 200 ok')
-    t.equal(res.headers['content-type'], 'text/plain', 'create content type')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     changeId = body.trim()
@@ -39,7 +42,7 @@ test('create changeset upload', function (t) {
 var ids = {}
 var versions = {}
 test('add docs to changeset upload', function (t) {
-  t.plan(8)
+  t.plan(9)
 
   var href = base + 'changeset/' + changeId + '/upload'
   var hq = hyperquest.post(href, {
@@ -47,7 +50,9 @@ test('add docs to changeset upload', function (t) {
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
@@ -176,12 +181,14 @@ test('close changeset', function (t) {
 })
 
 test('close already closed changeset', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/' + changeId + '/close'
   var hq = hyperquest.put(href)
   hq.once('response', function (res) {
     t.equal(res.statusCode, 409, 'expected conflict code')
-    t.equal(res.headers['content-type'], 'text/plain')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.equal(
@@ -194,14 +201,16 @@ test('close already closed changeset', function (t) {
 })
 
 test('upload to closed changeset', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/' + changeId + '/upload'
   var hq = hyperquest.post(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 409, 'expected conflict code')
-    t.equal(res.headers['content-type'], 'text/plain')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     t.equal(
@@ -224,14 +233,16 @@ test('upload to closed changeset', function (t) {
 
 var secondChangeId
 test('create second changeset', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/create'
   var hq = hyperquest.put(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.once('response', function (res) {
     t.equal(res.statusCode, 200, 'create 200 ok')
-    t.equal(res.headers['content-type'], 'text/plain', 'create content type')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     secondChangeId = body.trim()
@@ -245,14 +256,16 @@ test('create second changeset', function (t) {
 })
 
 test('second changeset upload', function (t) {
-  t.plan(10)
+  t.plan(11)
   var href = base + 'changeset/' + secondChangeId + '/upload'
   var hq = hyperquest.post(href, {
     headers: { 'content-type': 'text/xml' }
   })
   hq.on('response', function (res) {
     t.equal(res.statusCode, 200)
-    t.equal(res.headers['content-type'], 'text/xml; charset=utf-8')
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
   })
   var oldv, newv
   hq.pipe(concat({ encoding: 'string' }, function (body) {
