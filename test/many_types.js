@@ -7,7 +7,7 @@ var concat = require('concat-stream')
 var base
 var server
 var changeId
-var createServer = require('./test_server.js')
+var createServer = require('./lib/test_server.js')
 
 test('many_types.js: setup server', function (t) {
   createServer(function (d) {
@@ -249,8 +249,9 @@ test('get osmchange doc', function (t) {
 })
 
 test('many_types.js: teardown server', function (t) {
-  server.cleanup()
-  t.end()
+  server.cleanup(function () {
+    t.end()
+  })
 })
 
 function cmpch (a, b) {

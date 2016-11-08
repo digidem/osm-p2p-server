@@ -6,7 +6,7 @@ var concat = require('concat-stream')
 var base
 var server
 
-var createServer = require('./test_server.js')
+var createServer = require('./lib/test_server.js')
 
 test('malformed_changeset.js: setup server', function (t) {
   createServer(function (d) {
@@ -39,6 +39,7 @@ test('send malformed changeset upload', function (t) {
 })
 
 test('malformed_changeset.js: teardown server', function (t) {
-  server.cleanup()
-  t.end()
+  server.cleanup(function () {
+    t.end()
+  })
 })

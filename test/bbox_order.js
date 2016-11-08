@@ -6,7 +6,7 @@ var concat = require('concat-stream')
 
 var base, server, changeId
 
-var createServer = require('./test_server.js')
+var createServer = require('./lib/test_server.js')
 
 test('bbox_order.js: setup server', function (t) {
   createServer(function (d) {
@@ -130,6 +130,7 @@ test('bbox', function (t) {
 })
 
 test('bbox_order.js: teardown server', function (t) {
-  server.cleanup()
-  t.end()
+  server.cleanup(function () {
+    t.end()
+  })
 })

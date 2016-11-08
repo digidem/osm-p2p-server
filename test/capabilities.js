@@ -4,7 +4,7 @@ var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
 
-var createServer = require('./test_server.js')
+var createServer = require('./lib/test_server.js')
 
 var base, server
 
@@ -32,6 +32,7 @@ test('capabilities', function (t) {
 })
 
 test('capabilities.js: teardown server', function (t) {
-  server.cleanup()
-  t.end()
+  server.cleanup(function () {
+    t.end()
+  })
 })

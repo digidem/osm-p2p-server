@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.3]
+### Changed
+- Add callback to server cleanup/teardown in tests - necessary for osm-p2p-server-sw tests
+
 ## [2.0.2]
 ### Fixed
 - Additional query string parameters do not break route matching (previously route matching was dependent on the order of query string parameters and including any query string parameter would cause route matching to 404)
@@ -55,6 +59,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `members` and `nodes` are returned before `tags` in Xml.
 - Delete operations must have changeset attribute set.
 
+[2.0.3]: https://github.com/digidem/osm-p2p-server/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/digidem/osm-p2p-server/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/digidem/osm-p2p-server/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/digidem/osm-p2p-server/compare/2.0.0-beta3...2.0.0

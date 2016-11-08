@@ -9,7 +9,7 @@ var hyperlog = require('hyperlog')
 var fdstore = require('fd-chunk-store')
 var EventEmitter = require('events').EventEmitter
 
-var osmrouter = require('../')
+var osmrouter = require('../../')
 var DELAY = process.env.OSM_P2P_DB_DELAY
 
 function testServer (cb) {
@@ -30,9 +30,10 @@ function testServer (cb) {
       res.end('not found\n')
     }
   })
-  server.cleanup = function () {
+  server.cleanup = function (cb) {
     server.close()
     rimraf.sync(dir)
+    cb()
   }
   server.listen(0, function () {
     var port = server.address().port

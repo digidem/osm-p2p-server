@@ -6,7 +6,7 @@ var concat = require('concat-stream')
 
 var base, server, changeId
 
-var createServer = require('./test_server.js')
+var createServer = require('./lib/test_server.js')
 
 test('multi_fetch.js: setup server', function (t) {
   createServer(function (d) {
@@ -146,6 +146,7 @@ test('multi-fetch error', function (t) {
 })
 
 test('multi_fetch.js: teardown server', function (t) {
-  server.cleanup()
-  t.end()
+  server.cleanup(function () {
+    t.end()
+  })
 })

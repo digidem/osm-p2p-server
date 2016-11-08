@@ -6,7 +6,7 @@ var concat = require('concat-stream')
 
 var base, server, changeId
 
-var createServer = require('./test_server.js')
+var createServer = require('./lib/test_server.js')
 
 test('changeset_upload_relation.js: setup server', function (t) {
   createServer(function (d) {
@@ -331,8 +331,9 @@ test('second changeset upload', function (t) {
 })
 
 test('changeset_upload_relation.js: teardown server', function (t) {
-  server.cleanup()
-  t.end()
+  server.cleanup(function () {
+    t.end()
+  })
 })
 
 function cmpch (a, b) {

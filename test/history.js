@@ -7,7 +7,7 @@ var concat = require('concat-stream')
 var base
 var server
 
-var createServer = require('./test_server.js')
+var createServer = require('./lib/test_server.js')
 
 test('history.js: setup server', function (t) {
   createServer(function (d) {
@@ -183,6 +183,7 @@ test('history route', function (t) {
 })
 
 test('history.js: teardown server', function (t) {
-  server.cleanup()
-  t.end()
+  server.cleanup(function () {
+    t.end()
+  })
 })
