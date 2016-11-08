@@ -100,6 +100,51 @@ test('multi-fetch', function (t) {
   }))
 })
 
+test('multi-fetch random parameters in query string', function (t) {
+  t.plan(7)
+  var ids = Object.keys(uploaded)
+    .map(function (key) { return uploaded[key] })
+  var href = base + 'nodes?foo=bar&nodes=' + ids.join(',')
+  var hq = hyperquest(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 200)
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/xml', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var xml = parsexml(body)
+    t.equal(xml.root.name, 'osm')
+    t.equal(xml.root.children[0].name, 'node')
+    t.equal(xml.root.children[1].name, 'node')
+    var xids = xml.root.children.map(function (x) {
+      return x.attributes.id
+    })
+    t.deepEqual(xids, ids, 'id comparison')
+  }))
+})
+
+test('multi-fetch error', function (t) {
+  t.plan(4)
+  var ids = Object.keys(uploaded)
+    .map(function (key) { return uploaded[key] })
+  var href = base + 'nodes?ways=' + ids.join(',')
+  var hq = hyperquest(href, {
+    headers: { 'content-type': 'text/xml' }
+  })
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 400)
+    var contentObj = contentType.parse(res)
+    t.equal(contentObj.type, 'text/plain', 'media type correct')
+    t.equal(contentObj.parameters.charset.toLowerCase(), 'utf-8', 'charset correct')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    t.equal(body.split('\n')[0], 'Missing parameter \'nodes\'.')
+  }))
+})
+
 test('multi_fetch.js: teardown server', function (t) {
   server.cleanup()
   t.end()

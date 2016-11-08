@@ -43,6 +43,10 @@
     "code": 400,
     "message": "Missing changeset ID: the element must have a changeset attribute with the id of an open changset"
   },
+  "MissingParameter": {
+    "code": 400,
+    "message": "Missing parameter '%s'.\nThe parameter has to be the same in the URL (e.g. /api/0.6/nodes?nodes=123,456,789)"
+  },
   "PlaceholderIdError": {
     "code": 400,
     "message": "Placeholder id is missing or non-unique"

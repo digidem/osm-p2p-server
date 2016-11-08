@@ -19,7 +19,7 @@ Server.prototype.match = function (method, url) {
 
 Server.prototype.handle = function (req, res, next) {
   var method = req.headers.x_http_method_override || req.method
-  var m = this.match(method, req.url)
+  var m = this.match(method, req.url.split('?')[0])
   if (m) {
     res.setHeader('content-encoding', 'identity')
     res.setHeader('cache-control', 'no-cache')

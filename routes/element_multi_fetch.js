@@ -6,11 +6,11 @@ var errors = require('../errors')
 var cmpFork = require('../lib/util').cmpFork
 
 module.exports = function (req, res, api, params, next) {
-  if (params.type !== params.ktype) {
-    return next(new errors.TypeMismatch(params.type, params.ktype))
-  }
   var query = qs.parse(qs.extract(req.url))
-  var ids = params.ids.split(',')
+  if (!query[params.type]) {
+    return next(new errors.MissingParameter(params.type))
+  }
+  var ids = query[params.type].split(',')
   var results = []
   var pending = 1
   var sent = false
