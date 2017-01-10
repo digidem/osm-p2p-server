@@ -30,7 +30,7 @@ function createOsm () {
 }
 
 test('do not include points from an excluded way fork', function (t) {
-  t.plan(3)
+  t.plan(4)
 
   // Has the base way
   var osmBase = createOsm()

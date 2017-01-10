@@ -29,13 +29,7 @@ module.exports = function (req, res, api, params, next) {
   }
   api.getMap(bbox, function (err, elements) {
     if (err) return next(err)
-    var latestFirst = elements.sort(cmpFork)
-    var noForks = []
-    var seen = {}
-    latestFirst.forEach(function (element) {
-      if (!seen[element.id]) noForks.push(element)
-      seen[element.id] = true
-    })
+    var noForks = filterForkElements(elements)
     var byType = noForks.sort(cmpType)
     var r = fromArray.obj(byType).on('error', next)
     var t
@@ -53,6 +47,45 @@ module.exports = function (req, res, api, params, next) {
     t.on('error', next)
     r.pipe(t).pipe(res)
   })
+
+  function filterForkElements (elements) {
+    var latestFirst = elements.sort(cmpFork)
+    var noForks = []
+    var keepNodeRefs = {}
+    var excludeNodeRefs = {}
+    var seen = {}
+    latestFirst.forEach(function (element) {
+      if (!seen[element.id]) {
+        noForks.push(element)
+        if (element.type === 'way') {
+          element.nodes.forEach(function (ref) {
+            keepNodeRefs[ref] = true
+          })
+        }
+      } else {
+        if (element.type === 'way') {
+          element.nodes.forEach(function (ref) {
+            excludeNodeRefs[ref] = true
+          })
+        }
+      }
+      seen[element.id] = true
+    })
+
+    // Remove excluded entries that appear in the keep entries.
+    Object.keys(keepNodeRefs).forEach(function (ref) {
+      if (excludeNodeRefs[ref]) {
+        delete excludeNodeRefs[ref]
+      }
+    })
+
+    // Filter out all nodes that are referenced in filtered ways.
+    noForks = noForks.filter(function (elm) {
+      return elm.type !== 'node' || keepNodeRefs[elm.id]
+    })
+
+    return noForks
+  }
 }
 
 var typeOrder = { node: 0, way: 1, relation: 2 }
