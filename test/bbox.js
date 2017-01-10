@@ -240,7 +240,6 @@ test('bbox json /w forks', function (t) {
   }))
 })
 
-
 test('bbox.js: teardown server', function (t) {
   server.cleanup(function () {
     t.end()
