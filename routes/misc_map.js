@@ -91,7 +91,13 @@ module.exports = function (req, res, api, params, next) {
 
     // Filter out all nodes that are referenced in filtered ways.
     nonForkedElements = nonForkedElements.filter(function (elm) {
-      return elm.type !== 'node' || keepNodeRefs[elm.id]
+      if (elm.type === 'node' && (keepNodeRefs[elm.id] || !excludeNodeRefs[elm.id])) {
+        return true
+      } else if (elm.type !== 'node') {
+        return true
+      } else {
+        return false
+      }
     })
 
     return nonForkedElements
