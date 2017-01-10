@@ -16,7 +16,7 @@ test('getMap', t => {
   var mockedOsm = {
     queryStream: function (query, opts) {
       t.deepEqual(query, expectedQuery, 'calls osm.queryStream with correct query')
-      t.deepEqual(opts, {order: 'type'}, 'calls osm.queryStream with opts order: type')
+      t.deepEqual(opts, {order: 'type', forks: false}, 'calls osm.queryStream with opts order: type')
       return through()
     }
   }
