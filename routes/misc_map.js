@@ -61,7 +61,6 @@ function cmpType (a, b) {
 }
 
 function isValidBbox (bbox) {
-  console.log(bbox)
   return bbox.length === 4 &&
     bbox[0] >= -180 && bbox[0] <= 180 &&
     bbox[2] >= -180 && bbox[2] <= 180 &&
