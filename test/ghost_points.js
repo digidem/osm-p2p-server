@@ -7,6 +7,7 @@ var osmdb = require('osm-p2p-db')
 var http = require('http')
 var url = require('url')
 var concat = require('concat-stream')
+var waterfall = require('run-waterfall')
 
 var through = require('through2')
 var Duplex = require('readable-stream/duplex')
@@ -58,7 +59,6 @@ test('doesn\'t return both forked ways', function (t) {
     },
   ]
 
-  // 1. Create base way
   var wayId
   var wayVersionId
   var changesetId
@@ -67,7 +67,25 @@ test('doesn\'t return both forked ways', function (t) {
   var forkAWayVersionId
   var forkBRefs
   var forkBWayVersionId
-  function step1 () {
+  var osmServer
+
+  // Run the test steps
+  waterfall([
+    step1,
+    step2,
+    step3,
+    step4,
+    step5,
+    step6,
+    step7,
+    step8,
+    step9
+  ], function (err) {
+    t.error(err)
+  })
+
+  // 1. Create base way
+  function step1 (done) {
     createChangeset(osmBase, function (cs) {
       changesetId = cs
       createNodes(osmBase, nodes, cs, function (keys) {
@@ -75,21 +93,19 @@ test('doesn\'t return both forked ways', function (t) {
         createWay(osmBase, keys, cs, function (way, wayVersion) {
           wayId = way
           wayVersionId = wayVersion
-          step2()
+          done()
         })
       })
     })
   }
 
   // 2. Replicate base osm to fork A osm
-  function step2 () {
-    sync(osmBase.log, osmForkA.log, function (err) {
-      step3()
-    })
+  function step2 (done) {
+    sync(osmBase.log, osmForkA.log, done)
   }
 
   // 3. Write modifications to fork A
-  function step3 () {
+  function step3 (done) {
     var node = {
       type: 'node',
       lon: 10,
@@ -101,21 +117,19 @@ test('doesn\'t return both forked ways', function (t) {
         forkARefs = refs
         updateWay(osmForkA, wayId, wayVersionId, refs, cs, function (way) {
           forkAWayVersionId = way.key
-          step4()
+          done()
         })
       })
     })
   }
 
   // 4. Replicate base osm to fork B osm
-  function step4 () {
-    sync(osmBase.log, osmForkB.log, function (err) {
-      step5()
-    })
+  function step4 (done) {
+    sync(osmBase.log, osmForkB.log, done)
   }
 
   // 5. Write modifications to fork B
-  function step5 () {
+  function step5 (done) {
     var node = {
       type: 'node',
       lon: -10,
@@ -127,38 +141,37 @@ test('doesn\'t return both forked ways', function (t) {
         forkBRefs = refs
         updateWay(osmForkB, wayId, wayVersionId, refs, cs, function (way) {
           forkBWayVersionId = way.key
-          step6()
+          done()
         })
       })
     })
   }
 
   // 6. Replicate fork A and fork B
-  function step6 () {
-    sync(osmForkA.log, osmForkB.log, function (err) {
-      step7()
-    })
+  function step6 (done) {
+    sync(osmForkA.log, osmForkB.log, done)
   }
 
   // 7. Create an osm-p2p-server instance from fork A
-  function step7 () {
-    createServer(step8)
+  function step7 (done) {
+    createServer(function (d) {
+      osmServer = d
+      done()
+    })
   }
 
   // 8. Replicate fork A and the server
-  function step8 (d) {
-    sync(d.osm.log, osmForkA.log, function (err) {
-      d.osm.ready(function () {
-        step9(d)
-      })
+  function step8 (done) {
+    sync(osmServer.osm.log, osmForkA.log, function (err) {
+      osmServer.osm.ready(done)
     })
   }
 
   // 9. Run an http query on the server to see which way & points are returned
-  function step9 (d) {
+  function step9 (done) {
     var opts = {
       hostname: 'localhost',
-      port: url.parse(d.base).port,
+      port: url.parse(osmServer.base).port,
       path: '/api/0.6/map?bbox=-90,-90,90,90',
       headers: {
         'Accept': 'application/json'
@@ -185,12 +198,10 @@ test('doesn\'t return both forked ways', function (t) {
           t.error('unexpected way version id')
         }
 
-        d.server.cleanup(function () {})
+        osmServer.server.cleanup(done)
       }))
     })
   }
-
-  step1()
 })
 
 function eqtype (t) {
