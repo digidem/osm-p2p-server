@@ -22,31 +22,36 @@ module.exports = function (req, res, api, params, next) {
   var toOsmOptions = {
     bounds: {minlon: bbox[0], minlat: bbox[1], maxlon: bbox[2], maxlat: bbox[3]}
   }
+
   if (query.forks) {
-    var r = api.getMap(bbox, {order: 'type'})
-    var t = toOsm(toOsmOptions).on('error', next)
-    return r.pipe(t).pipe(res)
+    var source = api.getMap(bbox, {order: 'type'})
+    streamResponse(source)
+  } else {
+    api.getMap(bbox, function (err, elements) {
+      if (err) return next(err)
+      var noForks = filterForkElements(elements)
+      var byType = noForks.sort(cmpType)
+      var source = fromArray.obj(byType).on('error', next)
+      streamResponse(source)
+    })
   }
-  api.getMap(bbox, function (err, elements) {
-    if (err) return next(err)
-    var noForks = filterForkElements(elements)
-    var byType = noForks.sort(cmpType)
-    var r = fromArray.obj(byType).on('error', next)
-    var t
+
+  function streamResponse (source) {
+    var formatTransform
     switch (accept.types(['xml', 'json'])) {
       case 'json':
-        t = OsmJSONStream(toOsmOptions)
+        formatTransform = OsmJSONStream(toOsmOptions)
         res.setHeader('content-type', 'application/json; charset=utf-8')
         break
       case 'xml':
       default:
-        t = toOsm(toOsmOptions)
+        formatTransform = toOsm(toOsmOptions)
         res.setHeader('content-type', 'text/xml; charset=utf-8')
         break
     }
-    t.on('error', next)
-    r.pipe(t).pipe(res)
-  })
+    formatTransform.on('error', next)
+    source.pipe(formatTransform).pipe(res)
+  }
 
   function filterForkElements (elements) {
     var latestFirst = elements.sort(cmpFork)
