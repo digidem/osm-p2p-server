@@ -50,26 +50,36 @@ module.exports = function (req, res, api, params, next) {
 
   function filterForkElements (elements) {
     var latestFirst = elements.sort(cmpFork)
-    var noForks = []
+    var nonForkedElements = []
     var keepNodeRefs = {}
     var excludeNodeRefs = {}
     var seen = {}
-    latestFirst.forEach(function (element) {
+
+    // Filter out the non-latest version of each element.
+    nonForkedElements = latestFirst.filter(function (element) {
       if (!seen[element.id]) {
-        noForks.push(element)
+        seen[element.id] = true
+
+        // Note that all of the nodes referenced by this way should be kept.
         if (element.type === 'way') {
           element.nodes.forEach(function (ref) {
             keepNodeRefs[ref] = true
           })
         }
+
+        return true
       } else {
+        seen[element.id] = true
+
+        // Note that all of the nodes referenced by this way should be culled.
         if (element.type === 'way') {
           element.nodes.forEach(function (ref) {
             excludeNodeRefs[ref] = true
           })
         }
+
+        return false
       }
-      seen[element.id] = true
     })
 
     // Remove excluded entries that appear in the keep entries.
@@ -80,11 +90,11 @@ module.exports = function (req, res, api, params, next) {
     })
 
     // Filter out all nodes that are referenced in filtered ways.
-    noForks = noForks.filter(function (elm) {
+    nonForkedElements = nonForkedElements.filter(function (elm) {
       return elm.type !== 'node' || keepNodeRefs[elm.id]
     })
 
-    return noForks
+    return nonForkedElements
   }
 }
 
