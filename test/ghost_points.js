@@ -29,7 +29,7 @@ function createOsm () {
   })
 }
 
-test('doesn\'t return both forked ways', function (t) {
+test('do not include points from an excluded way fork', function (t) {
   t.plan(3)
 
   // Has the base way
