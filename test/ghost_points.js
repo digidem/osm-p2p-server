@@ -155,10 +155,10 @@ test('doesn\'t return both forked ways', function (t) {
   }
 
   // 9. Run an http query on the server to see which way & points are returned
-  function step9 (server) {
+  function step9 (d) {
     var opts = {
       hostname: 'localhost',
-      port: url.parse(server.base).port,
+      port: url.parse(d.base).port,
       path: '/api/0.6/map?bbox=-90,-90,90,90',
       headers: {
         'Accept': 'application/json'
@@ -184,6 +184,8 @@ test('doesn\'t return both forked ways', function (t) {
         } else {
           t.error('unexpected way version id')
         }
+
+        d.server.cleanup(function () {})
       }))
     })
   }
