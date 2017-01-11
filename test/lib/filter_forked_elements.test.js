@@ -17,7 +17,7 @@ test('duplicate nodes', function (t) {
       version: 'bar',
       lon: 1,
       lat: 1
-    },
+    }
   ]
 
   var expected = [elements[1]]
@@ -43,7 +43,7 @@ test('non-duplicate nodes', function (t) {
       version: 'bar',
       lon: 1,
       lat: 1
-    },
+    }
   ]
 
   var expected = elements
@@ -81,7 +81,7 @@ test('disparate ways', function (t) {
       version: 'bar',
       lon: 1,
       lat: 1
-    },
+    }
   ]
 
   var expected = elements
@@ -119,7 +119,7 @@ test('forked ways', function (t) {
       version: 'bar',
       lon: 1,
       lat: 1
-    },
+    }
   ]
 
   var expected = elements.slice(1, 3)

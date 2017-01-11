@@ -1,7 +1,6 @@
 var collect = require('collect-stream')
 var pumpify = require('pumpify')
 var mapStream = require('through2-map')
-var fromArray = require('from2-array')
 var collectTransform = require('../lib/collect-transform-stream')
 var filterForkedElements = require('../lib/filter_forked_elements')
 
