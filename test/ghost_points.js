@@ -233,10 +233,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
   var wayId
   var wayVersionId
   var keyIds
-  var forkARefs
-  var forkAWayVersionId
   var forkBRefs
-  var forkBWayVersionId
   var osmServer
 
   // Run the test steps
@@ -289,7 +286,6 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
         refs[2] = keys[0]
         updateWay(osmForkA, wayId, wayVersionId, refs, cs, function (err, way) {
           t.error(err)
-          forkAWayVersionId = way.key
           done()
         })
       })
@@ -309,7 +305,6 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
         t.error(err)
         forkBRefs = keyIds.slice(0, 2)
         updateWay(osmForkB, wayId, wayVersionId, keyIds.slice(0, 2), cs, function (err, way) {
-          forkBWayVersionId = way.key
           done(err)
         })
       })
@@ -389,7 +384,7 @@ function deleteNode (osm, nodeId, changesetId, done) {
   var op = {
     type: 'del',
     key: nodeId,
-    value: { type: 'node', changeset: changesetId },
+    value: { type: 'node', changeset: changesetId }
   }
   osm.batch([op], done)
 }
