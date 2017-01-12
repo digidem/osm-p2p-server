@@ -11,12 +11,15 @@ var waterfall = require('run-waterfall')
 
 var tmpdir = require('os').tmpdir()
 var createServer = require('./lib/test_server.js')
+var slowdb = require('./lib/slowdb.js')
+
+var DELAY = process.env.OSM_P2P_DB_DELAY
 
 function createOsm () {
   var storefile = path.join(tmpdir, 'osm-store-' + Math.random())
   return osmdb({
     log: hyperlog(memdb(), { valueEncoding: 'json' }),
-    db: memdb(),
+    db: DELAY ? slowdb({delay: DELAY}) : memdb(),
     store: fdstore(4096, storefile)
   })
 }
