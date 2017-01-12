@@ -15,8 +15,6 @@ module.exports = function (req, res, api, params, next) {
   if (!isValidBbox(bbox)) {
     return next(new errors.InvalidBbox())
   }
-  res.setHeader('content-type', 'text/xml; charset=utf-8')
-  res.setHeader('content-disposition', 'attachment; filename="map.osm"')
   var toOsmOptions = {
     bounds: {minlon: bbox[0], minlat: bbox[1], maxlon: bbox[2], maxlat: bbox[3]}
   }
@@ -32,6 +30,7 @@ module.exports = function (req, res, api, params, next) {
     case 'xml':
     default:
       formatTransform = toOsm(toOsmOptions)
+      res.setHeader('content-disposition', 'attachment; filename="map.osm"')
       res.setHeader('content-type', 'text/xml; charset=utf-8')
       break
   }
