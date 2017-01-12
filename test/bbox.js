@@ -209,6 +209,37 @@ test('bbox json', function (t) {
   }))
 })
 
+test('bbox json /w forks', function (t) {
+  t.plan(7 + SIZE * 3)
+  var href = base + 'map?bbox=-123,63,-120,66&forks=true'
+  var hq = hyperquest(href, {headers: { 'Accept': 'application/json' }})
+  hq.once('response', function (res) {
+    t.equal(res.statusCode, 200)
+    t.equal(res.headers['content-type'].split(/\s*;\s*/)[0], 'application/json')
+  })
+  hq.pipe(concat({ encoding: 'string' }, function (body) {
+    var json = JSON.parse(body)
+    t.equal(json.version, 0.6)
+    t.deepEqual(json.bounds, { maxlat: 66, maxlon: -120, minlat: 63, minlon: -123 }, 'bounds matches request')
+    t.ok(orderedTypes(json.elements.map(function (c) {
+      return c.type
+    })), 'ordered types')
+
+    for (var i = 0; i < json.elements.length; i++) {
+      var c = json.elements[i]
+      var node = uploaded[c.id]
+      if (c.type === 'node') {
+        t.equal(c.changeset, node.changeset)
+        t.equal(c.lat, node.lat)
+        t.equal(c.lon, node.lon)
+      } else if (c.type === 'way') {
+        t.equal(c.nodes.length, SIZE, 'way')
+        t.deepEqual(c.nodes, node.refs, 'way refs')
+      }
+    }
+  }))
+})
+
 test('bbox.js: teardown server', function (t) {
   server.cleanup(function () {
     t.end()
