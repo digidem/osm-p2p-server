@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.4]
+### Fixed
+- Correctly respect json output when `?forks=true` for `/map` endpoint
+- Do not return 'ghost points' from forked ways when forks are not returned
+
 ## [2.0.3]
 ### Changed
 - Add callback to server cleanup/teardown in tests - necessary for osm-p2p-server-sw tests
