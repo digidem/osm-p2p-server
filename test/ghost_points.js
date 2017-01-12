@@ -8,6 +8,8 @@ var http = require('http')
 var url = require('url')
 var concat = require('concat-stream')
 var waterfall = require('run-waterfall')
+var eos = require('end-of-stream')
+var once = require('once')
 
 var tmpdir = require('os').tmpdir()
 var createServer = require('./lib/test_server.js')
@@ -96,7 +98,10 @@ test('do not include points from an excluded way fork', function (t) {
 
   // 2. Replicate base osm to fork A osm
   function step2 (done) {
-    sync(osmBase.log, osmForkA.log, done)
+    sync(osmBase.log, osmForkA.log, function (err) {
+      if (err) return done(err)
+      osmForkB.ready(done)
+    })
   }
 
   // 3. Write modifications to fork A
@@ -122,7 +127,10 @@ test('do not include points from an excluded way fork', function (t) {
 
   // 4. Replicate base osm to fork B osm
   function step4 (done) {
-    sync(osmBase.log, osmForkB.log, done)
+    sync(osmBase.log, osmForkB.log, function (err) {
+      if (err) return done(err)
+      osmForkB.ready(done)
+    })
   }
 
   // 5. Write modifications to fork B
@@ -147,7 +155,10 @@ test('do not include points from an excluded way fork', function (t) {
 
   // 6. Replicate fork A and fork B
   function step6 (done) {
-    sync(osmForkA.log, osmForkB.log, done)
+    sync(osmForkA.log, osmForkB.log, function (err) {
+      if (err) return done(err)
+      osmForkB.ready(done)
+    })
   }
 
   // 7. Create an osm-p2p-server instance from fork A
@@ -272,7 +283,10 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 2. Replicate base osm to fork A osm
   function step2 (done) {
-    sync(osmBase.log, osmForkA.log, done)
+    sync(osmBase.log, osmForkA.log, function (err) {
+      if (err) return done(err)
+      osmForkB.ready(done)
+    })
   }
 
   // 3. Edit the 3rd point on fork A
@@ -297,7 +311,10 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 4. Replicate base osm to fork B osm
   function step4 (done) {
-    sync(osmBase.log, osmForkB.log, done)
+    sync(osmBase.log, osmForkB.log, function (err) {
+      if (err) return done(err)
+      osmForkB.ready(done)
+    })
   }
 
   // 5. Delete 3rd point on fork B
@@ -316,7 +333,10 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 6. Replicate fork A and fork B
   function step6 (done) {
-    sync(osmForkA.log, osmForkB.log, done)
+    sync(osmForkA.log, osmForkB.log, function (err) {
+      if (err) return done(err)
+      osmForkB.ready(done)
+    })
   }
 
   // 7. Create an osm-p2p-server instance from fork A
@@ -427,13 +447,12 @@ function createChangeset (osm, done) {
 }
 
 function sync (log1, log2, done) {
+  done = once(done)
   var r1 = log1.replicate()
-  r1.on('end', onEnd)
-  r1.on('error', onEnd)
+  eos(r1, onEnd)
 
   var r2 = log2.replicate()
-  r2.on('end', onEnd)
-  r2.on('error', onEnd)
+  eos(r2, onEnd)
 
   r1.pipe(r2).pipe(r1)
 
