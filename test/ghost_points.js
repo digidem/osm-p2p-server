@@ -394,6 +394,7 @@ function createNodes (osm, nodes, changesetId, done) {
     var node = nodes.shift()
     if (!node) return done(keys)
     node.changeset = changesetId
+    node.timestamp = new Date().getTime()
     osm.create(node, function (err, key) {
       if (err) return done(err)
       keys.push(key)
@@ -417,7 +418,8 @@ function createWay (osm, nodeIds, changesetId, done) {
   osm.create({
     type: 'way',
     refs: nodeIds,
-    changeset: changesetId
+    changeset: changesetId,
+    timestamp: new Date().getTime()
   }, function (err, key, node) {
     done(err, key, node.key)
   })
