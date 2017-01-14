@@ -3,6 +3,7 @@ var contentType = require('content-type')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
+var isISODate = require('isostring')
 
 var base, server, changeId
 
@@ -84,7 +85,73 @@ test('add docs to changeset upload', function (t) {
 })
 
 test('get osmchange doc from upload', function (t) {
-  t.plan(4)
+  t.plan(8)
+  var expected = [
+    {
+      name: 'node',
+      attributes: {
+        changeset: changeId,
+        id: ids['-1'],
+        version: versions['-1'],
+        lat: '64.5',
+        lon: '-121.5'
+      },
+      children: []
+    },
+    {
+      name: 'node',
+      attributes: {
+        changeset: changeId,
+        id: ids['-2'],
+        version: versions['-2'],
+        lat: '63.9',
+        lon: '-120.9'
+      },
+      children: []
+    },
+    {
+      name: 'way',
+      attributes: {
+        changeset: changeId,
+        id: ids['-3'],
+        version: versions['-3']
+      },
+      content: '',
+      children: [
+        {
+          name: 'nd',
+          attributes: { ref: ids['-2'] },
+          children: []
+        },
+        {
+          name: 'nd',
+          attributes: { ref: ids['-1'] },
+          children: []
+        }
+      ].sort(cmpref)
+    },
+    {
+      name: 'relation',
+      attributes: {
+        changeset: changeId,
+        id: ids['-4'],
+        version: versions['-4']
+      },
+      content: '',
+      children: [
+        {
+          name: 'member',
+          attributes: { type: 'way', ref: ids['-3'], role: '' },
+          children: []
+        },
+        {
+          name: 'tag',
+          attributes: { k: 'hello', v: 'world' },
+          children: []
+        }
+      ]
+    }
+  ].sort(cmpch)
   var href = base + 'changeset/' + changeId + '/download'
   var hq = hyperquest(href, {
     headers: { 'content-type': 'text/xml' }
@@ -98,72 +165,11 @@ test('get osmchange doc from upload', function (t) {
     xml.root.children[0].children.forEach(function (c) {
       c.children.sort(cmpref)
     })
-    t.deepEqual(xml.root.children[0].children, [
-      {
-        name: 'node',
-        attributes: {
-          changeset: changeId,
-          id: ids['-1'],
-          version: versions['-1'],
-          lat: '64.5',
-          lon: '-121.5'
-        },
-        children: []
-      },
-      {
-        name: 'node',
-        attributes: {
-          changeset: changeId,
-          id: ids['-2'],
-          version: versions['-2'],
-          lat: '63.9',
-          lon: '-120.9'
-        },
-        children: []
-      },
-      {
-        name: 'way',
-        attributes: {
-          changeset: changeId,
-          id: ids['-3'],
-          version: versions['-3']
-        },
-        content: '',
-        children: [
-          {
-            name: 'nd',
-            attributes: { ref: ids['-2'] },
-            children: []
-          },
-          {
-            name: 'nd',
-            attributes: { ref: ids['-1'] },
-            children: []
-          }
-        ].sort(cmpref)
-      },
-      {
-        name: 'relation',
-        attributes: {
-          changeset: changeId,
-          id: ids['-4'],
-          version: versions['-4']
-        },
-        content: '',
-        children: [
-          {
-            name: 'member',
-            attributes: { type: 'way', ref: ids['-3'], role: '' },
-            children: []
-          },
-          {
-            name: 'tag',
-            attributes: { k: 'hello', v: 'world' },
-            children: []
-          }
-        ]
-      }
-    ].sort(cmpch))
+    xml.root.children[0].children.forEach(function (c) {
+      t.true(isISODate(c.attributes.timestamp))
+      delete c.attributes.timestamp
+    })
+    t.deepEqual(xml.root.children[0].children, expected)
   }))
 })
 
@@ -256,7 +262,7 @@ test('create second changeset', function (t) {
 })
 
 test('second changeset upload', function (t) {
-  t.plan(11)
+  t.plan(13)
   var href = base + 'changeset/' + secondChangeId + '/upload'
   var hq = hyperquest.post(href, {
     headers: { 'content-type': 'text/xml' }
@@ -297,6 +303,8 @@ test('second changeset upload', function (t) {
   function onnew (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osm')
+    t.true(isISODate(xml.root.children[0].attributes.timestamp))
+    delete xml.root.children[0].attributes.timestamp
     t.deepEqual(xml.root.children, [
       {
         name: 'node',
@@ -314,6 +322,8 @@ test('second changeset upload', function (t) {
   function onold (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osm')
+    t.true(isISODate(xml.root.children[0].attributes.timestamp))
+    delete xml.root.children[0].attributes.timestamp
     t.deepEqual(xml.root.children, [
       {
         name: 'node',

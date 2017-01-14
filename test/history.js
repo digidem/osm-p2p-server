@@ -3,6 +3,7 @@ var contentType = require('content-type')
 var parsexml = require('xml-parser')
 var hyperquest = require('hyperquest')
 var concat = require('concat-stream')
+var isISODate = require('isostring')
 
 var base
 var server
@@ -121,7 +122,52 @@ test('create history', function (t) {
 })
 
 test('history route', function (t) {
-  t.plan(5)
+  t.plan(8)
+  var expected = [
+    {
+      name: 'node',
+      attributes: {
+        changeset: changesets[2],
+        id: ids.A,
+        lat: '64.2',
+        lon: '-121.4',
+        version: versions.A[2]
+      },
+      children: [
+        {
+          name: 'tag',
+          attributes: {
+            k: 'beep',
+            v: 'boop'
+          },
+          children: []
+        }
+      ],
+      content: ''
+    },
+    {
+      name: 'node',
+      attributes: {
+        changeset: changesets[1],
+        id: ids.A,
+        lat: '64.3',
+        lon: '-121.4',
+        version: versions.A[1]
+      },
+      children: []
+    },
+    {
+      name: 'node',
+      attributes: {
+        changeset: changesets[0],
+        id: ids.A,
+        lat: '64.5',
+        lon: '-121.5',
+        version: versions.A[0]
+      },
+      children: []
+    }
+  ]
   var hq = hyperquest(base + 'node/' + ids.A + '/history', {
     headers: { 'content-type': 'text/xml' }
   })
@@ -134,51 +180,11 @@ test('history route', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osm')
-    t.deepEqual(xml.root.children, [
-      {
-        name: 'node',
-        attributes: {
-          changeset: changesets[2],
-          id: ids.A,
-          lat: '64.2',
-          lon: '-121.4',
-          version: versions.A[2]
-        },
-        children: [
-          {
-            name: 'tag',
-            attributes: {
-              k: 'beep',
-              v: 'boop'
-            },
-            children: []
-          }
-        ],
-        content: ''
-      },
-      {
-        name: 'node',
-        attributes: {
-          changeset: changesets[1],
-          id: ids.A,
-          lat: '64.3',
-          lon: '-121.4',
-          version: versions.A[1]
-        },
-        children: []
-      },
-      {
-        name: 'node',
-        attributes: {
-          changeset: changesets[0],
-          id: ids.A,
-          lat: '64.5',
-          lon: '-121.5',
-          version: versions.A[0]
-        },
-        children: []
-      }
-    ])
+    xml.root.children.forEach(function (c) {
+      t.true(isISODate(c.attributes.timestamp))
+      delete c.attributes.timestamp
+    })
+    t.deepEqual(xml.root.children, expected)
   }))
 })
 

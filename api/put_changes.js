@@ -86,5 +86,6 @@ function batchMap (change) {
     if (SKIP_PROPS.indexOf(prop) > -1) return
     op.value[prop === 'nodes' ? 'refs' : prop] = change[prop]
   })
+  op.value.timestamp = new Date().toISOString()
   return op
 }
