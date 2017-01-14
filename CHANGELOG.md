@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.0]
+### Added
+- Add a timestamp to elements in a changeset upload with creation/modification time (on the server)
+
+### Fixed
+- The latest fork should be returned if forks != `true`, and forks with a timestamp should be preferred over forks without a timestamp (legacy elements do not have a timestamp). The fork sort/compare function was incorrect.
+
 ## [2.0.4]
 ### Fixed
 - Correctly respect json output when `?forks=true` for `/map` endpoint
@@ -64,6 +71,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `members` and `nodes` are returned before `tags` in Xml.
 - Delete operations must have changeset attribute set.
 
+[2.1.0]: https://github.com/digidem/osm-p2p-server/compare/2.0.4...2.1.0
+[2.0.4]: https://github.com/digidem/osm-p2p-server/compare/2.0.3...2.0.4
 [2.0.3]: https://github.com/digidem/osm-p2p-server/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/digidem/osm-p2p-server/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/digidem/osm-p2p-server/compare/2.0.0...2.0.1
