@@ -373,8 +373,6 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
           .map(function (elm) { return elm.id })
         var ways = data.elements.filter(function (elm) { return elm.type === 'way' })
 
-        console.log('data', json.toString())
-
         // Ensure the way present matches the deleted fork, and the extra node
         // is not returned.
         t.equal(ways.length, 1)
@@ -394,7 +392,7 @@ function createNodes (osm, nodes, changesetId, done) {
     var node = nodes.shift()
     if (!node) return done(keys)
     node.changeset = changesetId
-    node.timestamp = new Date().getTime()
+    node.timestamp = (new Date()).toISOString()
     osm.create(node, function (err, key) {
       if (err) return done(err)
       keys.push(key)
@@ -419,7 +417,7 @@ function createWay (osm, nodeIds, changesetId, done) {
     type: 'way',
     refs: nodeIds,
     changeset: changesetId,
-    timestamp: new Date().getTime()
+    timestamp: (new Date()).toISOString()
   }, function (err, key, node) {
     done(err, key, node.key)
   })
@@ -431,7 +429,7 @@ function updateWay (osm, way, parentId, refs, changesetId, done) {
     type: 'way',
     refs: refs,
     changeset: changesetId,
-    timestamp: new Date().getTime()
+    timestamp: (new Date()).toISOString()
   },
   { links: [parentId] },
   function (err, way) {
