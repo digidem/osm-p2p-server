@@ -51,7 +51,6 @@
   },
   "devDependencies": {
     "concat-stream": "^1.6.0",
-    "content-type": "^1.0.2",
     "express": "^4.14.0",
     "fd-chunk-store": "^2.0.0",
     "hyperlog": "^4.10.0",
