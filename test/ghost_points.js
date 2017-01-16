@@ -385,6 +385,164 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
   }
 })
 
+test('one fork: way deleted; other fork: way attribute modified', function (t) {
+  t.plan(11)
+
+  // Has the base way
+  var osmBase = createOsm()
+
+  // Has a fork /w way deleted
+  var osmForkA = createOsm()
+
+  // Has a fork /w way attribute added
+  var osmForkB = createOsm()
+
+  var nodes = [
+    {
+      type: 'node',
+      lon: 0,
+      lat: -1
+    },
+    {
+      type: 'node',
+      lon: 0,
+      lat: 0
+    },
+    {
+      type: 'node',
+      lon: 0,
+      lat: 1
+    }
+  ]
+
+  var wayId
+  var wayVersionId
+  var keyIds
+  var forkBRefs
+  var osmServer
+
+  // Run the test steps
+  waterfall([
+    step1,
+    step2,
+    step3,
+    step4,
+    step5,
+    step6,
+    step7,
+    step8,
+    step9
+  ], function (err) {
+    t.error(err)
+  })
+
+  // 1. Create base way
+  function step1 (done) {
+    createChangeset(osmBase, function (err, cs) {
+      t.error(err)
+      createNodes(osmBase, nodes, cs, function (keys) {
+        keyIds = keys
+        createWay(osmBase, keys, cs, function (err, way, wayVersion) {
+          t.error(err)
+          wayId = way
+          wayVersionId = wayVersion
+          done()
+        })
+      })
+    })
+  }
+
+  // 2. Replicate base osm to fork A osm
+  function step2 (done) {
+    sync(osmBase.log, osmForkA.log, function (err) {
+      if (err) return done(err)
+      osmForkB.ready(done)
+    })
+  }
+
+  // 3. Modify the way's tags
+  function step5 (done) {
+    createChangeset(osmForkB, function (err, cs) {
+      t.error(err)
+      updateWay(osmForkB, wayId, wayVersionId, keyIds, cs, { foo: 'bar' }, function (err, way) {
+        t.error(err)
+        done()
+      })
+    })
+  }
+
+  // 4. Replicate base osm to fork B osm
+  function step4 (done) {
+    sync(osmBase.log, osmForkB.log, function (err) {
+      if (err) return done(err)
+      osmForkB.ready(done)
+    })
+  }
+
+  // 5. Delete the way
+  function step3 (done) {
+    createChangeset(osmForkA, function (err, cs) {
+      t.error(err)
+      deleteWay(osmForkA, wayId, cs, function (err) {
+        t.error(err)
+        done()
+      })
+    })
+  }
+
+  // 6. Replicate fork A and fork B
+  function step6 (done) {
+    sync(osmForkA.log, osmForkB.log, function (err) {
+      if (err) return done(err)
+      osmForkB.ready(done)
+    })
+  }
+
+  // 7. Create an osm-p2p-server instance from fork A
+  function step7 (done) {
+    createServer(function (d) {
+      osmServer = d
+      done()
+    })
+  }
+
+  // 8. Replicate fork A and the server
+  function step8 (done) {
+    sync(osmServer.osm.log, osmForkA.log, function (err) {
+      t.error(err)
+      osmServer.osm.ready(done)
+    })
+  }
+
+  // 9. Run an http query on the server to see which way & points are returned
+  function step9 (done) {
+    var opts = {
+      hostname: 'localhost',
+      port: url.parse(osmServer.base).port,
+      path: '/api/0.6/map?bbox=-90,-90,90,90',
+      headers: {
+        'Accept': 'application/json'
+      }
+    }
+    http.get(opts, function (res) {
+      res.pipe(concat(function (json) {
+        console.log(json.toString())
+        var data = JSON.parse(json)
+        var nodeIds = data.elements
+          .filter(function (elm) { return elm.type === 'node' })
+          .map(function (elm) { return elm.id })
+        var ways = data.elements.filter(function (elm) { return elm.type === 'way' })
+
+        // TODO: write comment here
+        t.equal(ways.length, 1)
+        t.equal(nodeIds.length, 3)
+
+        osmServer.server.cleanup(done)
+      }))
+    })
+  }
+})
+
 // creates a list of nodes
 function createNodes (osm, nodes, changesetId, done) {
   var keys = []
@@ -411,6 +569,16 @@ function deleteNode (osm, nodeId, changesetId, done) {
   osm.batch([op], done)
 }
 
+// deletes a way
+function deleteWay (osm, wayId, changesetId, done) {
+  var op = {
+    type: 'del',
+    key: wayId,
+    value: { type: 'way', changeset: changesetId }
+  }
+  osm.batch([op], done)
+}
+
 // creates a changeset with a way and nodes
 function createWay (osm, nodeIds, changesetId, done) {
   osm.create({
@@ -424,10 +592,15 @@ function createWay (osm, nodeIds, changesetId, done) {
 }
 
 // updates a changeset with a way and nodes
-function updateWay (osm, way, parentId, refs, changesetId, done) {
+function updateWay (osm, way, parentId, refs, changesetId, attributes, done) {
+  if (typeof attributes === 'function') {
+    done = attributes
+    attributes = {}
+  }
   osm.put(way, {
     type: 'way',
     refs: refs,
+    tags: attributes,
     changeset: changesetId,
     timestamp: (new Date()).toISOString()
   },
