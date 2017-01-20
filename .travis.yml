@@ -5,3 +5,4 @@ notifications:
   email: false
 env:
   - OSM_P2P_DB_DELAY=200
+after_success: npm run coverage
