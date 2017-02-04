@@ -357,22 +357,40 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 9. Run an http query on the server to see which way & points are returned
   function step9 (done) {
-    var opts = {
-      hostname: 'localhost',
-      port: url.parse(osmServer.base).port,
-      path: '/api/0.6/map?bbox=-90,-90,90,90',
-      headers: {
-        'Accept': 'application/json'
-      }
-    }
-    http.get(opts, function (res) {
-      res.pipe(concat(function (json) {
-        var data = JSON.parse(json)
-        var nodeIds = data.elements
-          .filter(function (elm) { return elm.type === 'node' })
-          .map(function (elm) { return elm.id })
-        var ways = data.elements.filter(function (elm) { return elm.type === 'way' })
 
+    function query (forks, done) {
+      var opts = {
+        hostname: 'localhost',
+        port: url.parse(osmServer.base).port,
+        path: '/api/0.6/map?bbox=-90,-90,90,90' + (forks ? '&forks=true' : ''),
+        headers: {
+          'Accept': 'application/json'
+        }
+      }
+      http.get(opts, function (res) {
+        res.pipe(concat(function (json) {
+          done(null, json)
+        }))
+      })
+    }
+
+    query(false, function (_, json) {
+      var data = JSON.parse(json)
+      var nodeIds = data.elements
+        .filter(function (elm) { return elm.type === 'node' })
+        .map(function (elm) { return elm.id })
+      var ways = data.elements.filter(function (elm) { return elm.type === 'way' })
+
+      // TODO(noffle): Test for a failure, and if so, dump lots of debug
+      // information so we can try and track down this bug
+      // (https://github.com/digidem/osm-p2p-server/issues/28)
+      if (nodeIds.length !== 2) {
+        console.error('ERROR -- show @noffle this output!')
+        query(true, function (_, json) {
+          console.error(json.toString())
+          osmServer.server.cleanup(done)
+        })
+      } else {
         // Ensure the way present matches the deleted fork, and the extra node
         // is not returned.
         t.equal(ways.length, 1)
@@ -380,7 +398,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
         t.deepEqual(nodeIds.sort(), forkBRefs.sort())
 
         osmServer.server.cleanup(done)
-      }))
+      }
     })
   }
 })
