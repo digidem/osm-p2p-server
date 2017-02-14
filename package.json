@@ -63,7 +63,7 @@
     "osm-p2p-db": "^3.9.1",
     "run-waterfall": "^1.1.3",
     "standard": "^8.0.0",
-    "tap": "^9.0.3",
+    "tap": "^10.1.0",
     "tape": "^4.4.0",
     "xml-parser": "^1.2.1"
   },
@@ -71,7 +71,7 @@
     "example": "example"
   },
   "scripts": {
-    "test": "nyc tap -Rtap --timeout=0 'test/**/*.js'",
+    "test": "nyc tap --no-timeout -j4 'test/**/*.js'",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "lint": "standard"
   },
