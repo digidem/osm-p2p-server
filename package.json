@@ -71,7 +71,7 @@
     "example": "example"
   },
   "scripts": {
-    "test": "nyc tap 'test/**/*.js'",
+    "test": "nyc tap -Rtap 'test/**/*.js'",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "lint": "standard"
   },
