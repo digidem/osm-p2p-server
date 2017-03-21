@@ -77,3 +77,28 @@ test('replacePlaceholderIds: placeholder ids can be duplicated between types', t
     t.end()
   })
 })
+
+test('replacePlaceholderIds: input order', t => {
+  var input = [
+    {action: 'create', type: 'way', id: 'A', nodes: ['A', 'B']},
+    {action: 'modify', type: 'way', id: 'B', nodes: ['A', 'X']},
+    {action: 'create', type: 'node', id: 'A'},
+    {action: 'create', type: 'node', id: 'B'}
+  ]
+  replacePlaceholderIds(input, function (err, result) {
+    t.error(err)
+    // The ways should be at the bottom now.
+    var wayA = result[2]
+    var wayB = result[3]
+    t.notEqual(wayA.nodes[0], 'A', 'way node id replaced')
+    t.notEqual(wayA.nodes[1], 'B', 'way node id replaced')
+    t.notEqual(wayB.nodes[0], 'A', 'way node id replaced')
+    t.equal(wayB.nodes[1], 'X', 'way node id replaced')
+    var nodeA = result[0]
+    var nodeB = result[1]
+    t.notEqual(nodeA.id, input[2].id, 'id replaced')
+    t.notEqual(nodeB.id, input[3].id, 'id replaced')
+    // Ids should be replaced for way nodes.
+    t.end()
+  })
+})
