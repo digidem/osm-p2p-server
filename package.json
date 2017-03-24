@@ -17,7 +17,7 @@
     "maps",
     "geo"
   ],
-  "author": "substack",
+  "author": ["substack", "gmaclennan", "noffle"],
   "contributors": [
     {
       "name": "Gregor MacLennan",
@@ -30,7 +30,7 @@
     "accepts": "^1.3.3",
     "base-convertor": "^1.1.0",
     "collect-stream": "^1.1.1",
-    "collect-transform-stream": "0.0.1",
+    "collect-transform-stream": "0.0.2",
     "content-type": "^1.0.2",
     "debug": "^2.2.0",
     "from2-array": "0.0.4",
