@@ -1,8 +1,8 @@
 var collect = require('collect-stream')
 var pumpify = require('pumpify')
 var mapStream = require('through2-map')
-var collectTransform = require('../lib/collect-transform-stream')
-var filterForkedElements = require('../lib/filter_forked_elements')
+var collectTransform = require('collect-transform-stream')
+var defork = require('osm-p2p-defork')
 
 var refs2nodes = require('../lib/util').refs2nodes
 var checkRefExist = require('../lib/check_ref_ex.js')
@@ -25,7 +25,7 @@ module.exports = function (osm) {
     // If forks ought to be filtered out, add another step to the pipeline that
     // does so.
     if (!opts.forks) {
-      pipeline.push(filterForkedElementsStream())
+      pipeline.push(deforkStream())
     }
 
     var queryStreamJson = pumpify.obj.apply(this, pipeline)
@@ -40,6 +40,13 @@ module.exports = function (osm) {
   }
 }
 
-function filterForkedElementsStream () {
-  return collectTransform(filterForkedElements)
+function deforkStream () {
+  return collectTransform(function (res) {
+    return defork(res).sort(cmpType)
+  })
+}
+
+var typeOrder = { node: 0, way: 1, relation: 2 }
+function cmpType (a, b) {
+  return typeOrder[a.type] - typeOrder[b.type]
 }
