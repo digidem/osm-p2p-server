@@ -2,6 +2,25 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## [2.1.3]
+### Added
+- Added `nyc` for test running, `codecov` for coverage
+### Changed
+- Upgraded `collect-transform-stream@1.1.1`
+- Use TAP v10 + parallel tests
+- Removed timeout on tests
+### Fixed
+- Fixed OSM API upload failing when ways come before nodes ([#31](https://github.com/digidem/osm-p2p-server/issues/31))
+
+## [2.1.2]
+### Fixed
+- Removed unused dev dependency (was already a regular dep)
+
+## [2.1.1]
+### Fixed
+- Removed rogue `console.log`
+
 ## [2.1.0]
 ### Added
 - Add a timestamp to elements in a changeset upload with creation/modification time (on the server)
