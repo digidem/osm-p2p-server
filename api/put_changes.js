@@ -79,6 +79,7 @@ function batchMap (change) {
     key: change.id,
     value: {}
   }
+  if (change.action === 'create') op.links = []
   if (change.action !== 'create' && change.version) {
     op.links = change.version.split(/\s*,\s*/).filter(Boolean)
   }
