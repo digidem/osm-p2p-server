@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+- Add empty links array to new element in changelog uploads, avoids unnecessary lookups in hyperkv for previous versions of a new element
+
 ## [2.1.4]
 ### Fixed
 - Fixed incorrect case where nodes belonging to a deleted way were being
