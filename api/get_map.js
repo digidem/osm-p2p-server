@@ -3,6 +3,7 @@ var pumpify = require('pumpify')
 var mapStream = require('through2-map')
 var collectTransform = require('collect-transform-stream')
 var defork = require('osm-p2p-defork')
+var through = require('through2')
 
 var refs2nodes = require('../lib/util').refs2nodes
 var checkRefExist = require('../lib/check_ref_ex.js')
@@ -16,8 +17,16 @@ module.exports = function (osm) {
     opts.forks = opts.forks || false
 
     var query = [[bbox[1], bbox[3]], [bbox[0], bbox[2]]] // left,bottom,right,top
+
+    // For now, filter deletions (until downstream can handle them)
+    var deletionFilter = through.obj(function (chunk, enc, next) {
+      if (!chunk.deleted) next(null, chunk)
+      else next()
+    })
+
     var pipeline = [
       osm.queryStream(query, opts),
+      deletionFilter,
       checkRefExist(osm),
       mapStream.obj(refs2nodes)
     ]
