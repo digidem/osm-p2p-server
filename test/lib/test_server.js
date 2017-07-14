@@ -1,12 +1,8 @@
-var tmpdir = require('os').tmpdir()
-var path = require('path')
 var http = require('http')
-var rimraf = require('rimraf')
-var mkdirp = require('mkdirp')
 var osmdb = require('osm-p2p-db')
 var memdb = require('memdb')
 var hyperlog = require('hyperlog')
-var fdstore = require('fd-chunk-store')
+var memstore = require('memory-chunk-store')
 
 var osmrouter = require('../../')
 var slowdb = require('./slowdb.js')
@@ -14,13 +10,10 @@ var slowdb = require('./slowdb.js')
 var DELAY = process.env.OSM_P2P_DB_DELAY
 
 function testServer (cb) {
-  var dir = path.join(tmpdir, 'osm-p2p-server-test-' + Math.random())
-  mkdirp.sync(dir)
-
   var osm = osmdb({
     db: DELAY ? slowdb({delay: DELAY}) : memdb(),
     log: hyperlog(memdb(), { valueEncoding: 'json' }),
-    store: fdstore(4096, path.join(dir, 'kdb'))
+    store: memstore(4096)
   })
   var router = osmrouter(osm)
 
@@ -33,7 +26,6 @@ function testServer (cb) {
   })
   server.cleanup = function (cb) {
     server.close()
-    rimraf.sync(dir)
     cb()
   }
   server.listen(0, function () {

@@ -1,7 +1,5 @@
 var test = require('tape')
-var path = require('path')
-var tmpdir = require('os').tmpdir()
-var osmdb = require('osm-p2p')
+var osmdb = require('../lib/test_db')
 
 var createGetElement = require('../../api/get_element')
 
@@ -71,7 +69,7 @@ test('getElement - specific version', t => {
 
 test('getElement missing error', t => {
   t.plan(3)
-  var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
+  var osm = osmdb()
   var getElement = createGetElement(osm)
   getElement(12345, 'A', (err, elements) => {
     t.true(err instanceof Error, 'returns error')

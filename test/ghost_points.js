@@ -1,8 +1,7 @@
 var test = require('tape')
 var hyperlog = require('hyperlog')
 var memdb = require('memdb')
-var path = require('path')
-var fdstore = require('fd-chunk-store')
+var memstore = require('memory-chunk-store')
 var osmdb = require('osm-p2p-db')
 var http = require('http')
 var url = require('url')
@@ -11,18 +10,16 @@ var waterfall = require('run-waterfall')
 var eos = require('end-of-stream')
 var once = require('once')
 
-var tmpdir = require('os').tmpdir()
 var createServer = require('./lib/test_server.js')
 var slowdb = require('./lib/slowdb.js')
 
 var DELAY = process.env.OSM_P2P_DB_DELAY
 
 function createOsm () {
-  var storefile = path.join(tmpdir, 'osm-store-' + Math.random())
   return osmdb({
     log: hyperlog(memdb(), { valueEncoding: 'json' }),
     db: DELAY ? slowdb({delay: DELAY}) : memdb(),
-    store: fdstore(4096, storefile)
+    store: memstore(4096)
   })
 }
 

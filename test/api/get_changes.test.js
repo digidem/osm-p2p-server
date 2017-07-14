@@ -1,12 +1,10 @@
 var test = require('tape')
-var path = require('path')
-var tmpdir = require('os').tmpdir()
-var osmdb = require('osm-p2p')
+var osmdb = require('../lib/test_db')
 
 var createGetChanges = require('../../api/get_changes')
 var refs2nodes = require('../../lib/util').refs2nodes
 
-var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
+var osm = osmdb()
 var getChanges = createGetChanges(osm)
 
 var batch0 = [

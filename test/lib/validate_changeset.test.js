@@ -1,11 +1,9 @@
 var test = require('tape')
-var tmpdir = require('os').tmpdir()
-var path = require('path')
-var osmdb = require('osm-p2p')
+var osmdb = require('./test_db')
 
 var validateChangeset = require('../../lib/validate_changeset')
 
-var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
+var osm = osmdb()
 
 var versions = {}
 

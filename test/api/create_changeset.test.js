@@ -1,7 +1,5 @@
 var test = require('tape')
-var path = require('path')
-var tmpdir = require('os').tmpdir()
-var osmdb = require('osm-p2p')
+var osmdb = require('../lib/test_db')
 var isISODate = require('isostring')
 
 var createCreateChangeset = require('../../api/create_changeset')
@@ -39,7 +37,7 @@ test('createChangeset', t => {
 
 test('createChangeset real db', t => {
   t.plan(5)
-  var osm = osmdb(path.join(tmpdir, 'osm-p2p-server-test-' + Math.random()))
+  var osm = osmdb()
   var testChangeset = {
     type: 'changeset',
     tags: {
