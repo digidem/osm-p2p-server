@@ -18,8 +18,21 @@ module.exports = function (osm) {
 
     var query = [[bbox[1], bbox[3]], [bbox[0], bbox[2]]] // left,bottom,right,top
 
-    // For now, filter deletions (until downstream can handle them)
+    // For now, filter deletions (until downstream can handle them).
+    //
+    // This also involves removing references to deleted nodes from ways (iD
+    // handles this poorly). This relies on the fact that nodes come before
+    // ways from the osm-p2p-db query.
+    var nodesSeen = {}
     var deletionFilter = through.obj(function (chunk, enc, next) {
+      if (chunk.type === 'node') {
+        nodesSeen[chunk.id] = true
+      } else if (chunk.type === 'way') {
+        chunk.refs = chunk.refs.filter(function (id) {
+          return !!nodesSeen[id]
+        })
+      }
+
       if (!chunk.deleted) next(null, chunk)
       else next()
     })
