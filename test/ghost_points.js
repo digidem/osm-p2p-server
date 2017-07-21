@@ -400,6 +400,123 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
   }
 })
 
+// In this scenario, 4 nodes are created. A way containing the first three
+// nodes is also created. Then, that way is modified to point to the 4th node,
+// and no longer point to the 1st node. The resulting query should not show
+// any trace of the 1st node.
+test('query doesnt return node no longer in modified way', function (t) {
+  t.plan(9)
+
+  var osmServer
+  var osmServerBase
+  var osmBase
+
+  // Has the base way
+  createServer(function (d) {
+    osmServer = d.server
+    osmBase = d.osm
+    osmServerBase = d.base
+
+    // Run the test steps
+    waterfall([
+      step1,
+      step2,
+      step3
+    ], function (err) {
+      t.error(err)
+    })
+  })
+
+  var nodes = [
+    {
+      type: 'node',
+      lon: 0,
+      lat: 0
+    },
+    {
+      type: 'node',
+      lon: 1,
+      lat: 1
+    },
+    {
+      type: 'node',
+      lon: 2,
+      lat: 2
+    },
+    {
+      type: 'node',
+      lon: 3,
+      lat: 3
+    }
+  ]
+
+  var wayId
+  var wayVersionId
+  var keyIds
+
+  // 1. Create base way
+  function step1 (done) {
+    createChangeset(osmBase, function (err, cs) {
+      t.error(err)
+      createNodes(osmBase, nodes, cs, function (keys) {
+        keyIds = keys
+        createWay(osmBase, keys.slice(0, 3), cs, function (err, way, wayVersion) {
+          t.error(err)
+          wayId = way
+          wayVersionId = wayVersion
+          done()
+        })
+      })
+    })
+  }
+
+  // 2. Write modifications to fork A
+  function step2 (done) {
+    var node = {
+      type: 'node',
+      lon: 10,
+      lat: 10
+    }
+    createChangeset(osmBase, function (err, cs) {
+      t.error(err)
+      updateWay(osmBase, wayId, wayVersionId, keyIds.slice(1, 4), cs, function (err, way) {
+        t.error(err)
+        wayId = way.value.k
+        done()
+      })
+    })
+  }
+
+  // 3. Run an http query on the server to see which way & points are returned
+  function step3 (done) {
+    var opts = {
+      hostname: 'localhost',
+      port: url.parse(osmServerBase).port,
+      path: '/api/0.6/map?bbox=-90,-90,90,90',
+      headers: {
+        'Accept': 'application/json'
+      }
+    }
+    http.get(opts, function (res) {
+      res.pipe(concat(function (json) {
+        var data = JSON.parse(json)
+        var nodeIds = data.elements
+          .filter(function (elm) { return elm.type === 'node' })
+          .map(function (elm) { return elm.id })
+        var ways = data.elements
+          .filter(function (elm) { return elm.type === 'way' })
+
+        t.equal(ways.length, 1)
+        t.deepEqual(ways[0].id, wayId)
+        t.deepEqual(ways[0].nodes.sort(), keyIds.slice(1, 4).sort())
+        t.deepEqual(nodeIds.sort(), keyIds.slice(1, 4).sort())
+
+        osmServer.cleanup(done)
+      }))
+    })
+  }
+})
+
 // creates a list of nodes
 function createNodes (osm, nodes, changesetId, done) {
   var keys = []
