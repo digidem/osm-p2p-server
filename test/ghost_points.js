@@ -354,7 +354,6 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 9. Run an http query on the server to see which way & points are returned
   function step9 (done) {
-
     function query (forks, done) {
       var opts = {
         hostname: 'localhost',
