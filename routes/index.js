@@ -14,6 +14,5 @@ route('GET /api/0.6/:type(node|way|relation)/:id/:version', require('./element_v
 route('GET /api/0.6/:type(nodes|ways|relations)', require('./element_multi_fetch.js'))
 route('GET /api/0.6/:type(node|way|relation)/:id', require('./element_read.js'))
 route('DELETE /api/0.6/:type(node|way|relation)/:id', require('./element_delete'))
-route('GET /export', require('./export.js'))
 
 module.exports = router

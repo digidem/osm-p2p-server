@@ -77,7 +77,6 @@ usage: osm-p2p-server {OPTIONS}
 - [x] `GET /api/0.6/:type(node|way|relation)/:id`
 - [x] `GET /api/0.6/:type(node|way|relation)/:id/history`
 - [ ] `GET /api/0.6/:type(way|relation)/:id/full`
-- [x] `GET /export` (non-OSM API)
 
 ## API
 
