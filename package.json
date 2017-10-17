@@ -1,6 +1,6 @@
 {
   "name": "osm-p2p-server",
-  "version": "2.3.4",
+  "version": "2.3.5",
   "description": "Peer-to-peer OpenStreetMap API v0.6 Server",
   "main": "index.js",
   "bin": {
