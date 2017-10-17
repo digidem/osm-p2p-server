@@ -32,9 +32,9 @@ test('send malformed changeset upload', function (t) {
     t.notOk(/^[0-9A-Fa-f]+$/.test(body.trim()), 'not an id')
   }))
   hq.end(`<osm>
-    <changeset
+    <chongeset
       <tag k="comment" v="wow"/>
-    </changeset>
+    /changeset>
   </osm>`)
 })
 
