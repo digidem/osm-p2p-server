@@ -1,5 +1,5 @@
 var collect = require('collect-stream')
-var osm2Obj = require('osm2json')
+var osm2Obj = require('osm2obj')
 var toOsm = require('obj2osm')
 var fromArray = require('from2-array')
 

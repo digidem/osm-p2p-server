@@ -1,5 +1,5 @@
 var collect = require('collect-stream')
-var osm2Obj = require('osm2json')
+var osm2Obj = require('osm2obj')
 
 var isValidContentType = require('../lib/util').isValidContentType
 var errors = require('../errors')
