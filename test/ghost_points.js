@@ -1,8 +1,4 @@
 var test = require('tape')
-var hyperlog = require('hyperlog')
-var memdb = require('memdb')
-var memstore = require('memory-chunk-store')
-var osmdb = require('osm-p2p-db')
 var http = require('http')
 var url = require('url')
 var concat = require('concat-stream')
@@ -11,17 +7,10 @@ var eos = require('end-of-stream')
 var once = require('once')
 
 var createServer = require('./lib/test_server.js')
+var createOsm = require('./lib/test_db')
 var slowdb = require('./lib/slowdb.js')
 
 var DELAY = process.env.OSM_P2P_DB_DELAY
-
-function createOsm () {
-  return osmdb({
-    log: hyperlog(memdb(), { valueEncoding: 'json' }),
-    db: DELAY ? slowdb({delay: DELAY}) : memdb(),
-    store: memstore(4096)
-  })
-}
 
 test('do not include points from an excluded way fork', function (t) {
   t.plan(10)
@@ -95,7 +84,7 @@ test('do not include points from an excluded way fork', function (t) {
 
   // 2. Replicate base osm to fork A osm
   function step2 (done) {
-    sync(osmBase.log, osmForkA.log, function (err) {
+    sync(osmBase, osmForkA, function (err) {
       if (err) return done(err)
       osmForkB.ready(done)
     })
@@ -124,7 +113,7 @@ test('do not include points from an excluded way fork', function (t) {
 
   // 4. Replicate base osm to fork B osm
   function step4 (done) {
-    sync(osmBase.log, osmForkB.log, function (err) {
+    sync(osmBase, osmForkB, function (err) {
       if (err) return done(err)
       osmForkB.ready(done)
     })
@@ -152,7 +141,7 @@ test('do not include points from an excluded way fork', function (t) {
 
   // 6. Replicate fork A and fork B
   function step6 (done) {
-    sync(osmForkA.log, osmForkB.log, function (err) {
+    sync(osmForkA, osmForkB, function (err) {
       if (err) return done(err)
       osmForkB.ready(done)
     })
@@ -168,7 +157,7 @@ test('do not include points from an excluded way fork', function (t) {
 
   // 8. Replicate fork A and the server
   function step8 (done) {
-    sync(osmServer.osm.log, osmForkA.log, function (err) {
+    sync(osmServer.osm, osmForkA, function (err) {
       t.error(err)
       osmServer.osm.ready(done)
     })
@@ -280,7 +269,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 2. Replicate base osm to fork A osm
   function step2 (done) {
-    sync(osmBase.log, osmForkA.log, function (err) {
+    sync(osmBase, osmForkA, function (err) {
       if (err) return done(err)
       osmForkB.ready(done)
     })
@@ -308,7 +297,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 4. Replicate base osm to fork B osm
   function step4 (done) {
-    sync(osmBase.log, osmForkB.log, function (err) {
+    sync(osmBase, osmForkB, function (err) {
       if (err) return done(err)
       osmForkB.ready(done)
     })
@@ -330,7 +319,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 6. Replicate fork A and fork B
   function step6 (done) {
-    sync(osmForkA.log, osmForkB.log, function (err) {
+    sync(osmForkA, osmForkB, function (err) {
       if (err) return done(err)
       osmForkB.ready(done)
     })
@@ -346,7 +335,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 8. Replicate fork A and the server
   function step8 (done) {
-    sync(osmServer.osm.log, osmForkA.log, function (err) {
+    sync(osmServer.osm, osmForkA, function (err) {
       t.error(err)
       osmServer.osm.ready(done)
     })
@@ -460,12 +449,12 @@ function createChangeset (osm, done) {
   })
 }
 
-function sync (log1, log2, done) {
+function sync (db1, db2, done) {
   done = once(done)
-  var r1 = log1.replicate()
+  var r1 = db1.createReplicationStream()
   eos(r1, onEnd)
 
-  var r2 = log2.replicate()
+  var r2 = db2.createReplicationStream()
   eos(r2, onEnd)
 
   r1.pipe(r2).pipe(r1)

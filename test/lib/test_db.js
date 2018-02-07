@@ -1,17 +1,19 @@
-var osmdb = require('osm-p2p-db')
 var memdb = require('memdb')
-var hyperlog = require('hyperlog')
-var memstore = require('memory-chunk-store')
+var hyperdb = require('hyperdb')
+var hyperosm = require('hyperdb-osm')
+var ram = require('random-access-memory')
+var Grid = require('grid-point-store')
 
 var slowdb = require('./slowdb.js')
 
 var DELAY = process.env.OSM_P2P_DB_DELAY
 
 function testDb (cb) {
-  return osmdb({
-    db: DELAY ? slowdb({delay: DELAY}) : memdb(),
-    log: hyperlog(memdb(), { valueEncoding: 'json' }),
-    store: memstore(4096)
+  var db = hyperdb(ram, { valueEncoding: 'json' })
+  return hyperosm({
+    db: db,
+    index: DELAY ? slowdb({delay: DELAY}) : memdb(),
+    pointstore: Grid({ store: memdb(), zoomLevel: 8 })
   })
 }
 
