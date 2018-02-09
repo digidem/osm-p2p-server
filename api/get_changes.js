@@ -31,7 +31,7 @@ module.exports = function (osm) {
         return onError(new errors.NotFound('changeset id: ' + id))
       }
       // An object stream {key: versionId, value: 0}
-      var r = osm.changeset.list(id, opts)
+      var r = osm.getChanges(id)
       r.on('error', onError)
       r.pipe(stream)
     })
@@ -46,13 +46,8 @@ module.exports = function (osm) {
 
     function getDoc (row, enc, next) {
       var self = this
-      osm.log.get(row.key, function (err, doc) {
+      osm.getByVersion(row.version, function (err, element) {
         if (err) return next(err)
-        var element = xtend(doc.value.v, {
-          id: doc.value.k,
-          version: doc.key,
-          action: getAction(doc)
-        })
         self.push(refs2nodes(element))
         next()
       })
@@ -72,10 +67,4 @@ function isChangeset (docs) {
     if (docs[version].type === 'changeset') result = true
   })
   return result
-}
-
-function getAction (doc) {
-  if (doc.links.length === 0 && doc.value.d === undefined) return 'create'
-  if (doc.links.length > 0 && doc.value.d === undefined) return 'modify'
-  if (doc.value.d !== undefined) return 'delete'
 }

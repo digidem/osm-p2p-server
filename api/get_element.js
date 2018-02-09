@@ -37,7 +37,7 @@ module.exports = function (osm) {
   }
 
   function getVersion (id, version, cb) {
-    osm.log.get(version, function (err, doc) {
+    osm.getByVersion(version, function (err, doc) {
       if (err && (/^notfound/.test(err) || err.notFound)) {
         err = errors(404, err)
       }
