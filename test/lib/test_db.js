@@ -8,8 +8,10 @@ var slowdb = require('./slowdb.js')
 
 var DELAY = process.env.OSM_P2P_DB_DELAY
 
-function testDb (cb) {
-  var db = hyperdb(ram, { valueEncoding: 'json' })
+function testDb (key) {
+  var db
+  if (key) db = hyperdb(ram, key ? key : undefined, { valueEncoding: 'json' })
+  else db = hyperdb(ram, { valueEncoding: 'json' })
   return hyperosm({
     db: db,
     index: DELAY ? slowdb({delay: DELAY}) : memdb(),
@@ -17,4 +19,35 @@ function testDb (cb) {
   })
 }
 
+function createTwo (cb) {
+  var a = testDb()
+  a.db.ready(function () {
+    var b = testDb(a.db.key)
+    b.db.ready(function () {
+      a.db.authorize(b.db.local.key, function () {
+        cb(a, b)
+      })
+    })
+  })
+}
+
+function createThree (cb) {
+  var a = testDb()
+  a.db.ready(function () {
+    var b = testDb(a.db.key)
+    b.db.ready(function () {
+      a.db.authorize(b.db.local.key, function () {
+        var c = testDb(a.db.key)
+        c.db.ready(function () {
+          a.db.authorize(c.db.local.key, function () {
+            cb(a, b, c)
+          })
+        })
+      })
+    })
+  })
+}
+
 module.exports = testDb
+module.exports.createTwo = createTwo
+module.exports.createThree = createThree
