@@ -56,10 +56,11 @@ test('add docs to changeset', function (t) {
     { id: 'E', type: 'node', lat: 65.3, lon: -120.8, changeset: changeId },
     { id: 'F', type: 'node', lat: 60.6, lon: -122.3, changeset: changeId },
     { id: 'G', type: 'way', refs: ['A', 'B', 'C'], changeset: changeId },
-    { id: 'H', type: 'way', refs: ['D', 'E'], changeset: changeId },
+    { id: 'H', type: 'way', refs: ['D', 'E', 'C'], changeset: changeId },
     { id: 'I',
       type: 'relation',
       changeset: changeId,
+      tags: { name: 'Küstenbus Linie 123' },
       members: [
         { type: 'node', ref: 'F' },
         { type: 'way', ref: 'G' },
@@ -112,8 +113,9 @@ test('add docs to changeset', function (t) {
       </way></osm>`)
     } else if (doc.type === 'relation') {
       hq.end(`<osm><relation changeset="${doc.changeset}">
+        <tag k="name" v="Küstenbus Linie 123"/>
         ${doc.members.map(function (member) {
-          return `<member type="${member.type}" ref="${member.ref}" />`
+          return `<member type="${member.type}" ref="${member.ref}"/>`
         }).join('')}
       </relation></osm>`)
     }
@@ -145,7 +147,7 @@ test('multi-fetch ways', function (t) {
 })
 
 test('get relation', function (t) {
-  t.plan(6)
+  t.plan(7)
   var href = base + 'relation/' + keys.I
   var hq = hyperquest(href, {
     headers: { 'content-type': 'text/xml' }
@@ -160,19 +162,33 @@ test('get relation', function (t) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osm')
     t.equal(xml.root.children[0].name, 'relation')
-    var members = xml.root.children[0].children.map(function (x) {
-      return { name: x.name, attributes: x.attributes }
-    })
+    var members = xml.root.children[0].children
+      .filter(function (x) {
+        return x.name === 'member'
+      })
+      .map(function (x) {
+        return { name: x.name, attributes: x.attributes }
+      })
+    var tags = xml.root.children[0].children
+      .filter(function (x) {
+        return x.name === 'tag'
+      })
+      .map(function (x) {
+        return { k: x.attributes.k, v: x.attributes.v }
+      })
     t.deepEqual(members, [
       { name: 'member', attributes: { type: 'node', ref: keys.F, role: '' } },
       { name: 'member', attributes: { type: 'way', ref: keys.G, role: '' } },
       { name: 'member', attributes: { type: 'way', ref: keys.H, role: '' } }
     ], 'relation members')
+    t.deepEqual(tags, [
+      { k: 'name', v: 'Küstenbus Linie 123' }
+    ], 'relation tags')
   }))
 })
 
 test('get osmchange doc', function (t) {
-  t.plan(4)
+  t.plan(3)
   var href = base + 'changeset/' + changeId + '/download'
   var hq = hyperquest(href, {
     headers: { 'content-type': 'text/xml' }
@@ -180,12 +196,11 @@ test('get osmchange doc', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osmChange')
-    t.equal(xml.root.children.length, 1)
-    t.equal(xml.root.children[0].name, 'create')
-    xml.root.children[0].children.forEach(function (c) {
+    t.equal(xml.root.children.length, 9)
+    xml.root.children.forEach(function (c) {
       delete c.attributes.timestamp
     })
-    t.deepEqual(chfilter(xml.root.children[0].children).sort(cmpch), [
+    t.deepEqual(chfilter(xml.root.children).sort(cmpch), [
       { name: 'node',
         attributes: { id: keys.A, changeset: changeId, lat: '64.5', lon: '-121.5' },
         children: []
@@ -230,7 +245,8 @@ test('get osmchange doc', function (t) {
         attributes: { id: keys.H, changeset: changeId },
         children: [
           { name: 'nd', attributes: { ref: keys.D }, children: [] },
-          { name: 'nd', attributes: { ref: keys.E }, children: [] }
+          { name: 'nd', attributes: { ref: keys.E }, children: [] },
+          { name: 'nd', attributes: { ref: keys.C }, children: [] }
         ],
         content: ''
       },
@@ -240,7 +256,8 @@ test('get osmchange doc', function (t) {
         children: [
           { name: 'member', attributes: { type: 'node', ref: keys.F, role: '' }, children: [] },
           { name: 'member', attributes: { type: 'way', ref: keys.G, role: '' }, children: [] },
-          { name: 'member', attributes: { type: 'way', ref: keys.H, role: '' }, children: [] }
+          { name: 'member', attributes: { type: 'way', ref: keys.H, role: '' }, children: [] },
+          { name: 'tag', attributes: { k: 'name', v: 'Küstenbus Linie 123' }, children: [] },
         ],
         content: ''
       }
