@@ -29,7 +29,7 @@ module.exports = function (osm) {
       forks = forks.map(function (key) {
         return xtend(docs[key], {
           id: id,
-          version: key
+          version: docs[key].version
         })
       }).map(refs2nodes)
       cb(null, forks)
@@ -42,11 +42,7 @@ module.exports = function (osm) {
         err = errors(404, err)
       }
       if (err) return cb(err)
-      var element = xtend(doc.value.v, {
-        id: id,
-        version: version
-      })
-      cb(null, refs2nodes(element))
+      cb(null, refs2nodes(doc))
     })
   }
 
