@@ -43,7 +43,7 @@ module.exports = function (osm) {
           }
           if (change.action !== 'delete') {
             diff.new_id = id
-            diff.new_version = node.key
+            diff.new_version = node.version
           }
           return diff
         })
@@ -81,7 +81,8 @@ function batchMap (change) {
   }
   if (change.action === 'create') op.links = []
   if (change.action !== 'create' && change.version) {
-    op.links = change.version.split(/\s*,\s*/).filter(Boolean)
+    // TODO(noffle): support me! needs https://github.com/mafintosh/hyperdb/issues/42
+    // op.links = change.version.split(/\s*,\s*/).filter(Boolean)
   }
   Object.keys(change).forEach(function (prop) {
     if (SKIP_PROPS.indexOf(prop) > -1) return
