@@ -51,6 +51,7 @@ module.exports = function (osm) {
   }
 
   function getHistory (id, cb) {
+    // TODO: use hyperdb's gethistorystream (better: expose on hyperdb-osm)
     var r = osm.kv.createHistoryStream(id).on('error', function (err) {
       if (/^notfound/i.test(err) || err.notFound) {
         err = new errors.NotFound('element id: ' + id)

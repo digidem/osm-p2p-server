@@ -48,6 +48,8 @@ module.exports = function (osm) {
       var self = this
       osm.getByVersion(row.version, function (err, element) {
         if (err) return next(err)
+        // TODO(noffle): set this correctly once https://github.com/mafintosh/hyperdb/issues/42 is solved
+        element.action = 'unknown'
         self.push(refs2nodes(element))
         next()
       })
