@@ -35,7 +35,7 @@ module.exports = function (osm) {
       osm.batch(batch, function (err, nodes) {
         if (err) return cb(err)
         var diffResult = nodes.map(function (node) {
-          var id = node.value.k || node.value.d
+          var id = node.id
           var change = byId[id]
           var diff = {
             type: change.type,
@@ -76,7 +76,7 @@ var SKIP_PROPS = ['action', 'id', 'version', 'ifUnused', 'old_id']
 function batchMap (change) {
   var op = {
     type: change.action === 'delete' ? 'del' : 'put',
-    key: change.id,
+    id: change.id,
     value: {}
   }
   if (change.action === 'create') op.links = []
