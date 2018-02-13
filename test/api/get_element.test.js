@@ -52,13 +52,13 @@ test('getElement - specific version', t => {
   var testDoc = {
     value: {v: {refs: [1, 2]}}
   }
-  var mockedOsm = { log: {
-    get: function (version, cb) {
+  var mockedOsm = {
+    getByVersion: function (version, cb) {
       t.equal(version, testVersion)
       t.equal(typeof cb, 'function')
       cb(null, testDoc)
     }
-  }}
+  }
   var getElement = createGetElement(mockedOsm)
   getElement(testId, {version: testVersion}, (e, element) => {
     t.equal(element.id, testId)

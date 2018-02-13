@@ -8,11 +8,11 @@ var osm = osmdb()
 var getChanges = createGetChanges(osm)
 
 var batch0 = [
-  { type: 'put', key: 'A', value: { type: 'node', lat: 1.1, lon: 1.1, changeset: 'X' } },
-  { type: 'put', key: 'B', value: { type: 'node', lat: 2.1, lon: 2.1, changeset: 'X' } },
-  { type: 'put', key: 'C', value: { type: 'node', lat: 1.2, lon: 1.2, changeset: 'X' } },
-  { type: 'put', key: 'D', value: { type: 'way', refs: [ 'A', 'B', 'C' ], changeset: 'X' } },
-  { type: 'put', key: 'X', value: { type: 'changeset', tags: { created_by: 'osm-p2p test' } } }
+  { type: 'put', id: 'A', value: { type: 'node', lat: 1.1, lon: 1.1, changeset: 'X' } },
+  { type: 'put', id: 'B', value: { type: 'node', lat: 2.1, lon: 2.1, changeset: 'X' } },
+  { type: 'put', id: 'C', value: { type: 'node', lat: 1.2, lon: 1.2, changeset: 'X' } },
+  { type: 'put', id: 'D', value: { type: 'way', refs: [ 'A', 'B', 'C' ], changeset: 'X' } },
+  { type: 'put', id: 'X', value: { type: 'changeset', tags: { created_by: 'osm-p2p test' } } }
 ]
 
 var batch1 = [
@@ -24,24 +24,25 @@ var versions0 = {}
 var versions1 = {}
 
 test('setup', t => {
-  osm.batch(batch0, function (err, nodes) {
+  osm.batch(batch0, function (err, elms) {
     t.error(err)
-    nodes.forEach(n => (versions0[n.value.k] = n.key))
-    osm.batch(batch1, function (err, nodes) {
+    elms.forEach(elm => (versions0[elm.id] = elm.version))
+    osm.batch(batch1, function (err, elms) {
       t.error(err)
-      nodes.forEach(n => (versions1[n.value.k || n.value.d] = n.key))
+      elms.forEach(elm => (versions1[elm.id] = elm.version))
       t.end()
     })
   })
 })
 
 test.skip('getChanges', t => {
+  console.log('batch0', batch0)
   var expected = batch0.slice(0, 4).map(row => Object.assign({},
-    row.value, {action: 'create', id: row.key, version: versions0[row.key]})).map(refs2nodes)
+    row.value, {action: 'create', id: row.id, version: versions0[row.id]})).map(refs2nodes)
   expected.push(Object.assign({}, batch1[0].value,
-    {action: 'modify', id: batch1[0].key, version: versions1[batch1[0].key]}))
+    {action: 'modify', id: batch1[0].id, version: versions1[batch1[0].id]}))
   expected.push(Object.assign({}, batch0[1].value,
-    {action: 'delete', id: batch0[1].key, version: versions1[batch0[1].key]}))
+    {action: 'delete', id: batch0[1].id, version: versions1[batch0[1].id]}))
   getChanges('X', function (err, elements) {
     t.error(err)
     t.deepEqual(elements.sort(idcmp), expected.sort(idcmp))
