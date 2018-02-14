@@ -13,6 +13,7 @@ module.exports = function (osm) {
     }
     opts = opts || {}
     if (opts.history) {
+      throw new Error('NOT IMPLEMENTED')
       getHistory(id, cb)
     } else if (opts.version) {
       getVersion(id, opts.version, cb)
