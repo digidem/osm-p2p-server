@@ -36,7 +36,6 @@ test('setup', t => {
 })
 
 test.skip('getChanges', t => {
-  console.log('batch0', batch0)
   var expected = batch0.slice(0, 4).map(row => Object.assign({},
     row.value, {action: 'create', id: row.id, version: versions0[row.id]})).map(refs2nodes)
   expected.push(Object.assign({}, batch1[0].value,
