@@ -188,7 +188,7 @@ test('get relation', function (t) {
 })
 
 test('get osmchange doc', function (t) {
-  t.plan(3)
+  t.plan(4)
   var href = base + 'changeset/' + changeId + '/download'
   var hq = hyperquest(href, {
     headers: { 'content-type': 'text/xml' }
@@ -196,11 +196,12 @@ test('get osmchange doc', function (t) {
   hq.pipe(concat({ encoding: 'string' }, function (body) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osmChange')
-    t.equal(xml.root.children.length, 9)
-    xml.root.children.forEach(function (c) {
+    t.equal(xml.root.children[0].name, 'unknown')  // TODO: replace with real <action>
+    t.equal(xml.root.children[0].children.length, 9)
+    xml.root.children[0].children.forEach(function (c) {
       delete c.attributes.timestamp
     })
-    t.deepEqual(chfilter(xml.root.children).sort(cmpch), [
+    t.deepEqual(chfilter(xml.root.children[0].children).sort(cmpch), [
       { name: 'node',
         attributes: { id: keys.A, changeset: changeId, lat: '64.5', lon: '-121.5' },
         children: []
