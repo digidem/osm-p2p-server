@@ -26,6 +26,10 @@
     {
       "name": "Gregor MacLennan",
       "email": "gmaclennan@digital-democracy.org"
+    },
+    {
+      "name": "noffle",
+      "email": "sww@eight45.net"
     }
   ],
   "license": "BSD-2-Clause",
@@ -78,7 +82,8 @@
     "example": "example"
   },
   "scripts": {
-    "test": "nyc tap --no-timeout -j4 'test/**/*.js'",
+    "test": "tape 'test/**/*.js'",
+    "nyctest": "nyc tap --no-timeout -j4 'test/**/*.js'",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "lint": "standard"
   },
