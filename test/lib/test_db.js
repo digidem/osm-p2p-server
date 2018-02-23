@@ -36,10 +36,10 @@ function createThree (cb) {
   a.db.ready(function () {
     var b = testDb(a.db.key)
     b.db.ready(function () {
-      a.db.authorize(b.db.local.key, function () {
-        var c = testDb(a.db.key)
-        c.db.ready(function () {
-          a.db.authorize(c.db.local.key, function () {
+      var c = testDb(a.db.key)
+      c.db.ready(function () {
+        a.db.authorize(b.db.local.key, function () {
+          b.db.authorize(c.db.local.key, function () {
             cb(a, b, c)
           })
         })
