@@ -8,22 +8,29 @@ var filterSafeDeletes = require('../../lib/filter_deletes')
 
 var osm = osmdb()
 
+function toMember (id) {
+  return {
+    type: 'node',
+    id: id
+  }
+}
+
 test('filterSafeDeletes: setup db', t => {
   var batch0 = [
-    { type: 'put', key: 'A', value: { type: 'node', lat: 64.5, lon: -147.3 } },
-    { type: 'put', key: 'B', value: { type: 'node', lat: 63.9, lon: -147.6 } },
-    { type: 'put', key: 'C', value: { type: 'node', lat: 64.2, lon: -146.5 } },
-    { type: 'put', key: 'D', value: { type: 'node', lat: 64.123, lon: -147.56 } },
-    { type: 'put', key: 'E', value: { type: 'way', refs: [ 'A', 'B' ] } },
-    { type: 'put', key: 'F', value: { type: 'relation', refs: [ 'A', 'C', 'E' ] } },
-    { type: 'put', key: 'G', value: { type: 'way', refs: [ 'B', 'C' ] } },
-    { type: 'put', key: 'H', value: { type: 'relation', refs: [ 'F', 'G', 'I' ] } },
-    { type: 'put', key: 'I', value: { type: 'node', lat: 64.1, lon: -147.1 } },
-    { type: 'put', key: 'J', value: { type: 'node', lat: 64.2, lon: -147.2 } },
-    { type: 'put', key: 'K', value: { type: 'node', lat: 64.3, lon: -147.3 } },
-    { type: 'put', key: 'L', value: { type: 'node', lat: 64.4, lon: -147.4 } },
-    { type: 'put', key: 'M', value: { type: 'node', lat: 64.5, lon: -147.5 } },
-    { type: 'put', key: 'N', value: { type: 'way', refs: [ 'J', 'K', 'L', 'M' ] } }
+    { type: 'put', id: 'A', value: { type: 'node', lat: 64.5, lon: -147.3 } },
+    { type: 'put', id: 'B', value: { type: 'node', lat: 63.9, lon: -147.6 } },
+    { type: 'put', id: 'C', value: { type: 'node', lat: 64.2, lon: -146.5 } },
+    { type: 'put', id: 'D', value: { type: 'node', lat: 64.123, lon: -147.56 } },
+    { type: 'put', id: 'E', value: { type: 'way', refs: [ 'A', 'B' ] } },
+    { type: 'put', id: 'F', value: { type: 'relation', members: [ 'A', 'C', 'E' ].map(toMember) } },
+    { type: 'put', id: 'G', value: { type: 'way', refs: [ 'B', 'C' ] } },
+    { type: 'put', id: 'H', value: { type: 'relation', members: [ 'F', 'G', 'I' ].map(toMember) } },
+    { type: 'put', id: 'I', value: { type: 'node', lat: 64.1, lon: -147.1 } },
+    { type: 'put', id: 'J', value: { type: 'node', lat: 64.2, lon: -147.2 } },
+    { type: 'put', id: 'K', value: { type: 'node', lat: 64.3, lon: -147.3 } },
+    { type: 'put', id: 'L', value: { type: 'node', lat: 64.4, lon: -147.4 } },
+    { type: 'put', id: 'M', value: { type: 'node', lat: 64.5, lon: -147.5 } },
+    { type: 'put', id: 'N', value: { type: 'way', refs: [ 'J', 'K', 'L', 'M' ] } }
   ]
   osm.batch(batch0, function (err, nodes) {
     t.error(err)
