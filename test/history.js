@@ -121,7 +121,7 @@ test('create history', function (t) {
   }
 })
 
-test('history route', function (t) {
+test.skip('history route', function (t) {
   t.plan(8)
   var expected = [
     {

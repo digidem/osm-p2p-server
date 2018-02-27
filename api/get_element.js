@@ -13,8 +13,8 @@ module.exports = function (osm) {
     }
     opts = opts || {}
     if (opts.history) {
-      throw new Error('NOT IMPLEMENTED')
-      getHistory(id, cb)
+      cb(new Error('NOT IMPLEMENTED'))
+      // getHistory(id, cb)
     } else if (opts.version) {
       getVersion(id, opts.version, cb)
     } else {
@@ -47,25 +47,25 @@ module.exports = function (osm) {
     })
   }
 
-  function getHistory (id, cb) {
-    // TODO: use hyperdb's gethistorystream (better: expose on hyperdb-osm)
-    var r = osm.kv.createHistoryStream(id).on('error', function (err) {
-      if (/^notfound/i.test(err) || err.notFound) {
-        err = new errors.NotFound('element id: ' + id)
-      }
-      if (cb) return cb(err)
-      if (stream) return stream.emit('error', err)
-    })
-    if (cb) {
-      collect(r, function (err, rows) {
-        if (err) return cb(err)
-        cb(null, rows.map(rowMap))
-      })
-    } else {
-      var stream = r.pipe(mapStream.obj(rowMap))
-      return stream
-    }
-  }
+  // function getHistory (id, cb) {
+  //   // TODO: use hyperdb's gethistorystream (better: expose on hyperdb-osm)
+  //   var r = osm.kv.createHistoryStream(id).on('error', function (err) {
+  //     if (/^notfound/i.test(err) || err.notFound) {
+  //       err = new errors.NotFound('element id: ' + id)
+  //     }
+  //     if (cb) return cb(err)
+  //     if (stream) return stream.emit('error', err)
+  //   })
+  //   if (cb) {
+  //     collect(r, function (err, rows) {
+  //       if (err) return cb(err)
+  //       cb(null, rows.map(rowMap))
+  //     })
+  //   } else {
+  //     var stream = r.pipe(mapStream.obj(rowMap))
+  //     return stream
+  //   }
+  // }
 }
 
 function rowMap (row) {
