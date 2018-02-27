@@ -10,8 +10,16 @@ var slowdb = require('./slowdb.js')
 
 var DELAY = process.env.OSM_P2P_DB_DELAY
 
-function testServer (cb) {
-  var db = hyperdb(ram, { valueEncoding: 'json' })
+function testServer (key, cb) {
+  if (typeof key === 'function') {
+    cb = key
+    key = null
+  }
+
+  var db
+  if (key) db = hyperdb(ram, key, { valueEncoding: 'json' })
+  else db = hyperdb(ram, { valueEncoding: 'json' })
+
   var osm = hyperosm({
     db: db,
     index: DELAY ? slowdb({delay: DELAY}) : memdb(),

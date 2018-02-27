@@ -15,14 +15,16 @@ var DELAY = process.env.OSM_P2P_DB_DELAY
 test('do not include points from an excluded way fork', function (t) {
   t.plan(10)
 
-  // Has the base way
-  var osmBase = createOsm()
+  var osmBase, osmForkA, osmForkB
 
-  // Has a fork of the base way
-  var osmForkA = createOsm()
-
-  // Has a different fork of the base way
-  var osmForkB = createOsm()
+  function setup (cb) {
+    createOsm.createThree(function (a, b, c) {
+      osmBase = a  // Has the base way
+      osmForkA = b // Has a fork of the base way
+      osmForkB = c // Has a different fork of the base way
+      cb()
+    })
+  }
 
   var nodes = [
     {
@@ -53,6 +55,7 @@ test('do not include points from an excluded way fork', function (t) {
 
   // Run the test steps
   waterfall([
+    setup,
     step1,
     step2,
     step3,
@@ -70,7 +73,7 @@ test('do not include points from an excluded way fork', function (t) {
   function step1 (done) {
     createChangeset(osmBase, function (err, cs) {
       t.error(err)
-      createNodes(osmBase, nodes, cs, function (keys) {
+      createNodes(osmBase, nodes, cs, function (err, keys) {
         keyIds = keys
         createWay(osmBase, keys, cs, function (err, way, wayVersion) {
           t.error(err)
@@ -84,9 +87,11 @@ test('do not include points from an excluded way fork', function (t) {
 
   // 2. Replicate base osm to fork A osm
   function step2 (done) {
-    sync(osmBase, osmForkA, function (err) {
-      if (err) return done(err)
-      osmForkB.ready(done)
+    osmBase.ready(function () {
+      sync(osmBase, osmForkA, function (err) {
+        if (err) return done(err)
+        osmForkA.ready(done)
+      })
     })
   }
 
@@ -99,12 +104,12 @@ test('do not include points from an excluded way fork', function (t) {
     }
     createChangeset(osmForkA, function (err, cs) {
       t.error(err)
-      createNodes(osmForkA, [node], cs, function (keys) {
+      createNodes(osmForkA, [node], cs, function (err, keys) {
         var refs = keyIds.concat(keys)
         forkARefs = refs
         updateWay(osmForkA, wayId, wayVersionId, refs, cs, function (err, way) {
           t.error(err)
-          forkAWayVersionId = way.key
+          forkAWayVersionId = way.version
           done()
         })
       })
@@ -128,11 +133,11 @@ test('do not include points from an excluded way fork', function (t) {
     }
     createChangeset(osmForkB, function (err, cs) {
       t.error(err)
-      createNodes(osmForkB, [node], cs, function (keys) {
+      createNodes(osmForkB, [node], cs, function (err, keys) {
         var refs = keyIds.concat(keys)
         forkBRefs = refs
         updateWay(osmForkB, wayId, wayVersionId, refs, cs, function (err, way) {
-          forkBWayVersionId = way.key
+          forkBWayVersionId = way.version
           done(err)
         })
       })
@@ -149,7 +154,7 @@ test('do not include points from an excluded way fork', function (t) {
 
   // 7. Create an osm-p2p-server instance from fork A
   function step7 (done) {
-    createServer(function (d) {
+    createServer(osmBase.db.key, function (d) {
       osmServer = d
       done()
     })
@@ -203,15 +208,6 @@ test('do not include points from an excluded way fork', function (t) {
 test('no extra points from forks /w 1 deleted node and 1 modified node', function (t) {
   t.plan(11)
 
-  // Has the base way
-  var osmBase = createOsm()
-
-  // Has a fork /w a modified point
-  var osmForkA = createOsm()
-
-  // Has a fork /w a deleted point
-  var osmForkB = createOsm()
-
   var nodes = [
     {
       type: 'node',
@@ -227,6 +223,11 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
       type: 'node',
       lon: 0,
       lat: 1
+    },
+    {
+      type: 'node',
+      lon: 0,
+      lat: 2
     }
   ]
 
@@ -235,9 +236,20 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
   var keyIds
   var forkBRefs
   var osmServer
+  var osmBase, osmForkA, osmForkB
+
+  function setup (cb) {
+    createOsm.createThree(function (a, b, c) {
+      osmBase = a  // Has the base way
+      osmForkA = b // Has a fork of the base way
+      osmForkB = c // Has a different fork of the base way
+      cb()
+    })
+  }
 
   // Run the test steps
   waterfall([
+    setup,
     step1,
     step2,
     step3,
@@ -255,7 +267,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
   function step1 (done) {
     createChangeset(osmBase, function (err, cs) {
       t.error(err)
-      createNodes(osmBase, nodes, cs, function (keys) {
+      createNodes(osmBase, nodes, cs, function (err, keys) {
         keyIds = keys
         createWay(osmBase, keys, cs, function (err, way, wayVersion) {
           t.error(err)
@@ -284,8 +296,8 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
     }
     createChangeset(osmForkA, function (err, cs) {
       t.error(err)
-      createNodes(osmForkA, [node], cs, function (keys) {
-        var refs = keyIds.concat([])
+      createNodes(osmForkA, [node], cs, function (err, keys) {
+        var refs = keyIds.slice()
         refs[2] = keys[0]
         updateWay(osmForkA, wayId, wayVersionId, refs, cs, function (err, way) {
           t.error(err)
@@ -309,8 +321,8 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
       t.error(err)
       deleteNode(osmForkB, keyIds[2], cs, function (err) {
         t.error(err)
-        forkBRefs = keyIds.slice(0, 2)
-        updateWay(osmForkB, wayId, wayVersionId, keyIds.slice(0, 2), cs, function (err, way) {
+        forkBRefs = [keyIds[0], keyIds[1], keyIds[3]]
+        updateWay(osmForkB, wayId, wayVersionId, forkBRefs, cs, function (err, way) {
           done(err)
         })
       })
@@ -327,7 +339,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
 
   // 7. Create an osm-p2p-server instance from fork A
   function step7 (done) {
-    createServer(function (d) {
+    createServer(osmBase.db.key, function (d) {
       osmServer = d
       done()
     })
@@ -369,7 +381,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
       // TODO(noffle): Test for a failure, and if so, dump lots of debug
       // information so we can try and track down this bug
       // (https://github.com/digidem/osm-p2p-server/issues/28)
-      if (nodeIds.length !== 2) {
+      if (nodeIds.length !== 3) {
         console.error('ERROR -- show @noffle this output!')
         query(true, function (_, json) {
           console.error(json.toString())
@@ -379,7 +391,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
         // Ensure the way present matches the deleted fork, and the extra node
         // is not returned.
         t.equal(ways.length, 1)
-        t.equal(nodeIds.length, 2)
+        t.equal(nodeIds.length, 3)
         t.deepEqual(nodeIds.sort(), forkBRefs.sort())
 
         osmServer.server.cleanup(done)
@@ -393,12 +405,12 @@ function createNodes (osm, nodes, changesetId, done) {
   var keys = []
   ;(function next () {
     var node = nodes.shift()
-    if (!node) return done(keys)
+    if (!node) return done(null, keys)
     node.changeset = changesetId
     node.timestamp = (new Date()).toISOString()
-    osm.create(node, function (err, key) {
+    osm.create(node, function (err, elm) {
       if (err) return done(err)
-      keys.push(key)
+      keys.push(elm.id)
       next()
     })
   })()
@@ -421,8 +433,9 @@ function createWay (osm, nodeIds, changesetId, done) {
     refs: nodeIds,
     changeset: changesetId,
     timestamp: (new Date()).toISOString()
-  }, function (err, key, node) {
-    done(err, key, node.key)
+  }, function (err, elm) {
+    if (err) done(err)
+    else done(null, elm.id, elm.version)
   })
 }
 
@@ -434,7 +447,7 @@ function updateWay (osm, way, parentId, refs, changesetId, done) {
     changeset: changesetId,
     timestamp: (new Date()).toISOString()
   },
-  { links: [parentId] },
+  // { links: [parentId] },
   function (err, way) {
     done(err, way)
   })
@@ -444,8 +457,9 @@ function updateWay (osm, way, parentId, refs, changesetId, done) {
 function createChangeset (osm, done) {
   osm.create({
     type: 'changeset'
-  }, function (err, key, node) {
-    done(err, key, node.key)
+  }, function (err, elm) {
+    if (err) done(err)
+    else done(null, elm.id, elm.version)
   })
 }
 
