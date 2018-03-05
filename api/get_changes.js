@@ -48,10 +48,12 @@ module.exports = function (osm) {
       var self = this
       osm.getByVersion(row.version, function (err, element) {
         if (err) return next(err)
-        // TODO(noffle): set this correctly once https://github.com/mafintosh/hyperdb/issues/42 is solved
-        element.action = 'unknown'
-        self.push(refs2nodes(element))
-        next()
+        getElementAction(osm, element, function (err, action) {
+          if (err) return next(err)
+          element.action = action
+          self.push(refs2nodes(element))
+          next()
+        })
       })
     }
 
@@ -69,4 +71,16 @@ function isChangeset (docs) {
     if (docs[version].type === 'changeset') result = true
   })
   return result
+}
+
+// HyperDB, OsmElement => String
+function getElementAction (db, element, cb) {
+  if (element.deleted) {
+    return process.nextTick(cb, null, 'delete')
+  }
+  db.getPreviousHeads(element.version, function (err, elms) {
+    if (err) return cb(err)
+    if (elms.length > 0) cb(null, 'modify')
+    else cb(null, 'create')
+  })
 }

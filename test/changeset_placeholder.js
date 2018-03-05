@@ -135,7 +135,7 @@ test('get osmchange doc from upload', function (t) {
     var xml = parsexml(body)
     t.equal(xml.root.name, 'osmChange')
     t.equal(xml.root.children.length, 1)
-    t.equal(xml.root.children[0].name, 'unknown')  // TODO: fixme back to 'create'
+    t.equal(xml.root.children[0].name, 'create')
     var nodes = xml.root.children[0].children
     nodes.sort(cmpch)
     nodes.forEach(function (c) {
