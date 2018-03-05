@@ -337,7 +337,7 @@ test('no extra points from forks /w 1 deleted node and 1 modified node', functio
     })
   }
 
-  // 7. Create an osm-p2p-server instance from fork A
+  // 7. Create an osm-p2p-server instance
   function step7 (done) {
     createServer(osmBase.db.key, function (d) {
       osmServer = d
@@ -420,7 +420,7 @@ function createNodes (osm, nodes, changesetId, done) {
 function deleteNode (osm, nodeId, changesetId, done) {
   var op = {
     type: 'del',
-    key: nodeId,
+    id: nodeId,
     value: { type: 'node', changeset: changesetId }
   }
   osm.batch([op], done)
