@@ -1,4 +1,3 @@
-var xtend = require('xtend')
 var through = require('through2')
 var readonly = require('read-only-stream')
 var once = require('once')
@@ -31,9 +30,20 @@ module.exports = function (osm) {
         return onError(new errors.NotFound('changeset id: ' + id))
       }
       // An object stream {key: versionId, value: 0}
-      var r = osm.changeset.list(id, opts)
-      r.on('error', onError)
-      r.pipe(stream)
+      osm.getChanges(id, function (err, changes) {
+        if (err) return onError(err)
+        var pending = 1
+        changes.forEach(function (change) {
+          pending++
+          osm.getByVersion(change.version, function (err, doc) {
+            if (err) return onError(err)
+            if (!doc.action) doc.action = change.action || 'create'
+            stream.write(doc)
+            if (--pending === 0) stream.end()
+          })
+        })
+        if (--pending === 0) stream.end()
+      })
     })
     if (cb) {
       // If a callback is defined, collect the stream into an array
@@ -46,16 +56,8 @@ module.exports = function (osm) {
 
     function getDoc (row, enc, next) {
       var self = this
-      osm.log.get(row.key, function (err, doc) {
-        if (err) return next(err)
-        var element = xtend(doc.value.v, {
-          id: doc.value.k,
-          version: doc.key,
-          action: getAction(doc)
-        })
-        self.push(refs2nodes(element))
-        next()
-      })
+      self.push(refs2nodes(row))
+      next()
     }
 
     function onError (err) {
@@ -72,10 +74,4 @@ function isChangeset (docs) {
     if (docs[version].type === 'changeset') result = true
   })
   return result
-}
-
-function getAction (doc) {
-  if (doc.links.length === 0 && doc.value.d === undefined) return 'create'
-  if (doc.links.length > 0 && doc.value.d === undefined) return 'modify'
-  if (doc.value.d !== undefined) return 'delete'
 }

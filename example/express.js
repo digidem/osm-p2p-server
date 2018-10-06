@@ -1,12 +1,25 @@
-var osmdb = require('osm-p2p')
-var express = require('express')
+var kosm = require('kappa-osm')
+var kcore = require('kappa-core')
+var level = require('level')
+var raf = require('random-access-file')
 
-var osmRouter = require('../')
+var mkdirp = require('mkdirp')
+mkdirp.sync('/tmp/osm-p2p/storage')
+
+var osm = kosm({
+  index: level('/tmp/osm-p2p/index'),
+  core: kcore('/tmp/osm-p2p/core', { valueEncoding: 'json' }),
+  storage: function (name, cb) { cb(null, raf('/tmp/osm-p2p/storage/'+name)) }
+})
+
+var express = require('express')
+var router = require('../')(osm)
 
 var app = express()
-var osm = osmdb('/tmp/osm-p2p')
 
-app.use('/api/0.6', osmRouter(osm))
+app.use('/api/0.6', function (req, res, next) {
+  if (!router.handle(req, res)) next()
+})
 
 app.use(function handleError (err, req, res, next) {
   if (!err) return

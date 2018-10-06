@@ -16,10 +16,21 @@ if (argv.help || argv._[0] === 'help') {
   r.once('end', function () { process.exit(0) })
   r.pipe(process.stdout)
 } else {
-  var osmdb = require('osm-p2p')
-  var osm = osmdb(argv.datadir)
-  var osmrouter = require('../')
-  var router = osmrouter(osm)
+  var kosm = require('kappa-osm')
+  var kcore = require('kappa-core')
+  var level = require('level')
+  var raf = require('random-access-file')
+
+  var mkdirp = require('mkdirp')
+  mkdirp.sync(argv.datadir + '/storage')
+
+  var osm = kosm({
+    index: level(argv.datadir + '/index', { valueEncoding: 'binary' }),
+    core: kcore(argv.datadir + '/core', { valueEncoding: 'json' }),
+    storage: function (name, cb) { cb(null, raf(argv.datadir + '/storage/'+name)) }
+  })
+
+  var router = require('../')(osm)
   var version = require('../package.json').version
 
   var http = require('http')

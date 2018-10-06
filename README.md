@@ -116,16 +116,25 @@ The match object for `router.match('GET', '/api/0.6/node/1234')` would be:
 ### API Example
 
 ```js
-var osmdb = require('osm-p2p')
-var osm = osmdb('/tmp/osm-p2p')
+var kosm = require('kappa-osm')
+var kcore = require('kappa-core')
+var level = require('level')
+var raf = require('random-access-file')
 
-var osmrouter = require('osm-p2p-server')
-var router = osmrouter(osm)
+var mkdirp = require('mkdirp')
+mkdirp.sync('/tmp/osm-p2p/storage')
+
+var osm = kosm({
+  index: level('/tmp/osm-p2p/index'),
+  core: kcore('/tmp/osm-p2p/core', { valueEncoding: 'json' }),
+  storage: function (name, cb) { cb(null, raf('/tmp/osm-p2p/storage/'+name)) }
+})
+
+var router = require('osm-p2p-server')(osm)
 
 var http = require('http')
 var server = http.createServer(function (req, res) {
-  if (router.handle(req, res)) {}
-  else {
+  if (!router.handle(req, res)) {
     res.statusCode = 404
     res.end('not found\n')
   }
@@ -133,18 +142,46 @@ var server = http.createServer(function (req, res) {
 server.listen(5000)
 ```
 
+then you can try a few commands with curl to make sure it's working:
+
+```
+$ ID=$(echo '<osm><changeset></changeset></osm>' | curl -sSNT- -X PUT \
+  -H content-type:text/xml http://localhost:5000/api/0.6/changeset/create)
+$ echo $ID
+13535672379618402612
+$ echo '<osmChange version="1.0"><create><node id="-1"
+  changeset="'$ID'" lon="-155.0" lat="19.5" />
+</create></osmChange>' | curl -sSNT- -X POST \
+  -H content-type:text/xml \
+  http://localhost:5000/api/0.6/changeset/$ID/upload; echo
+<?xml version="1.0" encoding="UTF-8"?><diffResult version="0.6" generator="obj2osm"><node old_id="-1" new_id="16799736668021112616" new_version="96c42510f431c1372d40880a42933eb38cb8d5c65be95b7ea0d1c3bcadab41bc@1"/></diffResult>
+```
+
 ### Use as Express middleware
 
 ```js
-var osmdb = require('osm-p2p')
-var express = require('express')
+var kosm = require('kappa-osm')
+var kcore = require('kappa-core')
+var level = require('level')
+var raf = require('random-access-file')
 
-var osmRouter = require('../')
+var mkdirp = require('mkdirp')
+mkdirp.sync('/tmp/osm-p2p/storage')
+
+var osm = kosm({
+  index: level('/tmp/osm-p2p/index'),
+  core: kcore('/tmp/osm-p2p/core', { valueEncoding: 'json' }),
+  storage: function (name, cb) { cb(null, raf('/tmp/osm-p2p/storage/'+name)) }
+})
+
+var express = require('express')
+var router = require('osm-p2p-server')(osm)
 
 var app = express()
-var osm = osmdb('/tmp/osm-p2p')
 
-app.use('/api/0.6', osmRouter(osm))
+app.use('/api/0.6', function (req, res, next) {
+  if (!router.handle(req, res)) next()
+})
 
 app.use(function handleError (err, req, res, next) {
   if (!err) return

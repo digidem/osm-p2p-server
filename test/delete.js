@@ -193,7 +193,7 @@ test('list documents', function (t) {
       return c.attributes.id
     }).sort()
     t.deepEqual(rids, [
-      ids['-3'], ids['-5'], ids['-6']
+      ids['-2'], ids['-3'], ids['-5'], ids['-6']
     ].sort(), 'undeleted documents')
   }))
 })

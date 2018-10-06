@@ -1,8 +1,8 @@
 var http = require('http')
-var osmdb = require('osm-p2p-db')
+var kosm = require('kappa-osm')
+var kcore = require('kappa-core')
 var memdb = require('memdb')
-var hyperlog = require('hyperlog')
-var memstore = require('memory-chunk-store')
+var ram = require('random-access-memory')
 
 var osmrouter = require('../../')
 var slowdb = require('./slowdb.js')
@@ -10,10 +10,10 @@ var slowdb = require('./slowdb.js')
 var DELAY = process.env.OSM_P2P_DB_DELAY
 
 function testServer (cb) {
-  var osm = osmdb({
-    db: DELAY ? slowdb({delay: DELAY}) : memdb(),
-    log: hyperlog(memdb(), { valueEncoding: 'json' }),
-    store: memstore(4096)
+  var osm = kosm({
+    index: DELAY ? slowdb({delay: DELAY}) : memdb(),
+    core: kcore(ram, { valueEncoding: 'json' }),
+    storage: function (name, cb) { cb(null, ram()) }
   })
   var router = osmrouter(osm)
 
