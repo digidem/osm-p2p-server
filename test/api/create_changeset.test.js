@@ -28,10 +28,10 @@ test('createChangeset', t => {
   }
   var createChangeset = createCreateChangeset(mockedOsm)
   t.equal(typeof createChangeset, 'function')
-  createChangeset(testChangeset, function (err, id, node) {
+  createChangeset(testChangeset, function (err, id, elm) {
     t.equal(err, null)
     t.equal(id, testId)
-    t.equal(node, testNode)
+    t.equal(elm, testNode)
   })
 })
 
@@ -46,11 +46,11 @@ test('createChangeset real db', t => {
     }
   }
   var createChangeset = createCreateChangeset(osm)
-  createChangeset(testChangeset, function (err, id, node) {
+  createChangeset(testChangeset, function (err, id, elm) {
     t.equal(err, null)
-    t.equal(id, node.value.k)
-    t.deepEqual(node.value.v.tags, testChangeset.tags)
-    t.true(isISODate(node.value.v.created_at), 'adds ISO8601 date field created_at')
-    t.true(Date.now() - Date.parse(node.value.v.created_at) < 500, 'created_at should be pretty much now')
+    t.equal(id, elm.id)
+    t.deepEqual(elm.tags, testChangeset.tags)
+    t.true(isISODate(elm.created_at), 'adds ISO8601 date field created_at')
+    t.true(Date.now() - Date.parse(elm.created_at) < 500, 'created_at should be pretty much now')
   })
 })

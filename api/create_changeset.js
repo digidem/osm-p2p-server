@@ -8,9 +8,9 @@ module.exports = function (osm) {
     var op = Object.assign({}, changeset, {
       created_at: new Date().toISOString()
     })
-    osm.put(id, op, function (err, node) {
+    osm.put(id, op, function (err, elm) {
       if (err) return cb(err)
-      cb(null, id, node)
+      cb(null, id, elm)
     })
   }
 }
