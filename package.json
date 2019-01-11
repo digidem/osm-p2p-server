@@ -82,7 +82,7 @@
     "example": "example"
   },
   "scripts": {
-    "test": "nyc tap --no-timeout -j4 'test/*.js'",
+    "test": "nyc tap --no-timeout -j4 'test/*.js' 'test/lib/*.test.js' 'test/api/*.test.js'",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "lint": "standard"
   },
