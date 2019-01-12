@@ -5,7 +5,6 @@ var collectTransform = require('collect-transform-stream')
 var defork = require('osm-p2p-defork')
 var through = require('through2')
 
-var refs2nodes = require('../lib/util').refs2nodes
 var checkRefExist = require('../lib/check_ref_ex.js')
 
 module.exports = function (osm) {
@@ -98,4 +97,17 @@ function orderByType () {
     })
     next()
   }
+}
+
+function refs2nodes (doc) {
+  var element = { id: doc.id }
+  for (var prop in doc.element) {
+    if (!doc.element.hasOwnProperty(prop)) continue
+    if (prop === 'refs') {
+      element.nodes = doc.element.refs
+    } else {
+      element[prop] = doc.element[prop]
+    }
+  }
+  return element
 }

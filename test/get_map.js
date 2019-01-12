@@ -55,11 +55,10 @@ test('do not include points from an excluded way fork', function (t) {
       http.get(opts, function (res) {
         res.pipe(concat(function (json) {
           var data = JSON.parse(json)
-          var elms = data.elements.map(d => d.element)
           var nodeIds = data.elements
-            .filter(function (elm) { return elm.element.type === 'node' })
+            .filter(function (elm) { return elm.type === 'node' })
             .map(function (elm) { return elm.id })
-          var ways = elms.filter(function (elm) { return elm.type === 'way' })
+          var ways = data.elements.filter(function (elm) { return elm.type === 'way' })
 
           t.equal(ways.length, 1)
           t.deepEqual(nodeIds.sort(), nodeKeys.sort())
