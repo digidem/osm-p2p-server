@@ -1,9 +1,6 @@
-var osmApi = require('osm-p2p-api')
-
 module.exports = function createApi (osm) {
-  var api = osmApi(osm)
   return {
-    getMap: api.getMap,
+    getMap: require('./get_map.js')(osm),
     getElement: require('./get_element.js')(osm),
     createElement: require('./create_element.js')(osm),
     createChangeset: require('./create_changeset.js')(osm),
