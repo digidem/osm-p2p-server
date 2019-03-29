@@ -100,7 +100,7 @@ test('add docs to changeset', function (t) {
 })
 
 test('bbox', function (t) {
-  t.plan(8 + SIZE * 3)
+  t.plan(8 + SIZE * 4)
   var href = base + 'map?bbox=-123,63,-120,66'
   var hq = hyperquest(href)
   hq.once('response', function (res) {
@@ -180,7 +180,7 @@ test('out of range bbox', function (t) {
 })
 
 test('bbox json', function (t) {
-  t.plan(7 + SIZE * 3)
+  t.plan(7 + SIZE * 4)
   var href = base + 'map?bbox=-123,63,-120,66'
   var hq = hyperquest(href, {headers: { 'Accept': 'application/json' }})
   hq.once('response', function (res) {
