@@ -120,6 +120,7 @@ test('bbox', function (t) {
       var c = xml.root.children[i]
       var node = uploaded[c.attributes.id]
       if (c.name === 'node') {
+        t.ok(c.attributes.version)
         t.equal(c.attributes.changeset, node.changeset)
         t.equal(c.attributes.lat, String(node.lat))
         t.equal(c.attributes.lon, String(node.lon))
@@ -198,6 +199,7 @@ test('bbox json', function (t) {
       var c = json.elements[i]
       var node = uploaded[c.id]
       if (c.type === 'node') {
+        t.ok(c.version)
         t.equal(c.changeset, node.changeset)
         t.equal(c.lat, node.lat)
         t.equal(c.lon, node.lon)
