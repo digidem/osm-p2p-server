@@ -23,10 +23,10 @@ module.exports = function (osm) {
     var nodesSeen = {}
     var deletionFilter = through.obj(function (chunk, enc, next) {
       if (!chunk.deleted) {
-        if (chunk.element && chunk.element.type === 'node') {
+        if (chunk && chunk.type === 'node') {
           nodesSeen[chunk.id] = true
-        } else if (chunk.element && chunk.element.type === 'way') {
-          chunk.element.refs = (chunk.element.refs || []).filter(function (id) {
+        } else if (chunk && chunk.type === 'way') {
+          chunk.refs = (chunk.refs || []).filter(function (id) {
             return !!nodesSeen[id]
           })
         }
@@ -77,10 +77,10 @@ function orderByType () {
   var queue = { ways: [], relations: [] }
   return through.obj(write, end)
   function write (chunk, enc, next) {
-    if (chunk && chunk.element && chunk.element.type === 'way') {
+    if (chunk && chunk && chunk.type === 'way') {
       queue.ways.push(chunk)
       next()
-    } else if (chunk && chunk.element && chunk.element.type === 'relation') {
+    } else if (chunk && chunk.type === 'relation') {
       queue.relations.push(chunk)
       next()
     } else {
@@ -101,12 +101,12 @@ function orderByType () {
 
 function refs2nodes (doc) {
   var element = { id: doc.id }
-  for (var prop in doc.element) {
-    if (!doc.element.hasOwnProperty(prop)) continue
+  for (var prop in doc) {
+    if (!doc.hasOwnProperty(prop)) continue
     if (prop === 'refs') {
-      element.nodes = doc.element.refs
+      element.nodes = doc.refs
     } else {
-      element[prop] = doc.element[prop]
+      element[prop] = doc[prop]
     }
   }
   return element
