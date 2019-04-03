@@ -1,10 +1,12 @@
-var memdb = require('memdb')
+var level = require('level')
+var tmp = require('tmp')
 var EventEmitter = require('events').EventEmitter
 
 function slowdb (opts) {
   opts = opts || {}
   var delay = opts.delay || 100
-  var db = memdb()
+  var dir = tmp.dirSync().name
+  var db = level(dir)
   var slowdb = new EventEmitter()
   slowdb.setMaxListeners(Infinity)
   slowdb.db = {}
@@ -27,6 +29,7 @@ function slowdb (opts) {
   slowdb.batch = db.batch.bind(db)
   slowdb.createReadStream = db.createReadStream.bind(db)
   slowdb.open = db.open.bind(db)
+  slowdb.iterator = db.iterator.bind(db)
   slowdb.isOpen = db.isOpen.bind(db)
   db.on('open', slowdb.emit.bind(slowdb, 'open'))
   return slowdb

@@ -75,6 +75,7 @@
     "standard": "^8.0.0",
     "tap": "^10.1.0",
     "tape": "^4.4.0",
+    "tmp": "^0.1.0",
     "xml-parser": "^1.2.1"
   },
   "directories": {
