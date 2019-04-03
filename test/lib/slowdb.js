@@ -26,6 +26,7 @@ function slowdb (opts) {
   slowdb.del = db.del.bind(db)
   slowdb.batch = db.batch.bind(db)
   slowdb.createReadStream = db.createReadStream.bind(db)
+  slowdb.open = db.open.bind(db)
   slowdb.isOpen = db.isOpen.bind(db)
   db.on('open', slowdb.emit.bind(slowdb, 'open'))
   return slowdb
