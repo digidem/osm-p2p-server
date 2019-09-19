@@ -39,7 +39,7 @@
     "debug": "^2.2.0",
     "from2-array": "0.0.4",
     "inherits": "^2.0.1",
-    "level": "^4.0.0",
+    "level": "^5.0.1",
     "minimist": "^1.2.0",
     "mkdirp": "~0.5.1",
     "obj2osm": "^2.0.0",
