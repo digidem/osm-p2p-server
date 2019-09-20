@@ -1,11 +1,18 @@
-# Change Log
-All notable changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/).
+# Changelog
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [5.0.0](https://github.com/digidem/osm-p2p-server/compare/v4.0.0...v5.0.0) (2019-09-20)
 
 
-## Unreleased
-### Fixed
-- Add empty links array to new element in changelog uploads, avoids unnecessary lookups in hyperkv for previous versions of a new element
+### ⚠ BREAKING CHANGES
+
+* Update Level to v5 ([4984a80](https://github.com/digidem/osm-p2p-server/commit/4984a80))
+
+
+### Features
+
+* Add node 12 support ([527ebde](https://github.com/digidem/osm-p2p-server/commit/527ebde))
 
 ## [2.1.5]
 ### Fixed
