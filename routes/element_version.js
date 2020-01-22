@@ -1,5 +1,5 @@
 var Readable = require('readable-stream').Readable
-var toOsm = require('obj2osm')
+var toOsm = require('../lib/obj2osm')
 
 module.exports = function (req, res, api, params, next) {
   api.getElement(params.id, {version: params.version}, function (err, element) {

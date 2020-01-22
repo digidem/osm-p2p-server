@@ -1,5 +1,5 @@
 var qs = require('query-string')
-var toOsm = require('obj2osm')
+var toOsm = require('../lib/obj2osm')
 var accepts = require('accepts')
 
 var OsmJSONStream = require('../lib/util').OsmJSONStream

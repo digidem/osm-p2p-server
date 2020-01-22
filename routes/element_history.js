@@ -1,4 +1,4 @@
-var toOsm = require('obj2osm')
+var toOsm = require('../lib/obj2osm')
 var fromArray = require('from2-array')
 
 module.exports = function (req, res, api, params, next) {

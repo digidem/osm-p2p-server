@@ -13,6 +13,7 @@ module.exports = function (osm) {
       cb = opts
       opts = {}
     }
+    opts.observations = true
     opts.forks = opts.forks || false
     opts.order = 'type'
 
