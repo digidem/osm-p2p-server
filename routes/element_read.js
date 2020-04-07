@@ -1,7 +1,7 @@
 var qs = require('query-string')
 var fromArray = require('from2-array')
-var toOsm = require('obj2osm')
 
+var toOsm = require('../lib/obj2osm')
 var cmpFork = require('../lib/util').cmpFork
 
 module.exports = function (req, res, api, params, next) {

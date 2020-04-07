@@ -1,6 +1,6 @@
 var collect = require('collect-stream')
-var osm2Obj = require('osm2obj')
 
+var osm2Obj = require('../lib/osm2obj')
 var isValidContentType = require('../lib/util').isValidContentType
 var errors = require('../errors')
 
@@ -9,7 +9,7 @@ module.exports = function (req, res, api, params, next) {
     return next(new errors.UnsupportedContentType())
   }
 
-  var r = req.pipe(osm2Obj({coerceIds: false}))
+  var r = req.pipe(osm2Obj(api, {coerceIds: false}))
   collect(r, function (err, ops) {
     if (err || !ops.length) return next(new errors.XmlParseError(err))
     if (ops.length !== 1) {

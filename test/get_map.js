@@ -8,6 +8,11 @@ var createServer = require('./lib/test_server.js')
 test('do not include points from an excluded way fork', function (t) {
   var nodes = [
     {
+      type: 'observation',
+      lon: 2,
+      lat: 1
+    },
+    {
       type: 'node',
       lon: 0,
       lat: -1
@@ -78,8 +83,10 @@ function createNodes (osm, nodes, changesetId, done) {
   ;(function next () {
     var node = nodes.shift()
     if (!node) return done(keys)
-    node.changeset = changesetId
-    node.timestamp = (new Date()).toISOString()
+    if (node.type === 'node') {
+      node.changeset = changesetId
+      node.timestamp = (new Date()).toISOString()
+    }
     osm.create(node, function (err, key) {
       if (err) return done(err)
       keys.push(key)
