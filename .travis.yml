@@ -1,8 +1,9 @@
 language: node_js
 node_js:
 - '8'
-- '10'
-- '12'
+- '10.13.0'
+- '12.4.0'
+- '12.14.1'
 os:
 - windows
 - osx
