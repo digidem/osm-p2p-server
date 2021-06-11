@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.0.0](https://github.com/digidem/osm-p2p-server/compare/v6.0.0...v7.0.0) (2021-06-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* The location of observations is supposed to be
+immutable. We cannot block the user moving points in iD Editor, so
+instead we ignore changes to location on save.
+
+### Bug Fixes
+
+* Do not allow edits to observation location ([5b33c59](https://github.com/digidem/osm-p2p-server/commit/5b33c59575bf2cc7cfddaae019871fcff2d2d69d))
+
 ## [5.0.0](https://github.com/digidem/osm-p2p-server/compare/v4.0.0...v5.0.0) (2019-09-20)
 
 
