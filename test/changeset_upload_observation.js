@@ -106,7 +106,10 @@ test('add docs to changeset', function (t) {
   }))
   hq.end(`<osmChange version="1.0" generator="acme osm editor">
     <modify>
-      <node version="${version}" id="${id}" changeset="${changeId}" lat="111" lon="222"/>
+      <node version="${version}" id="${id}" changeset="${changeId}" lat="111" lon="222">
+        <tag k="obs" v="foo" />
+        <tag k="new" v="yes" />
+      </node>
     </modify>
   </osmChange>`)
 
@@ -119,13 +122,32 @@ test('add docs to changeset', function (t) {
       {
         name: 'node',
         attributes: {
-          lat: '111',
-          lon: '222',
+          // Lat and lon should not be changed
+          lat: '1',
+          lon: '2',
           id: id,
           version: newv,
           changeset: changeId
         },
-        children: []
+        content: '',
+        children: [
+          {
+            name: 'tag',
+            attributes: {
+              k: 'obs',
+              v: 'foo'
+            },
+            children: []
+          },
+          {
+            name: 'tag',
+            attributes: {
+              k: 'new',
+              v: 'yes'
+            },
+            children: []
+          }
+        ]
       }
     ])
   }
@@ -176,4 +198,3 @@ test('changeset_upload.js: teardown server', function (t) {
     t.end()
   })
 })
-
